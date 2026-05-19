@@ -83,14 +83,7 @@ class Project(Vertical, can_focus=True, can_focus_children=False):
         yield Link(info.url, tooltip="Click to open project repository")
         yield Static(info.description, classes="description")
 
-    @on(events.Enter)
-    @on(events.Leave)
-    def on_enter(self, event: events.Enter):
-        event.stop()
-        self.set_class(self.is_mouse_over, "-hover")
 
-    def action_open_repository(self) -> None:
-        self.app.open_url(self.project_info.url)
 
 
 class ProjectsScreen(PageScreen):

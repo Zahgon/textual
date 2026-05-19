@@ -53,14 +53,7 @@ def _detect_newline_style(text: str) -> Newline:
     Returns:
         The Newline used in the file.
     """
-    if "\r\n" in text:  # Windows newline
-        return "\r\n"
-    elif "\n" in text:  # Unix/Linux/MacOS newline
-        return "\n"
-    elif "\r" in text:  # Old MacOS newline
-        return "\r"
-    else:
-        return "\n"  # Default to Unix style newline
+    pass
 
 
 class DocumentBase(ABC):
@@ -223,17 +216,17 @@ class Document(DocumentBase):
 
         The newline character used in this document can be found via the `Document.newline` property.
         """
-        return self._lines
+        pass
 
     @property
     def text(self) -> str:
         """Get the text from the document."""
-        return self._newline.join(self._lines)
+        pass
 
     @property
     def newline(self) -> Newline:
         """Get the Newline used in this document (e.g. '\r\n', '\n'. etc.)"""
-        return self._newline
+        pass
 
     def get_size(self, tab_width: int) -> Size:
         """The Size of the document, taking into account the tab rendering width.
@@ -341,7 +334,7 @@ class Document(DocumentBase):
     @property
     def line_count(self) -> int:
         """Returns the number of lines in the document."""
-        return len(self._lines)
+        pass
 
     @property
     def start(self) -> Location:
@@ -363,11 +356,7 @@ class Document(DocumentBase):
         Returns:
             The index in the document's text.
         """
-        row, column = location
-        index = row * len(self.newline) + column
-        for line_index in range(row):
-            index += len(self.get_line(line_index))
-        return index
+        pass
 
     def get_location_from_index(self, index: int) -> Location:
         """Given a codepoint index in the document's text, returns the corresponding location.
@@ -381,25 +370,7 @@ class Document(DocumentBase):
         Raises:
             ValueError: If the index is doesn't correspond to a location in the document.
         """
-        error_message = (
-            f"Index {index!r} does not correspond to a location in the document."
-        )
-        if index < 0 or index > len(self.text):
-            raise ValueError(error_message)
-
-        column_index = 0
-        newline_length = len(self.newline)
-        for line_index in range(self.line_count):
-            next_column_index = (
-                column_index + len(self.get_line(line_index)) + newline_length
-            )
-            if index < next_column_index:
-                return (line_index, index - column_index)
-            elif index == next_column_index:
-                return (line_index + 1, 0)
-            column_index = next_column_index
-
-        raise ValueError(error_message)
+        pass
 
     def get_line(self, index: int) -> str:
         """Returns the line with the given index from the document.
@@ -464,8 +435,7 @@ class Selection(NamedTuple):
     @property
     def is_empty(self) -> bool:
         """Return True if the selection has 0 width, i.e. it's just a cursor."""
-        start, end = self
-        return start == end
+        pass
 
     def contains_line(self, y: int) -> bool:
         """Check if the given line is within the selection."""

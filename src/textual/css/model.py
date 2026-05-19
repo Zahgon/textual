@@ -56,7 +56,7 @@ def _check_universal(name: str, node: DOMNode) -> bool:
     Returns:
         `True` if the selector matches.
     """
-    return not node.has_class("-textual-system")
+    pass
 
 
 def _check_type(name: str, node: DOMNode) -> bool:
@@ -69,7 +69,7 @@ def _check_type(name: str, node: DOMNode) -> bool:
     Returns:
         `True` if the selector matches.
     """
-    return name in node._css_type_names
+    pass
 
 
 def _check_class(name: str, node: DOMNode) -> bool:
@@ -82,7 +82,7 @@ def _check_class(name: str, node: DOMNode) -> bool:
     Returns:
         `True` if the selector matches.
     """
-    return name in node._classes
+    pass
 
 
 def _check_id(name: str, node: DOMNode) -> bool:
@@ -95,7 +95,7 @@ def _check_id(name: str, node: DOMNode) -> bool:
     Returns:
         `True` if the selector matches.
     """
-    return node.id == name
+    pass
 
 
 _CHECKS = {
@@ -131,15 +131,7 @@ class Selector:
     @property
     def css(self) -> str:
         """Rebuilds the selector as it would appear in CSS."""
-        pseudo_suffix = "".join(f":{name}" for name in sorted(self.pseudo_classes))
-        if self.type == SelectorType.UNIVERSAL:
-            return "*"
-        elif self.type == SelectorType.TYPE:
-            return f"{self.name}{pseudo_suffix}"
-        elif self.type == SelectorType.CLASS:
-            return f".{self.name}{pseudo_suffix}"
-        else:
-            return f"#{self.name}{pseudo_suffix}"
+        pass
 
     def _add_pseudo_class(self, pseudo_class: str) -> None:
         """Adds a pseudo class and updates specificity.
@@ -189,18 +181,11 @@ class SelectorSet:
         for selector, next_selector in zip(self.selectors, self.selectors[1:]):
             selector.advance = int(next_selector.combinator != SAME)
 
-    @property
-    def css(self) -> str:
-        return RuleSet._selector_to_css(self.selectors)
 
     @property
     def is_simple(self) -> bool:
         """Are all the selectors simple (i.e. only dependent on static DOM state)."""
-        simple_types = {SelectorType.ID, SelectorType.TYPE}
-        return all(
-            (selector.type in simple_types and not selector.pseudo_classes)
-            for selector in self.selectors
-        )
+        pass
 
     def __rich_repr__(self) -> rich.repr.Result:
         selectors = RuleSet._selector_to_css(self.selectors)
@@ -248,24 +233,7 @@ class RuleSet:
     def __hash__(self):
         return id(self)
 
-    @classmethod
-    def _selector_to_css(cls, selectors: list[Selector]) -> str:
-        tokens: list[str] = []
-        for selector in selectors:
-            if selector.combinator == CombinatorType.DESCENDENT:
-                tokens.append(" ")
-            elif selector.combinator == CombinatorType.CHILD:
-                tokens.append(" > ")
-            tokens.append(selector.css)
 
-        return "".join(tokens).strip()
-
-    @property
-    def selectors(self):
-        return ", ".join(
-            self._selector_to_css(selector_set.selectors)
-            for selector_set in self.selector_set
-        )
 
     @property
     def css(self) -> str:
@@ -274,9 +242,7 @@ class RuleSet:
         Returns:
             A string containing CSS code.
         """
-        declarations = "\n".join(f"    {line}" for line in self.styles.css_lines)
-        css = f"{self.selectors} {{\n{declarations}\n}}"
-        return css
+        pass
 
     def _post_parse(self) -> None:
         """Called after the RuleSet is parsed."""

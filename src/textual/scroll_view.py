@@ -35,28 +35,16 @@ class ScrollView(ScrollableContainer):
     @property
     def is_scrollable(self) -> bool:
         """Always scrollable."""
-        return True
+        pass
 
     @property
     def is_container(self) -> bool:
         """Since a ScrollView should be a line-api widget, it won't have children,
         and therefore isn't a container."""
-        return False
+        pass
 
-    def watch_scroll_x(self, old_value: float, new_value: float) -> None:
-        if self.show_horizontal_scrollbar:
-            self.horizontal_scrollbar.position = new_value
-        if round(old_value) != round(new_value):
-            self.refresh(self.size.region)
 
-    def watch_scroll_y(self, old_value: float, new_value: float) -> None:
-        if self.show_vertical_scrollbar:
-            self.vertical_scrollbar.position = new_value
-        if round(old_value) != round(new_value):
-            self.refresh(self.size.region)
 
-    def on_mount(self):
-        self._refresh_scrollbars()
 
     def get_content_width(self, container: Size, viewport: Size) -> int:
         """Gets the width of the content area.
@@ -171,14 +159,7 @@ class ScrollView(ScrollableContainer):
         Args:
             y: Coordinate of line.
         """
-        self.refresh(
-            Region(
-                0,
-                y - self.scroll_offset.y,
-                max(self.virtual_size.width, self.size.width),
-                1,
-            )
-        )
+        pass
 
     def refresh_lines(self, y_start: int, line_count: int = 1) -> None:
         """Refresh one or more lines.

@@ -54,11 +54,7 @@ class ContentTab(Tab):
         Returns:
             The ID with the prefix removed.
         """
-        return (
-            content_id[len(cls._PREFIX) :]
-            if content_id.startswith(cls._PREFIX)
-            else content_id
-        )
+        pass
 
     def __init__(
         self, label: ContentType, content_id: str, disabled: bool = False
@@ -103,7 +99,7 @@ class ContentTabs(Tabs):
         Returns:
             The tab associated with that ID.
         """
-        return self.query_one(f"#{ContentTab.add_prefix(tab_id)}", ContentTab)
+        pass
 
     def disable(self, tab_id: str) -> Tab:
         """Disable the indicated tab.
@@ -145,7 +141,7 @@ class ContentTabs(Tabs):
         Raises:
             TabError: If there are any issues with the request.
         """
-        return super().hide(ContentTab.add_prefix(tab_id))
+        pass
 
     def show(self, tab_id: str) -> Tab:
         """Show the indicated tab.
@@ -159,7 +155,7 @@ class ContentTabs(Tabs):
         Raises:
             TabError: If there are any issues with the request.
         """
-        return super().show(ContentTab.add_prefix(tab_id))
+        pass
 
 
 class TabPane(Widget):
@@ -188,7 +184,7 @@ class TabPane(Widget):
             This is an alias for the attribute `tab_pane` and is used by the
             [`on`][textual.on] decorator.
             """
-            return self.tab_pane
+            pass
 
     @dataclass
     class Disabled(TabPaneMessage):
@@ -228,11 +224,11 @@ class TabPane(Widget):
 
     def _watch_disabled(self, disabled: bool) -> None:
         """Notify the parent `TabbedContent` that a tab pane was enabled/disabled."""
-        self.post_message(self.Disabled(self) if disabled else self.Enabled(self))
+        pass
 
     def _on_descendant_focus(self, event: events.DescendantFocus):
         """Tell TabbedContent parent something is focused in this pane."""
-        self.post_message(self.Focused(self))
+        pass
 
 
 class TabbedContent(Widget):
@@ -279,7 +275,7 @@ class TabbedContent(Widget):
             This is an alias for [`TabActivated.tabbed_content`][textual.widgets.TabbedContent.TabActivated.tabbed_content]
             and is used by the [`on`][textual.on] decorator.
             """
-            return self.tabbed_content
+            pass
 
         def __rich_repr__(self) -> Result:
             yield self.tabbed_content
@@ -310,7 +306,7 @@ class TabbedContent(Widget):
             This is an alias for [`Cleared.tabbed_content`][textual.widgets.TabbedContent.Cleared.tabbed_content]
             and is used by the [`on`][textual.on] decorator.
             """
-            return self.tabbed_content
+            pass
 
     def __init__(
         self,
@@ -340,10 +336,7 @@ class TabbedContent(Widget):
     @property
     def active_pane(self) -> TabPane | None:
         """The currently active pane, or `None` if no pane is active."""
-        active = self.active
-        if not active:
-            return None
-        return self.get_pane(self.active)
+        pass
 
     @staticmethod
     def _set_id(content: TabPane, new_id: int) -> TabPane:
@@ -431,22 +424,7 @@ class TabbedContent(Widget):
             Only one of `before` or `after` can be provided. If both are
             provided an exception is raised.
         """
-        if isinstance(before, TabPane):
-            before = before.id
-        if isinstance(after, TabPane):
-            after = after.id
-        tabs = self.get_child_by_type(ContentTabs)
-        pane = self._set_id(pane, self._generate_tab_id())
-        assert pane.id is not None
-        pane.display = False
-        return AwaitComplete(
-            tabs.add_tab(
-                ContentTab(pane._title, pane.id),
-                before=before if before is None else ContentTab.add_prefix(before),
-                after=after if after is None else ContentTab.add_prefix(after),
-            ),
-            self.get_child_by_type(ContentSwitcher).mount(pane),
-        )
+        pass
 
     def remove_pane(self, pane_id: str) -> AwaitComplete:
         """Remove a given pane from the tabbed content.
@@ -458,23 +436,7 @@ class TabbedContent(Widget):
             An optionally awaitable object that waits for the pane to be removed
                 and the Cleared message to be posted.
         """
-        removal_awaitables: list[Awaitable] = [
-            self.get_child_by_type(ContentTabs).remove_tab(
-                ContentTab.add_prefix(pane_id)
-            )
-        ]
-        try:
-            removal_awaitables.append(
-                self.get_child_by_type(ContentSwitcher)
-                .get_child_by_id(pane_id)
-                .remove()
-            )
-        except NoMatches:
-            # It's possible that the content itself may have gone away via
-            # other means; so allow that to be a no-op.
-            pass
-
-        return AwaitComplete(*removal_awaitables)
+        pass
 
     def clear_panes(self) -> AwaitComplete:
         """Remove all the panes in the tabbed content.
@@ -483,15 +445,7 @@ class TabbedContent(Widget):
             An optionally awaitable object which waits for all panes to be removed
                 and the Cleared message to be posted.
         """
-        await_clear = gather(
-            self.get_child_by_type(ContentTabs).clear(),
-            self.get_child_by_type(ContentSwitcher).remove_children(),
-        )
-
-        async def _clear_content() -> None:
-            await await_clear
-
-        return AwaitComplete(_clear_content())
+        pass
 
     def compose_add_child(self, widget: Widget) -> None:
         """When using the context manager compose syntax, we want to attach nodes to the switcher.
@@ -503,41 +457,16 @@ class TabbedContent(Widget):
 
     def _on_tabs_tab_activated(self, event: Tabs.TabActivated) -> None:
         """User clicked a tab."""
-        if self._is_associated_tabs(event.tabs):
-            # The message is relevant, so consume it and update state accordingly.
-            event.stop()
-            assert event.tab.id is not None
-            switcher = self.get_child_by_type(ContentSwitcher)
-            switcher.current = ContentTab.sans_prefix(event.tab.id)
-            with self.prevent(self.TabActivated):
-                # We prevent TabbedContent.TabActivated because it is also
-                # posted from the watcher for active, we're also about to
-                # post it below too, which is valid as here we're reacting
-                # to what the Tabs are doing. This ensures we don't get
-                # doubled-up messages.
-                self.active = ContentTab.sans_prefix(event.tab.id)
-            self.post_message(
-                TabbedContent.TabActivated(
-                    tabbed_content=self,
-                    tab=self.get_child_by_type(ContentTabs).get_content_tab(
-                        self.active
-                    ),
-                )
-            )
+        pass
 
     def _on_tab_pane_focused(self, event: TabPane.Focused) -> None:
         """One of the panes contains a widget that was programmatically focused."""
-        event.stop()
-        if event.tab_pane.id is not None:
-            self.active = event.tab_pane.id
+        pass
 
     def _on_tabs_cleared(self, event: Tabs.Cleared) -> None:
         """Called when there are no active tabs. The tabs may have been cleared,
         or they may all be hidden."""
-        if self._is_associated_tabs(event.tabs):
-            event.stop()
-            self.get_child_by_type(ContentSwitcher).current = None
-            self.active = ""
+        pass
 
     def _is_associated_tabs(self, tabs: Tabs) -> bool:
         """Determine whether a tab is associated with this TabbedContent or not.
@@ -552,29 +481,16 @@ class TabbedContent(Widget):
         Returns:
             True if the tab is associated with this `TabbedContent`.
         """
-        return isinstance(tabs, ContentTabs) and tabs.tabbed_content is self
+        pass
 
     def _watch_active(self, active: str) -> None:
         """Switch tabs when the active attributes changes."""
-        with self.prevent(Tabs.TabActivated, Tabs.Cleared):
-            self.get_child_by_type(ContentTabs).active = ContentTab.add_prefix(active)
-        self.get_child_by_type(ContentSwitcher).current = active
-        if active:
-            self.post_message(
-                TabbedContent.TabActivated(
-                    tabbed_content=self,
-                    tab=self.get_child_by_type(ContentTabs).get_content_tab(active),
-                )
-            )
-        else:
-            self.post_message(
-                TabbedContent.Cleared(tabbed_content=self).set_sender(self)
-            )
+        pass
 
     @property
     def tab_count(self) -> int:
         """Total number of tabs."""
-        return self.get_child_by_type(ContentTabs).tab_count
+        pass
 
     def get_tab(self, pane_id: str | TabPane) -> Tab:
         """Get the `Tab` associated with the given ID or `TabPane`.
@@ -588,11 +504,7 @@ class TabbedContent(Widget):
         Raises:
             ValueError: Raised if no ID was available.
         """
-        if target_id := (pane_id if isinstance(pane_id, str) else pane_id.id):
-            return self.get_child_by_type(ContentTabs).get_content_tab(target_id)
-        raise ValueError(
-            "'pane_id' must be a non-empty string or a TabPane with an id."
-        )
+        pass
 
     def get_pane(self, pane_id: str | ContentTab) -> TabPane:
         """Get the `TabPane` associated with the given ID or tab.
@@ -606,66 +518,23 @@ class TabbedContent(Widget):
         Raises:
             ValueError: Raised if no ID was available.
         """
-        target_id: str | None = None
-        if isinstance(pane_id, ContentTab):
-            target_id = (
-                pane_id.id if pane_id.id is None else ContentTab.sans_prefix(pane_id.id)
-            )
-        else:
-            target_id = pane_id
-        if target_id:
-            pane = self.get_child_by_type(ContentSwitcher).get_child_by_id(target_id)
-            assert isinstance(pane, TabPane)
-            return pane
-        raise ValueError(
-            "'pane_id' must be a non-empty string or a ContentTab with an id."
-        )
+        pass
 
     def _on_tabs_tab_disabled(self, event: Tabs.TabDisabled) -> None:
         """Disable the corresponding tab pane."""
-        if event.tabs.parent is not self:
-            return
-        event.stop()
-        tab_id = event.tab.id or ""
-        try:
-            with self.prevent(TabPane.Disabled):
-                self.get_child_by_type(ContentSwitcher).get_child_by_id(
-                    ContentTab.sans_prefix(tab_id), expect_type=TabPane
-                ).disabled = True
-        except NoMatches:
-            return
+        pass
 
     def _on_tab_pane_disabled(self, event: TabPane.Disabled) -> None:
         """Disable the corresponding tab."""
-        event.stop()
-        try:
-            with self.prevent(Tab.Disabled):
-                self.get_tab(event.tab_pane).disabled = True
-        except NoMatches:
-            return
+        pass
 
     def _on_tabs_tab_enabled(self, event: Tabs.TabEnabled) -> None:
         """Enable the corresponding tab pane."""
-        if event.tabs.parent is not self:
-            return
-        event.stop()
-        tab_id = event.tab.id or ""
-        try:
-            with self.prevent(TabPane.Enabled):
-                self.get_child_by_type(ContentSwitcher).get_child_by_id(
-                    ContentTab.sans_prefix(tab_id), expect_type=TabPane
-                ).disabled = False
-        except NoMatches:
-            return
+        pass
 
     def _on_tab_pane_enabled(self, event: TabPane.Enabled) -> None:
         """Enable the corresponding tab."""
-        event.stop()
-        try:
-            with self.prevent(Tab.Disabled):
-                self.get_tab(event.tab_pane).disabled = False
-        except NoMatches:
-            return
+        pass
 
     def disable_tab(self, tab_id: str) -> None:
         """Disables the tab with the given ID.
@@ -676,8 +545,7 @@ class TabbedContent(Widget):
         Raises:
             Tabs.TabError: If there are any issues with the request.
         """
-
-        self.get_child_by_type(ContentTabs).disable(tab_id)
+        pass
 
     def enable_tab(self, tab_id: str) -> None:
         """Enables the tab with the given ID.
@@ -688,8 +556,7 @@ class TabbedContent(Widget):
         Raises:
             Tabs.TabError: If there are any issues with the request.
         """
-
-        self.get_child_by_type(ContentTabs).enable(tab_id)
+        pass
 
     def hide_tab(self, tab_id: str) -> None:
         """Hides the tab with the given ID.
@@ -700,8 +567,7 @@ class TabbedContent(Widget):
         Raises:
             Tabs.TabError: If there are any issues with the request.
         """
-
-        self.get_child_by_type(ContentTabs).hide(tab_id)
+        pass
 
     def show_tab(self, tab_id: str) -> None:
         """Shows the tab with the given ID.
@@ -712,5 +578,4 @@ class TabbedContent(Widget):
         Raises:
             Tabs.TabError: If there are any issues with the request.
         """
-
-        self.get_child_by_type(ContentTabs).show(tab_id)
+        pass

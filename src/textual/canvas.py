@@ -170,12 +170,12 @@ class Canvas:
     @property
     def width(self) -> int:
         """The canvas width."""
-        return self._width
+        pass
 
     @property
     def height(self) -> int:
         """The canvas height."""
-        return self._height
+        pass
 
     def x_range(self, start: int, end: int) -> range:
         """Range of x values, clipped to the canvas dimensions.

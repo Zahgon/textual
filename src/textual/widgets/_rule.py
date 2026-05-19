@@ -177,25 +177,8 @@ class Rule(Widget, can_focus=False):
                 f"Valid rule orientations are {friendly_list(_VALID_RULE_ORIENTATIONS)}"
             )
 
-    def watch_orientation(
-        self, old_orientation: RuleOrientation, orientation: RuleOrientation
-    ) -> None:
-        self.remove_class(f"-{old_orientation}")
-        self.add_class(f"-{orientation}")
 
-    def validate_orientation(self, orientation: RuleOrientation) -> RuleOrientation:
-        if orientation not in _VALID_RULE_ORIENTATIONS:
-            raise InvalidRuleOrientation(
-                f"Valid rule orientations are {friendly_list(_VALID_RULE_ORIENTATIONS)}"
-            )
-        return orientation
 
-    def validate_line_style(self, style: LineStyle) -> LineStyle:
-        if style not in _VALID_LINE_STYLES:
-            raise InvalidLineStyle(
-                f"Valid rule line styles are {friendly_list(_VALID_LINE_STYLES)}"
-            )
-        return style
 
     def get_content_width(self, container: Size, viewport: Size) -> int:
         if self.orientation == "horizontal":
@@ -228,14 +211,7 @@ class Rule(Widget, can_focus=False):
         Returns:
             A rule widget with horizontal orientation.
         """
-        return Rule(
-            orientation="horizontal",
-            line_style=line_style,
-            name=name,
-            id=id,
-            classes=classes,
-            disabled=disabled,
-        )
+        pass
 
     @classmethod
     def vertical(
@@ -258,11 +234,4 @@ class Rule(Widget, can_focus=False):
         Returns:
             A rule widget with vertical orientation.
         """
-        return Rule(
-            orientation="vertical",
-            line_style=line_style,
-            name=name,
-            id=id,
-            classes=classes,
-            disabled=disabled,
-        )
+        pass

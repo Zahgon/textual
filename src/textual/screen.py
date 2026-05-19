@@ -335,26 +335,17 @@ class Screen(Generic[ScreenResultType], Widget):
     @property
     def is_modal(self) -> bool:
         """Is the screen modal?"""
-        return self._modal
+        pass
 
     @property
     def is_current(self) -> bool:
         """Is the screen current (i.e. visible to user)?"""
-        from textual.app import ScreenStackError
-
-        try:
-            return self.app.screen is self or self in self.app._background_screens
-        except ScreenStackError:
-            return False
+        pass
 
     @property
     def _update_timer(self) -> Timer:
         """Timer used to perform updates."""
-        if self.__update_timer is None:
-            self.__update_timer = self.set_interval(
-                UPDATE_PERIOD, self._on_timer_update, name="screen_update", pause=True
-            )
-        return self.__update_timer
+        pass
 
     @property
     def layers(self) -> tuple[str, ...]:
@@ -363,96 +354,30 @@ class Screen(Generic[ScreenResultType], Widget):
         Returns:
             Tuple of layer names.
         """
-        extras = ["_loading"]
-        if not self.app._disable_notifications:
-            extras.append("_toastrack")
-        if not self.app._disable_tooltips:
-            extras.append("_tooltips")
-        return (*super().layers, *extras)
+        pass
 
     @property
     def size(self) -> Size:
         """The size of the screen."""
-        return self.app.size - self.styles.gutter.totals
+        pass
 
-    def _watch_focused(self):
-        self.refresh_bindings()
 
-    def _watch_stack_updates(self):
-        self.refresh_bindings()
 
-    async def _watch_selections(
-        self,
-        old_selections: dict[Widget, Selection],
-        selections: dict[Widget, Selection],
-    ):
-        for widget in old_selections.keys() | selections.keys():
-            widget.selection_updated(selections.get(widget, None))
 
     def refresh_bindings(self) -> None:
         """Call to request a refresh of bindings."""
-        self.bindings_updated_signal.publish(self)
+        pass
 
-    def _watch_maximized(
-        self, previously_maximized: Widget | None, maximized: Widget | None
-    ) -> None:
-        # The screen gets a `-maximized-view` class if there is a maximized widget
-        # The widget gets a `-maximized` class if it is maximized
-        self.set_class(maximized is not None, "-maximized-view")
-        if previously_maximized is not None:
-            previously_maximized.remove_class("-maximized")
-        if maximized is not None:
-            maximized.add_class("-maximized")
 
     @property
     def _binding_chain(self) -> list[tuple[DOMNode, BindingsMap]]:
         """Binding chain from this screen."""
-
-        focused = self.focused
-        if focused is not None and focused.loading:
-            focused = None
-
-        namespace_bindings: list[tuple[DOMNode, BindingsMap]]
-        if focused is None:
-            namespace_bindings = [
-                (self, self._bindings.copy()),
-                (self.app, self.app._bindings.copy()),
-            ]
-        else:
-            namespace_bindings = [
-                (node, node._bindings.copy()) for node in focused.ancestors_with_self
-            ]
-
-        # Filter out bindings that could be captures by widgets (such as Input, TextArea)
-        filter_namespaces: list[DOMNode] = []
-        for namespace, bindings_map in namespace_bindings:
-            for filter_namespace in filter_namespaces:
-                check_consume_key = filter_namespace.check_consume_key
-                for key in list(bindings_map.key_to_bindings):
-                    if check_consume_key(key, key_to_character(key)):
-                        # If the widget consumes the key (e.g. like an Input widget),
-                        # then remove the key from the bindings map.
-                        del bindings_map.key_to_bindings[key]
-
-            filter_namespaces.append(namespace)
-
-        keymap = self.app._keymap
-        for namespace, bindings_map in namespace_bindings:
-            if keymap:
-                result = bindings_map.apply_keymap(keymap)
-                if result.clashed_bindings:
-                    self.app.handle_bindings_clash(result.clashed_bindings, namespace)
-
-        return namespace_bindings
+        pass
 
     @property
     def _modal_binding_chain(self) -> list[tuple[DOMNode, BindingsMap]]:
         """The binding chain, ignoring everything before the last modal."""
-        binding_chain = self._binding_chain
-        for index, (node, _bindings) in enumerate(binding_chain, 1):
-            if node.is_modal:
-                return binding_chain[:index]
-        return binding_chain
+        pass
 
     @property
     def active_bindings(self) -> dict[str, ActiveBinding]:
@@ -466,36 +391,7 @@ class Screen(Generic[ScreenResultType], Widget):
         Returns:
             A map of keys to a tuple containing (NAMESPACE, BINDING, ENABLED).
         """
-        bindings_map: dict[str, ActiveBinding] = {}
-        app = self.app
-        for namespace, bindings in self._modal_binding_chain:
-            for key, binding in bindings:
-                # This will call the nodes `check_action` method.
-                action_state = app._check_action_state(binding.action, namespace)
-                if action_state is False:
-                    # An action_state of False indicates the action is disabled and not shown
-                    # Note that None has a different meaning, which is why there is an `is False`
-                    # rather than a truthy check.
-                    continue
-
-                enabled = bool(action_state)
-                if existing_key_and_binding := bindings_map.get(key):
-                    # This key has already been bound
-                    # Replace priority bindings
-                    if (
-                        binding.priority
-                        and not existing_key_and_binding.binding.priority
-                    ):
-                        bindings_map[key] = ActiveBinding(
-                            namespace, binding, enabled, binding.tooltip
-                        )
-                else:
-                    # New binding
-                    bindings_map[key] = ActiveBinding(
-                        namespace, binding, enabled, binding.tooltip
-                    )
-
-        return bindings_map
+        pass
 
     def arrange(self, size: Size, _optimal: bool = False) -> DockArrangeResult:
         """Arrange children.
@@ -556,15 +452,12 @@ class Screen(Generic[ScreenResultType], Widget):
     @property
     def is_active(self) -> bool:
         """Is the screen active (i.e. visible and top of the stack)?"""
-        try:
-            return self.app.screen is self
-        except Exception:
-            return False
+        pass
 
     @property
     def allow_select(self) -> bool:
         """Check if this widget permits text selection."""
-        return self.ALLOW_SELECT
+        pass
 
     def get_loading_widget(self) -> Widget:
         """Get a widget to display a loading indicator.
@@ -574,11 +467,8 @@ class Screen(Generic[ScreenResultType], Widget):
         Returns:
             A widget in place of this widget to indicate a loading.
         """
-        loading_widget = self.app.get_loading_widget()
-        return loading_widget
+        pass
 
-    def _watch__pointer_shape(self, pointer_shape: PointerShape) -> None:
-        self.app._set_pointer_shape(pointer_shape)
 
     def update_pointer_shape(self) -> None:
         """Get the screen's current pointer shape."""
@@ -628,7 +518,7 @@ class Screen(Generic[ScreenResultType], Widget):
         Returns:
             The widget's offset relative to the top left of the terminal.
         """
-        return self._compositor.get_offset(widget)
+        pass
 
     def get_widget_at(self, x: int, y: int) -> tuple[Widget, Region]:
         """Get the widget at a given coordinate.
@@ -762,68 +652,12 @@ class Screen(Generic[ScreenResultType], Widget):
         Args:
             widget: Widget to select.
         """
-        select_all = SELECT_ALL
-        self.selections = {
-            widget: select_all,
-            **{child: select_all for child in widget.query("*")},
-        }
+        pass
 
     @property
     def focus_chain(self) -> list[Widget]:
         """A list of widgets that may receive focus, in focus order."""
-        # TODO: Calculating a focus chain is moderately expensive.
-        # Suspect we can move focus without calculating the entire thing again.
-
-        widgets: list[Widget] = []
-        add_widget = widgets.append
-        focus_sorter = attrgetter("_focus_sort_key")
-        # We traverse the DOM and keep track of where we are at with a node stack.
-        # Additionally, we manually keep track of the visibility of the DOM
-        # instead of relying on the property `.visible` to save on DOM traversals.
-        # node_stack: list[tuple[iterator over node children, node visibility]]
-
-        root_node = self.screen
-
-        if (focused := self.focused) is not None:
-            for node in focused.ancestors_with_self:
-                if node._trap_focus:
-                    root_node = node
-                    break
-
-        node_stack: list[tuple[Iterator[Widget], bool]] = [
-            (
-                iter(sorted(root_node.displayed_children, key=focus_sorter)),
-                self.visible,
-            )
-        ]
-        pop = node_stack.pop
-        push = node_stack.append
-
-        while node_stack:
-            children_iterator, parent_visibility = node_stack[-1]
-            node = next(children_iterator, None)
-            if node is None:
-                pop()
-            else:
-                if node._check_disabled():
-                    continue
-                node_styles_visibility = node.styles.get_rule("visibility")
-                node_is_visible = (
-                    node_styles_visibility != "hidden"
-                    if node_styles_visibility
-                    else parent_visibility  # Inherit visibility if the style is unset.
-                )
-                if node.is_container and node.allow_focus_children():
-                    sorted_displayed_children = sorted(
-                        node.displayed_children, key=focus_sorter
-                    )
-                    push((iter(sorted_displayed_children), node_is_visible))
-                # Same check as `if node.focusable`, but we cached inherited visibility
-                # and we also skipped disabled nodes altogether.
-                if node_is_visible and node.allow_focus():
-                    add_widget(node)
-
-        return widgets
+        pass
 
     def _move_focus(
         self, direction: int = 0, selector: str | type[QueryType] = "*"
@@ -844,55 +678,7 @@ class Screen(Generic[ScreenResultType], Widget):
                 is not `None`, then it is guaranteed that the widget returned matches
                 the CSS selectors given in the argument.
         """
-
-        if not isinstance(selector, str):
-            selector = selector.__name__
-        selector_set = parse_selectors(selector)
-        focus_chain = self.focus_chain
-
-        # If a widget is maximized we want to limit the focus chain to the visible widgets
-        if self.maximized is not None:
-            focusable = set(self.maximized.walk_children(with_self=True))
-            focus_chain = [widget for widget in focus_chain if widget in focusable]
-
-        filtered_focus_chain = (
-            node for node in focus_chain if match(selector_set, node)
-        )
-
-        if not focus_chain:
-            # Nothing focusable, so nothing to do
-            return self.focused
-        if self.focused is None:
-            # Nothing currently focused, so focus the first one.
-            to_focus = next(filtered_focus_chain, None)
-            self.set_focus(to_focus)
-            return self.focused
-
-        # Ensure focus will be in a node that matches the selectors.
-        if not direction and not match(selector_set, self.focused):
-            direction = 1
-
-        try:
-            # Find the index of the currently focused widget
-            current_index = focus_chain.index(self.focused)
-        except ValueError:
-            # Focused widget was removed in the interim, start again
-            self.set_focus(next(filtered_focus_chain, None))
-        else:
-            # Only move the focus if we are currently showing the focus
-            if direction:
-                to_focus = None
-                chain_length = len(focus_chain)
-                for step in range(1, len(focus_chain) + 1):
-                    node = focus_chain[
-                        (current_index + direction * step) % chain_length
-                    ]
-                    if match(selector_set, node):
-                        to_focus = node
-                        break
-                self.set_focus(to_focus)
-
-        return self.focused
+        pass
 
     def focus_next(self, selector: str | type[QueryType] = "*") -> Widget | None:
         """Focus the next widget, optionally filtered by a CSS selector.
@@ -909,7 +695,7 @@ class Screen(Generic[ScreenResultType], Widget):
                 is not `None`, then it is guaranteed that the widget returned matches
                 the CSS selectors given in the argument.
         """
-        return self._move_focus(1, selector)
+        pass
 
     def focus_previous(self, selector: str | type[QueryType] = "*") -> Widget | None:
         """Focus the previous widget, optionally filtered by a CSS selector.
@@ -926,7 +712,7 @@ class Screen(Generic[ScreenResultType], Widget):
                 is not `None`, then it is guaranteed that the widget returned matches
                 the CSS selectors given in the argument.
         """
-        return self._move_focus(-1, selector)
+        pass
 
     def maximize(self, widget: Widget, container: bool = True) -> bool:
         """Maximize a widget, so it fills the screen.
@@ -938,19 +724,7 @@ class Screen(Generic[ScreenResultType], Widget):
         Returns:
             `True` if the widget was maximized, otherwise `False`.
         """
-        if widget.allow_maximize:
-            if container:
-                # If we want to maximize the container, look up the dom to find a suitable widget
-                for maximize_widget in widget.ancestors:
-                    if not isinstance(maximize_widget, Widget):
-                        break
-                    if maximize_widget.allow_maximize:
-                        self.maximized = maximize_widget
-                        return True
-
-            self.maximized = widget
-            return True
-        return False
+        pass
 
     def minimize(self) -> None:
         """Restore any maximized widget to normal state."""
@@ -966,42 +740,23 @@ class Screen(Generic[ScreenResultType], Widget):
         Returns:
             Selected text, or `None` if no text was selected.
         """
-        if not self.selections:
-            return None
-
-        widget_text: list[str] = []
-        for widget, selection in self.selections.items():
-            # Filter out widgets that may have been removed since the text was selected
-            if (
-                widget.is_attached
-                and (selected_text_in_widget := widget.get_selection(selection))
-                is not None
-            ):
-                widget_text.extend(selected_text_in_widget)
-
-        selected_text = "".join(widget_text).rstrip("\n")
-        return selected_text
+        pass
 
     def action_copy_text(self) -> None:
         """Copy selected text to clipboard."""
-        selection = self.get_selected_text()
-        if selection is None:
-            # No text selected
-            raise SkipAction()
-        self.app.copy_to_clipboard(selection)
+        pass
 
     def action_maximize(self) -> None:
         """Action to maximize the currently focused widget."""
-        if self.focused is not None:
-            self.maximize(self.focused)
+        pass
 
     def action_minimize(self) -> None:
         """Action to minimize the currently maximized widget."""
-        self.minimize()
+        pass
 
     def action_blur(self) -> None:
         """Action to remove focus (if set)."""
-        self.set_focus(None)
+        pass
 
     async def action_focus(self, selector: str) -> None:
         """An [action](/guide/actions) to focus the given widget.
@@ -1009,13 +764,7 @@ class Screen(Generic[ScreenResultType], Widget):
         Args:
             selector: Selector of widget to focus (first match).
         """
-        try:
-            node = self.query(selector).first()
-        except NoMatches:
-            pass
-        else:
-            if isinstance(node, Widget):
-                self.set_focus(node)
+        pass
 
     def _reset_focus(
         self, widget: Widget, avoiding: list[Widget] | None = None
@@ -1158,32 +907,12 @@ class Screen(Generic[ScreenResultType], Widget):
         This method adds the tooltip, if required, and also adds the
         container for `Toast`s.
         """
-        if not self.app._disable_tooltips:
-            widgets.insert(0, Tooltip(id="textual-tooltip"))
-        if not self.app._disable_notifications:
-            widgets.insert(0, ToastRack(id="textual-toastrack"))
+        pass
 
     def _on_mount(self, event: events.Mount) -> None:
         """Set up the tooltip-clearing signal when we mount."""
-        self.screen_layout_refresh_signal.subscribe(
-            self, self._maybe_clear_tooltip, immediate=True
-        )
+        pass
 
-    async def _on_idle(self, event: events.Idle) -> None:
-        # Check for any widgets marked as 'dirty' (needs a repaint)
-        event.prevent_default()
-        if not self.app._batch_count and self.is_current:
-            if (
-                self._layout_required
-                or self._scroll_required
-                or self._repaint_required
-                or self._recompose_required
-                or self._dirty_widgets
-            ):
-                self._update_timer.resume()
-                return
-
-        await self._invoke_and_clear_callbacks()
 
     def _compositor_refresh(self) -> None:
         """Perform a compositor refresh."""
@@ -1264,12 +993,7 @@ class Screen(Generic[ScreenResultType], Widget):
     async def _invoke_and_clear_callbacks(self) -> None:
         """If there are scheduled callbacks to run, call them and clear
         the callback queue."""
-        if self._callbacks:
-            callbacks = self._callbacks[:]
-            self._callbacks.clear()
-            for callback, message_pump in callbacks:
-                with message_pump._context():
-                    await invoke(callback)
+        pass
 
     def _invoke_later(self, callback: CallbackType, sender: MessagePump) -> None:
         """Enqueue a callback to be invoked after the screen is repainted.
@@ -1278,9 +1002,7 @@ class Screen(Generic[ScreenResultType], Widget):
             callback: A callback.
             sender: The sender (active message pump) of the callback.
         """
-
-        self._callbacks.append((callback, sender))
-        self.check_idle()
+        pass
 
     def _push_result_callback(
         self,
@@ -1295,9 +1017,7 @@ class Screen(Generic[ScreenResultType], Widget):
             callback: The callback.
             future: A Future to hold the result.
         """
-        self._result_callbacks.append(
-            ResultCallback[Optional[ScreenResultType]](requester, callback, future)
-        )
+        pass
 
     async def _message_loop_exit(self) -> None:
         await super()._message_loop_exit()
@@ -1311,7 +1031,7 @@ class Screen(Generic[ScreenResultType], Widget):
 
     def _pop_result_callback(self) -> None:
         """Remove the latest result callback from the stack."""
-        self._result_callbacks.pop()
+        pass
 
     def _refresh_layout(self, size: Size | None = None, scroll: bool = False) -> None:
         """Refresh the layout (can change size and positions of widgets)."""
@@ -1395,43 +1115,8 @@ class Screen(Generic[ScreenResultType], Widget):
             self.app.post_message(events.Ready())
             self.app._dom_ready = True
 
-    async def _on_update(self, message: messages.Update) -> None:
-        message.stop()
-        message.prevent_default()
-        widget = message.widget
-        assert isinstance(widget, Widget)
 
-        if self in self._compositor:
-            self._dirty_widgets.add(widget)
-            self.check_idle()
 
-    async def _on_layout(self, message: messages.Layout) -> None:
-        message.stop()
-        message.prevent_default()
-
-        layout_required = False
-        widget: DOMNode = message.widget
-        for ancestor in message.widget.ancestors:
-            if not isinstance(ancestor, Widget):
-                break
-            if ancestor not in self._layout_widgets:
-                self._layout_widgets[ancestor] = set()
-            if widget not in self._layout_widgets:
-                self._layout_widgets[ancestor].add(widget)
-                layout_required = True
-            if not ancestor.styles.auto_dimensions:
-                break
-            widget = ancestor
-
-        if layout_required and not self._layout_required:
-            self._layout_required = True
-            self.check_idle()
-
-    async def _on_update_scroll(self, message: messages.UpdateScroll) -> None:
-        message.stop()
-        message.prevent_default()
-        self._scroll_required = True
-        self.check_idle()
 
     def _get_inline_height(self, size: Size) -> int:
         """Get the inline height (number of lines to display when running inline mode).
@@ -1464,85 +1149,17 @@ class Screen(Generic[ScreenResultType], Widget):
 
     def _on_screen_resume(self, event: events.ScreenResume) -> None:
         """Screen has resumed."""
-        if self.app.SUSPENDED_SCREEN_CLASS:
-            self.remove_class(self.app.SUSPENDED_SCREEN_CLASS)
+        pass
 
-        self.stack_updates += 1
-
-        self.app._refresh_notifications()
-        size = self.app.size
-
-        self._update_auto_focus()
-
-        if self.is_attached:
-
-            if event.refresh_styles:
-                self.update_node_styles(animate=False)
-            if self._size != size:
-                self._refresh_layout(size)
-            self.refresh()
-
-    async def _compose(self) -> None:
-        await super()._compose()
-        self._update_auto_focus()
 
     def _update_auto_focus(self) -> None:
         """Update auto focus."""
-        if self.app.app_focus:
-            auto_focus = (
-                self.app.AUTO_FOCUS if self.AUTO_FOCUS is None else self.AUTO_FOCUS
-            )
-            if auto_focus and self.focused is None:
-                for widget in self.query(auto_focus):
-                    if widget.focusable:
-                        widget.has_focus = True
-                        self.set_focus(widget)
-                        break
+        pass
 
     def _on_screen_suspend(self) -> None:
         """Screen has suspended."""
-        if self.app.SUSPENDED_SCREEN_CLASS:
-            self.add_class(self.app.SUSPENDED_SCREEN_CLASS)
-        self.app._set_mouse_over(None, None)
-        self._clear_tooltip()
-        self.stack_updates += 1
+        pass
 
-    async def _on_resize(self, event: events.Resize) -> None:
-        event.stop()
-        self._screen_resized(event.size)
-        for screen in self.app._background_screens:
-            screen._screen_resized(event.size)
-
-        horizontal_breakpoints = (
-            self.app.HORIZONTAL_BREAKPOINTS
-            if self.HORIZONTAL_BREAKPOINTS is None
-            else self.HORIZONTAL_BREAKPOINTS
-        ) or []
-
-        vertical_breakpoints = (
-            self.app.VERTICAL_BREAKPOINTS
-            if self.VERTICAL_BREAKPOINTS is None
-            else self.VERTICAL_BREAKPOINTS
-        ) or []
-
-        if horizontal_breakpoints or vertical_breakpoints:
-            width, height = event.size
-            breakpoints = {
-                breakpoint: False
-                for _, breakpoint in (horizontal_breakpoints + vertical_breakpoints)
-            }
-
-            for breakpoint in self._get_breakpoint_classes(
-                width, horizontal_breakpoints
-            ):
-                breakpoints[breakpoint] = True
-
-            for breakpoint in self._get_breakpoint_classes(
-                height, vertical_breakpoints
-            ):
-                breakpoints[breakpoint] = True
-
-            self.update_classes(breakpoints, animate=False)
 
     def _get_breakpoint_classes(
         self, dimension: int, breakpoints: list[tuple[int, str]]
@@ -1556,20 +1173,11 @@ class Screen(Generic[ScreenResultType], Widget):
         Returns:
             A set containing a breakpoint, or an empty set if none apply.
         """
-        for breakpoint, class_name in sorted(breakpoints, reverse=True):
-            if dimension >= breakpoint:
-                return {class_name}
-        return set()
+        pass
 
     def _update_tooltip(self, widget: Widget) -> None:
         """Update the content of the tooltip."""
-        try:
-            tooltip = self.get_child_by_type(Tooltip)
-        except NoMatches:
-            pass
-        else:
-            if tooltip.display and self._tooltip_widget is widget:
-                self._handle_tooltip_timer(widget)
+        pass
 
     def _clear_tooltip(self) -> None:
         """Unconditionally clear any existing tooltip."""
@@ -1587,18 +1195,7 @@ class Screen(Generic[ScreenResultType], Widget):
 
         If they differ, the tooltip will be removed.
         """
-        # If there's a widget associated with the tooltip at all...
-        if self._tooltip_widget is not None:
-            # ...look at what's currently under the mouse.
-            try:
-                under_mouse, _ = self.get_widget_at(*self.app.mouse_position)
-            except NoWidget:
-                pass
-            else:
-                # If it's not the same widget...
-                if under_mouse is not self._tooltip_widget:
-                    # ...clear the tooltip.
-                    self._clear_tooltip()
+        pass
 
     def _handle_tooltip_timer(self, widget: Widget) -> None:
         """Called by a timer from _handle_mouse_move to update the tooltip.
@@ -1606,26 +1203,7 @@ class Screen(Generic[ScreenResultType], Widget):
         Args:
             widget: The widget under the mouse.
         """
-
-        try:
-            tooltip = self.get_child_by_type(Tooltip)
-        except NoMatches:
-            pass
-        else:
-            tooltip_content: RenderableType | None = None
-            for node in widget.ancestors_with_self:
-                if not isinstance(node, Widget):
-                    break
-                if node.tooltip is not None:
-                    tooltip_content = node.tooltip
-                    break
-
-            if tooltip_content is None:
-                tooltip.display = False
-            else:
-                tooltip.display = True
-                tooltip.absolute_offset = self.app.mouse_position
-                tooltip.update(tooltip_content)
+        pass
 
     def _handle_mouse_move(self, event: events.MouseMove) -> None:
         hover_widget: Widget | None = None
@@ -1722,12 +1300,7 @@ class Screen(Generic[ScreenResultType], Widget):
                 widget: Container widgets to scroll.
                 direction: Lines to scroll.
             """
-            if self._select_state is not None:
-                # Update scroll position
-                widget.scroll_y += direction
-                widget.scroll_target_y = widget.scroll_y
-                # Update selection highlights which may have changed due to the scroll
-                self._update_select()
+            pass
 
         # Replace current timer
         self._stop_auto_scroll()
@@ -1943,12 +1516,7 @@ class Screen(Generic[ScreenResultType], Widget):
             self.post_message(event)
         self.update_pointer_shape()
 
-    def _key_escape(self) -> None:
-        self.clear_selection()
 
-    def _watch__selecting(self, selecting: bool) -> None:
-        if not selecting:
-            self._stop_auto_scroll()
 
     @classmethod
     def _collect_select_widgets(
@@ -1969,29 +1537,7 @@ class Screen(Generic[ScreenResultType], Widget):
         Returns:
             Widgets between start and end, in select sort order.
         """
-
-        widgets = list(
-            walk_selectable_widgets(
-                container,
-                selection_bounds,
-                {start_widget, end_widget},
-            )
-        )
-
-        index1: int | None = None
-        try:
-            index1 = widgets.index(start_widget)
-        except ValueError:
-            pass
-
-        index2: int | None = None
-        try:
-            index2 = widgets.index(end_widget) + 1
-        except ValueError:
-            pass
-
-        results = widgets[index1:index2]
-        return results
+        pass
 
     def _watch__select_state(self, select_state: SelectState | None) -> None:
         """Respond to user-initiated selection change.
@@ -2053,25 +1599,7 @@ class Screen(Generic[ScreenResultType], Widget):
             result: The optional result to be passed to the result callback.
 
         """
-        _rich_traceback_omit = True
-        if self._result_callbacks:
-            callback = self._result_callbacks[-1]
-            callback(result)
-        await_pop = self.app.pop_screen()
-
-        def pre_await() -> None:
-            """Called by the AwaitComplete object."""
-            _rich_traceback_omit = True
-            if active_message_pump.get() is self:
-                from textual.app import ScreenError
-
-                raise ScreenError(
-                    "Can't await screen.dismiss() from the screen's message handler; try removing the await keyword."
-                )
-
-        await_pop.set_pre_await_callback(pre_await)
-
-        return await_pop
+        pass
 
     def pop_until_active(self) -> None:
         """Pop any screens on top of this one, until this screen is active.
@@ -2080,15 +1608,7 @@ class Screen(Generic[ScreenResultType], Widget):
             ScreenError: If this screen is not in the current mode.
 
         """
-        from textual.app import ScreenError
-
-        try:
-            self.app._pop_to_screen(self)
-        except ScreenError:
-            # More specific error message
-            raise ScreenError(
-                f"Can't make {self} active as it is not in the current stack."
-            ) from None
+        pass
 
     async def action_dismiss(self, result: ScreenResultType | None = None) -> None:
         """A wrapper around [`dismiss`][textual.screen.Screen.dismiss] that can be called as an action.
@@ -2096,8 +1616,7 @@ class Screen(Generic[ScreenResultType], Widget):
         Args:
             result: The optional result to be passed to the result callback.
         """
-        await self._flush_next_callbacks()
-        self.dismiss(result)
+        pass
 
     def can_view_entire(self, widget: Widget) -> bool:
         """Check if a given widget is fully within the current screen.
@@ -2129,22 +1648,15 @@ class Screen(Generic[ScreenResultType], Widget):
         Returns:
             `True` if the any part of the widget is in view, `False` if it is completely outside of the screen.
         """
-        if widget not in self._compositor.visible_widgets:
-            return False
-        # If the widget is one that overlays the screen...
-        if widget.styles.overlay == "screen":
-            # ...simply check if it's within the screen's region.
-            return widget.region in self.region
-        # Failing that fall back to normal checking.
-        return super().can_view_partial(widget)
+        pass
 
     def validate_title(self, title: Any) -> str | None:
         """Ensure the title is a string or `None`."""
-        return None if title is None else str(title)
+        pass
 
     def validate_sub_title(self, sub_title: Any) -> str | None:
         """Ensure the sub-title is a string or `None`."""
-        return None if sub_title is None else str(sub_title)
+        pass
 
 
 @rich.repr.auto

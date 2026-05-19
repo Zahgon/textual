@@ -72,11 +72,7 @@ class ValidationResult:
         Returns:
             A list of the string descriptions explaining the failing validations.
         """
-        return [
-            failure.description
-            for failure in self.failures
-            if failure.description is not None
-        ]
+        pass
 
     @property
     def is_valid(self) -> bool:
@@ -174,7 +170,7 @@ class Validator(ABC):
         Returns:
             A string description of the failure.
         """
-        return self.failure_description
+        pass
 
     def success(self) -> ValidationResult:
         """Shorthand for `ValidationResult(True)`.
@@ -246,12 +242,7 @@ class Regex(Validator):
         Returns:
             The result of the validation.
         """
-        regex = self.regex
-        has_match = re.fullmatch(regex, value, flags=self.flags) is not None
-        if not has_match:
-            failures = [Regex.NoResults(self, value)]
-            return self.failure(failures=failures)
-        return self.success()
+        pass
 
     def describe_failure(self, failure: Failure) -> str | None:
         """Describes why the validator failed.
@@ -262,7 +253,7 @@ class Regex(Validator):
         Returns:
             A string description of the failure.
         """
-        return f"Must match regular expression {self.regex!r} (flags={self.flags})."
+        pass
 
 
 class Number(Validator):
@@ -295,27 +286,11 @@ class Number(Validator):
         Returns:
             The result of the validation.
         """
-        try:
-            float_value = float(value)
-        except ValueError:
-            return ValidationResult.failure([Number.NotANumber(self, value)])
-
-        if math.isnan(float_value) or math.isinf(float_value):
-            return ValidationResult.failure([Number.NotANumber(self, value)])
-
-        if not self._validate_range(float_value):
-            return ValidationResult.failure(
-                [Number.NotInRange(self, value)],
-            )
-        return self.success()
+        pass
 
     def _validate_range(self, value: float) -> bool:
         """Return a boolean indicating whether the number is within the range specified in the attributes."""
-        if self.minimum is not None and value < self.minimum:
-            return False
-        if self.maximum is not None and value > self.maximum:
-            return False
-        return True
+        pass
 
     def describe_failure(self, failure: Failure) -> str | None:
         """Describes why the validator failed.
@@ -326,17 +301,7 @@ class Number(Validator):
         Returns:
             A string description of the failure.
         """
-        if isinstance(failure, Number.NotANumber):
-            return "Must be a valid number."
-        elif isinstance(failure, Number.NotInRange):
-            if self.minimum is None and self.maximum is not None:
-                return f"Must be less than or equal to {self.maximum}."
-            elif self.minimum is not None and self.maximum is None:
-                return f"Must be greater than or equal to {self.minimum}."
-            else:
-                return f"Must be between {self.minimum} and {self.maximum}."
-        else:
-            return None
+        pass
 
 
 class Integer(Number):
@@ -354,17 +319,7 @@ class Integer(Number):
         Returns:
             The result of the validation.
         """
-        # First, check that we're dealing with a number in the range.
-        number_validation_result = super().validate(value)
-        if not number_validation_result.is_valid:
-            return number_validation_result
-
-        # We know it's a number, but is that number an integer?
-        try:
-            int_value = int(value)
-        except ValueError:
-            return ValidationResult.failure([Integer.NotAnInteger(self, value)])
-        return self.success()
+        pass
 
     def describe_failure(self, failure: Failure) -> str | None:
         """Describes why the validator failed.
@@ -375,17 +330,7 @@ class Integer(Number):
         Returns:
             A string description of the failure.
         """
-        if isinstance(failure, (Integer.NotANumber, Integer.NotAnInteger)):
-            return "Must be a valid integer."
-        elif isinstance(failure, Integer.NotInRange):
-            if self.minimum is None and self.maximum is not None:
-                return f"Must be less than or equal to {self.maximum}."
-            elif self.minimum is not None and self.maximum is None:
-                return f"Must be greater than or equal to {self.minimum}."
-            else:
-                return f"Must be between {self.minimum} and {self.maximum}."
-        else:
-            return None
+        pass
 
 
 class Length(Validator):
@@ -415,11 +360,7 @@ class Length(Validator):
         Returns:
             The result of the validation.
         """
-        too_short = self.minimum is not None and len(value) < self.minimum
-        too_long = self.maximum is not None and len(value) > self.maximum
-        if too_short or too_long:
-            return ValidationResult.failure([Length.Incorrect(self, value)])
-        return self.success()
+        pass
 
     def describe_failure(self, failure: Failure) -> str | None:
         """Describes why the validator failed.
@@ -430,14 +371,7 @@ class Length(Validator):
         Returns:
             A string description of the failure.
         """
-        if isinstance(failure, Length.Incorrect):
-            if self.minimum is None and self.maximum is not None:
-                return f"Must be shorter than {self.maximum} characters."
-            elif self.minimum is not None and self.maximum is None:
-                return f"Must be longer than {self.minimum} characters."
-            else:
-                return f"Must be between {self.minimum} and {self.maximum} characters."
-        return None
+        pass
 
 
 class Function(Validator):
@@ -465,10 +399,7 @@ class Function(Validator):
             A ValidationResult indicating success if the function returned True,
                 and failure if the function return False.
         """
-        is_valid = self.function(value)
-        if is_valid:
-            return self.success()
-        return self.failure(failures=Function.ReturnedFalse(self, value))
+        pass
 
     def describe_failure(self, failure: Failure) -> str | None:
         """Describes why the validator failed.
@@ -479,7 +410,7 @@ class Function(Validator):
         Returns:
             A string description of the failure.
         """
-        return self.failure_description
+        pass
 
 
 class URL(Validator):
@@ -497,15 +428,7 @@ class URL(Validator):
         Returns:
             The result of the validation.
         """
-        invalid_url = ValidationResult.failure([URL.InvalidURL(self, value)])
-        try:
-            parsed_url = urlparse(value)
-            if not all([parsed_url.scheme, parsed_url.netloc]):
-                return invalid_url
-        except ValueError:
-            return invalid_url
-
-        return self.success()
+        pass
 
     def describe_failure(self, failure: Failure) -> str | None:
         """Describes why the validator failed.
@@ -516,4 +439,4 @@ class URL(Validator):
         Returns:
             A string description of the failure.
         """
-        return "Must be a valid URL."
+        pass

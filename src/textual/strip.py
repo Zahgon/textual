@@ -123,16 +123,12 @@ class Strip:
     @property
     def text(self) -> str:
         """Segment text."""
-        return "".join(segment.text for segment in self._segments)
+        pass
 
     @property
     def link_ids(self) -> set[str]:
         """A set of the link ids in this Strip."""
-        if self._link_ids is None:
-            self._link_ids = {
-                style._link_id for _, style, _ in self._segments if style is not None
-            }
-        return self._link_ids
+        pass
 
     @classmethod
     @lru_cache(maxsize=1024)
@@ -276,10 +272,7 @@ class Strip:
     @property
     def cell_length(self) -> int:
         """Get the number of cells required to render this object."""
-        # Done on demand and cached, as this is an O(n) operation
-        if self._cell_length is None:
-            self._cell_length = get_line_length(self._segments)
-        return self._cell_length
+        pass
 
     @classmethod
     def join(cls, strips: Iterable[Strip | None]) -> Strip:
@@ -335,9 +328,7 @@ class Strip:
     @property
     def cell_count(self) -> int:
         """Number of cells in the strip"""
-        if self._cell_count is None:
-            self._cell_count = sum(len(segment.text) for segment in self._segments)
-        return self._cell_count
+        pass
 
     def extend_cell_length(self, cell_length: int, style: Style | None = None) -> Strip:
         """Extend the cell length if it is less than the given value.
@@ -667,22 +658,7 @@ class Strip:
         Returns:
             A string of ANSI escape sequences to render the style.
         """
-        sgr: list[str]
-        if attributes := style._attributes & style._set_attributes:
-            _style_map = SGR_STYLES
-            sgr = [
-                _style_map[bit_offset]
-                for bit_offset in range(attributes.bit_length())
-                if attributes & (1 << bit_offset)
-            ]
-        else:
-            sgr = []
-        if (color := style._color) is not None:
-            sgr.extend(color.downgrade(color_system).get_ansi_codes())
-        if (bgcolor := style._bgcolor) is not None:
-            sgr.extend(bgcolor.downgrade(color_system).get_ansi_codes(False))
-        ansi = style._ansi = ";".join(sgr)
-        return ansi
+        pass
 
     @classmethod
     def render_style(cls, style: Style, text: str, color_system: ColorSystem) -> str:
@@ -696,14 +672,7 @@ class Strip:
         Returns:
             Text with ANSI escape sequences.
         """
-        if (ansi := style._ansi) is None:
-            ansi = cls.render_ansi(style, color_system)
-        output = f"\x1b[{ansi}m{text}\x1b[0m" if ansi else text
-        if style._link:
-            output = (
-                f"\x1b]8;id={style._link_id};{style._link}\x1b\\{output}\x1b]8;;\x1b\\"
-            )
-        return output
+        pass
 
     def render(self, console: Console) -> str:
         """Render the strip into terminal sequences.
@@ -755,39 +724,6 @@ class Strip:
             segments.append(Segment(" " * right, style))
         return Strip(segments, cell_length + left + right)
 
-    def text_align(self, width: int, align: AlignHorizontal) -> Strip:
-        if align == "left":
-            if self.cell_length == width:
-                return self
-            else:
-                return Strip(
-                    line_pad(self._segments, 0, width - self.cell_length, Style.null()),
-                    width,
-                )
-        elif align == "center":
-            left_space = max(0, width - self.cell_length) // 2
-
-            if self.cell_length == width:
-                return self
-            else:
-                return Strip(
-                    line_pad(
-                        self._segments,
-                        left_space,
-                        width - self.cell_length - left_space,
-                        Style.null(),
-                    ),
-                    width,
-                )
-
-        elif align == "right":
-            if self.cell_length == width:
-                return self
-            else:
-                return Strip(
-                    line_pad(self._segments, width - self.cell_length, 0, Style.null()),
-                    width,
-                )
 
     def apply_offsets(self, x: int, y: int) -> Strip:
         """Apply offsets used in text selection.

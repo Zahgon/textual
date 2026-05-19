@@ -293,9 +293,7 @@ class Pilot(Generic[ReturnType]):
             `True` if no selector was specified or if the selected widget was under the mouse
                 when the click was initiated. `False` is the selected widget was not under the pointer.
         """
-        return await self.click(
-            widget, offset, shift, meta, control, times=2, button=button
-        )
+        pass
 
     async def triple_click(
         self,
@@ -342,9 +340,7 @@ class Pilot(Generic[ReturnType]):
             `True` if no selector was specified or if the selected widget was under the mouse
                 when the click was initiated. `False` is the selected widget was not under the pointer.
         """
-        return await self.click(
-            widget, offset, shift, meta, control, times=3, button=button
-        )
+        pass
 
     async def hover(
         self,
@@ -493,11 +489,7 @@ class Pilot(Generic[ReturnType]):
 
         def decrement_counter() -> None:
             """Decrement internal counter, and set an event if it reaches zero."""
-            nonlocal count
-            count -= 1
-            if count == 0:
-                # When count is zero, all messages queued at the start of the method have been processed
-                count_zero_event.set()
+            pass
 
         # Increase the count for every successful call_later
         for child in children:

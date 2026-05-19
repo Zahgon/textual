@@ -516,21 +516,7 @@ BUILTIN_THEMES: dict[str, Theme] = {
 class ThemeProvider(Provider):
     """A provider for themes."""
 
-    @property
-    def commands(self) -> list[tuple[str, Callable[[], None]]]:
-        themes = self.app.available_themes
 
-        def set_app_theme(name: str) -> None:
-            self.app.theme = name
-
-        return [
-            (theme.name, partial(set_app_theme, theme.name))
-            for theme in sorted(themes.values(), key=attrgetter("name"))
-        ]
-
-    async def discover(self) -> Hits:
-        for command in self.commands:
-            yield DiscoveryHit(*command)
 
     async def search(self, query: str) -> Hits:
         matcher = self.matcher(query)

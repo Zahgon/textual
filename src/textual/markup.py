@@ -168,8 +168,7 @@ def escape(
 
     def escape_backslashes(match: Match[str]) -> str:
         """Called by re.sub replace matches."""
-        backslashes, text = match.groups()
-        return f"{backslashes}{backslashes}\\{text}"
+        pass
 
     markup = _escape(escape_backslashes, markup)
     if markup.endswith("\\") and not markup.endswith("\\\\"):

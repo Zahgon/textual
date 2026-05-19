@@ -80,7 +80,7 @@ class DocumentNavigator:
         Returns:
              True if the location is at column index 0.
         """
-        return location[1] == 0
+        pass
 
     def is_start_of_wrapped_line(self, location: Location) -> bool:
         """True when the location is at the start of the first wrapped line.
@@ -91,12 +91,7 @@ class DocumentNavigator:
         Returns:
              True if the location is at column index 0.
         """
-        if self.is_start_of_document_line(location):
-            return True
-
-        row, column = location
-        wrap_offsets = self._wrapped_document.get_offsets(row)
-        return index(wrap_offsets, column) != -1
+        pass
 
     def is_end_of_document_line(self, location: Location) -> bool:
         """True if the location is at the end of a line in the document.
@@ -111,9 +106,7 @@ class DocumentNavigator:
         Returns:
             True if and only if the document is at the end of a line in the document.
         """
-        row, column = location
-        row_length = len(self._document[row])
-        return column == row_length
+        pass
 
     def is_end_of_wrapped_line(self, location: Location) -> bool:
         """True if the location is at the end of a wrapped line.
@@ -124,12 +117,7 @@ class DocumentNavigator:
         Returns:
             True if and only if the cursor is on the last wrapped section of *any* line.
         """
-        if self.is_end_of_document_line(location):
-            return True
-
-        row, column = location
-        wrap_offsets = self._wrapped_document.get_offsets(row)
-        return index(wrap_offsets, column - 1) != -1
+        pass
 
     def is_first_document_line(self, location: Location) -> bool:
         """Check if the given location is on the first line in the document.
@@ -140,7 +128,7 @@ class DocumentNavigator:
         Returns:
             True if and only if the cursor is on the first line of the document.
         """
-        return location[0] == 0
+        pass
 
     def is_first_wrapped_line(self, location: Location) -> bool:
         """Check if the given location is on the first wrapped section of the first line in the document.
@@ -151,18 +139,7 @@ class DocumentNavigator:
         Returns:
             True if and only if the cursor is on the first wrapped section of the first line.
         """
-        if not self.is_first_document_line(location):
-            return False
-
-        row, column = location
-        wrap_offsets = self._wrapped_document.get_offsets(row)
-
-        if not wrap_offsets:
-            return True
-
-        if column < wrap_offsets[0]:
-            return True
-        return False
+        pass
 
     def is_last_document_line(self, location: Location) -> bool:
         """Check if the given location is on the last line of the document.
@@ -173,7 +150,7 @@ class DocumentNavigator:
         Returns:
             True when the location is on the last line of the document.
         """
-        return location[0] == self._document.line_count - 1
+        pass
 
     def is_last_wrapped_line(self, location: Location) -> bool:
         """Check if the given location is on the last wrapped section of the last line.
@@ -186,18 +163,7 @@ class DocumentNavigator:
         Returns:
             True if and only if the cursor is on the last section of the last line.
         """
-        if not self.is_last_document_line(location):
-            return False
-
-        row, column = location
-        wrap_offsets = self._wrapped_document.get_offsets(row)
-
-        if not wrap_offsets:
-            return True
-
-        if column >= wrap_offsets[-1]:
-            return True
-        return False
+        pass
 
     def is_start_of_document(self, location: Location) -> bool:
         """Check if a location is at the start of the document.
@@ -207,7 +173,7 @@ class DocumentNavigator:
 
         Returns:
             True if and only if the cursor is at document location (0, 0)"""
-        return location == (0, 0)
+        pass
 
     def is_end_of_document(self, location: Location) -> bool:
         """Check if a location is at the end of the document.
@@ -218,9 +184,7 @@ class DocumentNavigator:
         Returns:
             True if and only if the cursor is at the end of the document.
         """
-        return self.is_last_document_line(location) and self.is_end_of_document_line(
-            location
-        )
+        pass
 
     def get_location_left(self, location: Location) -> Location:
         """Get the location to the left of the given location.
@@ -257,13 +221,7 @@ class DocumentNavigator:
         Returns:
             The location to the right.
         """
-        if self.is_end_of_document(location):
-            return location
-        row, column = location
-        is_end_of_line = self.is_end_of_document_line(location)
-        target_row = row + 1 if is_end_of_line else row
-        target_column = 0 if is_end_of_line else column + 1
-        return target_row, target_column
+        pass
 
     def get_location_above(self, location: Location) -> Location:
         """Get the location visually aligned with the cell above the given location.
@@ -274,44 +232,7 @@ class DocumentNavigator:
         Returns:
             The cell above the given location.
         """
-
-        # Get the wrap offsets of the current line.
-        line_index, column_index = location
-        wrap_offsets = self._wrapped_document.get_offsets(line_index)
-        section_start_columns = [0, *wrap_offsets]
-
-        # We need to find the insertion point to determine which section index we're
-        # on within the current line. When we know the section index, we can use it
-        # to find the section which sits above it.
-        section_index = bisect_right(wrap_offsets, column_index)
-        offset_within_section = column_index - section_start_columns[section_index]
-        wrapped_line = self._wrapped_document.get_sections(line_index)
-        section = wrapped_line[section_index]
-
-        # Convert that cursor offset to a cell (visual) offset
-        current_visual_offset = cell_len(section[:offset_within_section])
-        target_offset = max(current_visual_offset, self.last_x_offset)
-
-        if section_index == 0:
-            # Moving up from a position on the first visual line moves us to the start.
-            if self.is_first_wrapped_line(location):
-                return 0, 0
-            # Get the last section from the line above, and find where to move in it.
-            target_row = line_index - 1
-            target_column = self._wrapped_document.get_target_document_column(
-                target_row, target_offset, -1
-            )
-            target_location = target_row, target_column
-        else:
-            # Stay on the same document line, but move backwards.
-            # Since the section above could be shorter, we need to clamp the column
-            # to a valid value.
-            target_column = self._wrapped_document.get_target_document_column(
-                line_index, target_offset, section_index - 1
-            )
-            target_location = line_index, target_column
-
-        return target_location
+        pass
 
     def get_location_below(self, location: Location) -> Location:
         """Given a location in the raw document, return the raw document
@@ -324,39 +245,7 @@ class DocumentNavigator:
         Returns:
             The location which is *visually* below the given location.
         """
-        line_index, column_index = location
-        document = self._document
-
-        wrap_offsets = self._wrapped_document.get_offsets(line_index)
-        section_start_columns = [0, *wrap_offsets]
-        section_index = bisect(wrap_offsets, column_index)
-        offset_within_section = column_index - section_start_columns[section_index]
-        wrapped_line = self._wrapped_document.get_sections(line_index)
-        section = wrapped_line[section_index]
-        current_visual_offset = cell_len(section[:offset_within_section])
-        target_offset = max(current_visual_offset, self.last_x_offset)
-
-        # If we're at the last section/row of a wrapped line
-        if section_index == len(wrapped_line) - 1:
-            # Last section of last line: go to end of file.
-            if self.is_last_document_line(location):
-                return line_index, len(document[line_index])
-
-            # Go to the first section of the line below.
-            target_row = line_index + 1
-            target_column = self._wrapped_document.get_target_document_column(
-                target_row, target_offset, 0
-            )
-            target_location = target_row, target_column
-        else:
-            # Stay on the same document line, but move forwards to
-            # the location on the section below with the same visual offset.
-            target_column = self._wrapped_document.get_target_document_column(
-                line_index, target_offset, section_index + 1
-            )
-            target_location = line_index, target_column
-
-        return target_location
+        pass
 
     def get_location_end(self, location: Location) -> Location:
         """Get the location corresponding to the end of the current section.
@@ -367,20 +256,7 @@ class DocumentNavigator:
         Returns:
             The location corresponding to the end of the wrapped line.
         """
-        line_index, column_offset = location
-        wrap_offsets = self._wrapped_document.get_offsets(line_index)
-        if wrap_offsets:
-            # Get the next wrap offset to the right
-            next_offset_right = bisect(wrap_offsets, column_offset)
-            # There's no more wrapping to the right of this location - go to line end.
-            if next_offset_right == len(wrap_offsets):
-                return line_index, len(self._document[line_index])
-            # We've found a wrap point
-            return line_index, wrap_offsets[next_offset_right] - 1
-        else:
-            # No wrapping to consider - go to the start/end of the document line.
-            target_column = len(self._document[line_index])
-            return line_index, target_column
+        pass
 
     def get_location_home(
         self, location: Location, smart_home: bool = False
@@ -394,27 +270,7 @@ class DocumentNavigator:
         Returns:
             The home location, relative to the given location.
         """
-        line_index, column_offset = location
-        wrap_offsets = self._wrapped_document.get_offsets(line_index)
-        if wrap_offsets:
-            next_offset_left = bisect(wrap_offsets, column_offset)
-            if next_offset_left == 0:
-                return line_index, 0
-            return line_index, wrap_offsets[next_offset_left - 1]
-        else:
-            # No wrapping to consider, go to the start of the document line
-            line = self._wrapped_document.document[line_index]
-            target_column = 0
-            if smart_home:
-                for code_point_index, code_point in enumerate(line):
-                    if not code_point.isspace():
-                        target_column = code_point_index
-                        break
-
-                if column_offset == 0 or column_offset > target_column:
-                    return line_index, target_column
-
-            return line_index, 0
+        pass
 
     def get_location_at_y_offset(
         self, location: Location, vertical_offset: int
@@ -428,12 +284,7 @@ class DocumentNavigator:
         Returns:
             The location after the offset has been applied.
         """
-        # Convert into offset-space to apply the offset.
-        x_offset, y_offset = self._wrapped_document.location_to_offset(location)
-        # Convert the offset with the delta applied back to location-space.
-        return self._wrapped_document.offset_to_location(
-            Offset(x_offset, y_offset + vertical_offset),
-        )
+        pass
 
     def clamp_reachable(self, location: Location) -> Location:
         """Given a location, return the nearest location that corresponds to a
@@ -445,13 +296,7 @@ class DocumentNavigator:
         Returns:
             The nearest reachable location in the document.
         """
-        document = self._document
-        row, column = location
-        clamped_row = clamp(row, 0, document.line_count - 1)
-
-        row_text = self._document[clamped_row]
-        clamped_column = clamp(column, 0, len(row_text))
-        return clamped_row, clamped_column
+        pass
 
 
 def index(sequence: Sequence, value: Any) -> int:

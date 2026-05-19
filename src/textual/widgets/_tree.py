@@ -62,7 +62,7 @@ class _TreeLine(Generic[TreeDataType]):
     @property
     def node(self) -> TreeNode[TreeDataType]:
         """The node associated with this line."""
-        return self.path[-1]
+        pass
 
     def _get_guide_width(self, guide_depth: int, show_root: bool) -> int:
         """Get the cell width of the line as rendered.
@@ -140,20 +140,17 @@ class TreeNode(Generic[TreeDataType]):
     @property
     def tree(self) -> Tree[TreeDataType]:
         """The tree that this node is attached to."""
-        return self._tree
+        pass
 
     @property
     def children(self) -> TreeNodes[TreeDataType]:
         """The child nodes of a TreeNode."""
-        return TreeNodes(self._children)
+        pass
 
     @property
     def siblings(self) -> TreeNodes[TreeDataType]:
         """The siblings of this node (includes self)."""
-        if self.parent is None:
-            return TreeNodes([self])
-        else:
-            return self.parent.children
+        pass
 
     @property
     def line(self) -> int:
@@ -163,88 +160,60 @@ class TreeNode(Generic[TreeDataType]):
     @property
     def _hover(self) -> bool:
         """Check if the mouse is over the node."""
-        return self._hover_
+        pass
 
-    @_hover.setter
-    def _hover(self, hover: bool) -> None:
-        self._updates += 1
-        self._hover_ = hover
 
     @property
     def _selected(self) -> bool:
         """Check if the node is selected."""
-        return self._selected_
+        pass
 
-    @_selected.setter
-    def _selected(self, selected: bool) -> None:
-        self._updates += 1
-        self._selected_ = selected
 
     @property
     def id(self) -> NodeID:
         """The ID of the  node."""
-        return self._id
+        pass
 
     @property
     def parent(self) -> TreeNode[TreeDataType] | None:
         """The parent of the node."""
-        return self._parent
+        pass
 
     @property
     def next_sibling(self) -> TreeNode[TreeDataType] | None:
         """The next sibling below the node."""
-        siblings = self.siblings
-        index = siblings.index(self) + 1
-        try:
-            return siblings[index]
-        except IndexError:
-            return None
+        pass
 
     @property
     def previous_sibling(self) -> TreeNode[TreeDataType] | None:
         """The previous sibling below the node."""
-        siblings = self.siblings
-        index = siblings.index(self) - 1
-        if index < 0:
-            return None
-        try:
-            return siblings[index]
-        except IndexError:
-            return None
+        pass
 
     @property
     def is_expanded(self) -> bool:
         """Is the node expanded?"""
-        return self._expanded
+        pass
 
     @property
     def is_collapsed(self) -> bool:
         """Is the node collapsed?"""
-        return not self._expanded
+        pass
 
     @property
     def is_last(self) -> bool:
         """Is this the last child node of its parent?"""
-        if self._parent is None:
-            return True
-        return bool(
-            self._parent._children and self._parent._children[-1] == self,
-        )
+        pass
 
     @property
     def is_root(self) -> bool:
         """Is this node the root of the tree?"""
-        return self == self._tree.root
+        pass
 
     @property
     def allow_expand(self) -> bool:
         """Is this node allowed to expand?"""
-        return self._allow_expand
+        pass
 
-    @allow_expand.setter
-    def allow_expand(self, allow_expand: bool) -> None:
-        self._allow_expand = allow_expand
-        self._updates += 1
 
     def _expand(self, expand_all: bool) -> None:
         """Mark the node as expanded (its children are shown).
@@ -275,9 +244,7 @@ class TreeNode(Generic[TreeDataType]):
         Returns:
             The `TreeNode` instance.
         """
-        self._expand(True)
-        self._tree._invalidate()
-        return self
+        pass
 
     def _collapse(self, collapse_all: bool) -> None:
         """Mark the node as collapsed (its children are hidden).
@@ -285,12 +252,7 @@ class TreeNode(Generic[TreeDataType]):
         Args:
             collapse_all: If `True` collapse all offspring at all depths.
         """
-        self._expanded = False
-        self._updates += 1
-        self._tree.post_message(Tree.NodeCollapsed(self).set_sender(self._tree))
-        if collapse_all:
-            for child in self.children:
-                child._collapse(collapse_all)
+        pass
 
     def collapse(self) -> Self:
         """Collapse the node (hide its children).
@@ -298,9 +260,7 @@ class TreeNode(Generic[TreeDataType]):
         Returns:
             The `TreeNode` instance.
         """
-        self._collapse(False)
-        self._tree._invalidate()
-        return self
+        pass
 
     def collapse_all(self) -> Self:
         """Collapse the node (hide its children) and all those below it.
@@ -308,9 +268,7 @@ class TreeNode(Generic[TreeDataType]):
         Returns:
             The `TreeNode` instance.
         """
-        self._collapse(True)
-        self._tree._invalidate()
-        return self
+        pass
 
     def toggle(self) -> Self:
         """Toggle the node's expanded state.
@@ -318,11 +276,7 @@ class TreeNode(Generic[TreeDataType]):
         Returns:
             The `TreeNode` instance.
         """
-        if self._expanded:
-            self.collapse()
-        else:
-            self.expand()
-        return self
+        pass
 
     def toggle_all(self) -> Self:
         """Toggle the node's expanded state and make all those below it match.
@@ -330,20 +284,13 @@ class TreeNode(Generic[TreeDataType]):
         Returns:
             The `TreeNode` instance.
         """
-        if self._expanded:
-            self.collapse_all()
-        else:
-            self.expand_all()
-        return self
+        pass
 
     @property
     def label(self) -> TextType:
         """The label for the node."""
-        return self._label
+        pass
 
-    @label.setter
-    def label(self, new_label: TextType) -> None:
-        self.set_label(new_label)
 
     def set_label(self, label: TextType) -> None:
         """Set a new label for the node.
@@ -504,8 +451,7 @@ class TreeNode(Generic[TreeDataType]):
 
     def remove_children(self) -> None:
         """Remove any child nodes of this node."""
-        self._remove_children()
-        self._tree._invalidate()
+        pass
 
     def refresh(self) -> None:
         """Initiate a refresh (repaint) of this node."""
@@ -701,7 +647,7 @@ class Tree(Generic[TreeDataType], ScrollView, can_focus=True):
         @property
         def control(self) -> Tree[EventTreeDataType]:
             """The tree that sent the message."""
-            return self.node.tree
+            pass
 
     class NodeExpanded(Generic[EventTreeDataType], Message):
         """Event sent when a node is expanded.
@@ -718,7 +664,7 @@ class Tree(Generic[TreeDataType], ScrollView, can_focus=True):
         @property
         def control(self) -> Tree[EventTreeDataType]:
             """The tree that sent the message."""
-            return self.node.tree
+            pass
 
     class NodeHighlighted(Generic[EventTreeDataType], Message):
         """Event sent when a node is highlighted.
@@ -735,7 +681,7 @@ class Tree(Generic[TreeDataType], ScrollView, can_focus=True):
         @property
         def control(self) -> Tree[EventTreeDataType]:
             """The tree that sent the message."""
-            return self.node.tree
+            pass
 
     class NodeSelected(Generic[EventTreeDataType], Message):
         """Event sent when a node is selected.
@@ -752,7 +698,7 @@ class Tree(Generic[TreeDataType], ScrollView, can_focus=True):
         @property
         def control(self) -> Tree[EventTreeDataType]:
             """The tree that sent the message."""
-            return self.node.tree
+            pass
 
     def __init__(
         self,
@@ -837,12 +783,12 @@ class Tree(Generic[TreeDataType], ScrollView, can_focus=True):
     @property
     def cursor_node(self) -> TreeNode[TreeDataType] | None:
         """The currently selected node, or ``None`` if no selection."""
-        return self._cursor_node
+        pass
 
     @property
     def last_line(self) -> int:
         """The index of the last line."""
-        return len(self._tree_lines) - 1
+        pass
 
     def process_label(self, label: TextType) -> Text:
         """Process a `str` or `Text` value into a label.
@@ -986,13 +932,7 @@ class Tree(Generic[TreeDataType], ScrollView, can_focus=True):
         Raises:
             IndexError: If the line doesn't exist.
         """
-        if self.cursor_line == line:
-            return
-        try:
-            node = self._tree_lines[line].node
-        except IndexError:
-            raise IndexError(f"No line no. {line} in the tree")
-        self.move_cursor(node, animate=animate)
+        pass
 
     def select_node(self, node: TreeNode[TreeDataType] | None) -> None:
         """Move the cursor to the given node and select it, or reset cursor.
@@ -1000,21 +940,16 @@ class Tree(Generic[TreeDataType], ScrollView, can_focus=True):
         Args:
             node: A tree node to move the cursor to and select, or None to reset cursor.
         """
-        self.move_cursor(node)
-        if node is not None:
-            self.post_message(Tree.NodeSelected(node))
+        pass
 
     def unselect(self) -> None:
         """Hide and reset the cursor."""
-        self.set_reactive(Tree.cursor_line, -1)
-        self._invalidate()
+        pass
 
     @on(NodeSelected)
     def _expand_node_on_select(self, event: NodeSelected[TreeDataType]) -> None:
         """When the node is selected, expand the node if `auto_expand` is True."""
-        node = event.node
-        if self.auto_expand:
-            self._toggle_node(node)
+        pass
 
     def get_node_at_line(self, line_no: int) -> TreeNode[TreeDataType] | None:
         """Get the node for a given line.
@@ -1025,12 +960,7 @@ class Tree(Generic[TreeDataType], ScrollView, can_focus=True):
         Returns:
             A tree node, or ``None`` if there is no node at that line.
         """
-        try:
-            line = self._tree_lines[line_no]
-        except IndexError:
-            return None
-        else:
-            return line.node
+        pass
 
     def get_node_by_id(self, node_id: NodeID) -> TreeNode[TreeDataType]:
         """Get a tree node by its ID.
@@ -1044,10 +974,7 @@ class Tree(Generic[TreeDataType], ScrollView, can_focus=True):
         Raises:
             UnknownNodeID: Raised if the `TreeNode` ID is unknown.
         """
-        try:
-            return self._tree_nodes[node_id]
-        except KeyError:
-            raise UnknownNodeID(f"Unknown NodeID ({node_id}) in tree") from None
+        pass
 
     def validate_cursor_line(self, value: int) -> int:
         """Prevent cursor line from going outside of range.
@@ -1058,7 +985,7 @@ class Tree(Generic[TreeDataType], ScrollView, can_focus=True):
         Return:
             A valid version of the given value.
         """
-        return clamp(value, 0, len(self._tree_lines) - 1)
+        pass
 
     def validate_guide_depth(self, value: int) -> int:
         """Restrict guide depth to reasonable range.
@@ -1069,7 +996,7 @@ class Tree(Generic[TreeDataType], ScrollView, can_focus=True):
         Return:
             A valid version of the given value.
         """
-        return clamp(value, 2, 10)
+        pass
 
     def _invalidate(self) -> None:
         """Invalidate caches."""
@@ -1078,16 +1005,7 @@ class Tree(Generic[TreeDataType], ScrollView, can_focus=True):
         self.root._reset()
         self.refresh(layout=True)
 
-    def _on_mouse_move(self, event: events.MouseMove) -> None:
-        meta = event.style.meta
-        if meta and "line" in meta:
-            self.hover_line = meta["line"]
-        else:
-            self.hover_line = -1
 
-    def _on_leave(self, _: events.Leave) -> None:
-        # Ensure the hover effect doesn't linger after the mouse leaves.
-        self.hover_line = -1
 
     def _new_id(self) -> NodeID:
         """Create a new node ID.
@@ -1099,15 +1017,6 @@ class Tree(Generic[TreeDataType], ScrollView, can_focus=True):
         self._current_id += 1
         return NodeID(id)
 
-    def _get_node(self, line: int) -> TreeNode[TreeDataType] | None:
-        if line == -1:
-            return None
-        try:
-            tree_line = self._tree_lines[line]
-        except IndexError:
-            return None
-        else:
-            return tree_line.node
 
     def _get_label_region(self, line: int) -> Region | None:
         """Returns the region occupied by the label of the node at line `line`.
@@ -1130,53 +1039,9 @@ class Tree(Generic[TreeDataType], ScrollView, can_focus=True):
         region_width = self.get_label_width(tree_line.node)
         return Region(region_x, line, region_width, 1)
 
-    def watch_hover_line(self, previous_hover_line: int, hover_line: int) -> None:
-        previous_node = self._get_node(previous_hover_line)
-        if previous_node is not None:
-            self._refresh_node(previous_node)
-            previous_node._hover = False
 
-        node = self._get_node(hover_line)
-        if node is not None:
-            self._refresh_node(node)
-            node._hover = True
 
-    def watch_cursor_line(self, previous_line: int, line: int) -> None:
-        previous_node = self._get_node(previous_line)
-        node = self._get_node(line)
 
-        if self.cursor_node is not None:
-            self.cursor_node._selected = False
-
-        if previous_node is not None:
-            previous_node._selected = False
-
-        if node is not None:
-            node._selected = True
-            self._cursor_node = node
-        else:
-            self._cursor_node = None
-
-        if previous_line == line:
-            # No change, so no need for refresh
-            return
-
-        # Refresh previous cursor node
-        if previous_node is not None:
-            self._refresh_node(previous_node)
-
-        # Refresh new node
-        if node is not None:
-            self._refresh_node(node)
-            if previous_node != node:
-                self.post_message(self.NodeHighlighted(node))
-
-    def watch_guide_depth(self, guide_depth: int) -> None:
-        self._invalidate()
-
-    def watch_show_root(self, show_root: bool) -> None:
-        self.cursor_line = -1
-        self._invalidate()
 
     def scroll_to_line(self, line: int, animate: bool = True) -> None:
         """Scroll to the given line.
@@ -1218,10 +1083,6 @@ class Tree(Generic[TreeDataType], ScrollView, can_focus=True):
         region = Region(0, line - self.scroll_offset.y, self.size.width, 1)
         self.refresh(region)
 
-    def _refresh_node_line(self, line: int) -> None:
-        node = self._get_node(line)
-        if node is not None:
-            self._refresh_node(node)
 
     def _refresh_node(self, node: TreeNode[TreeDataType]) -> None:
         """Refresh a node and all its children.
@@ -1229,72 +1090,16 @@ class Tree(Generic[TreeDataType], ScrollView, can_focus=True):
         Args:
             node: A tree node.
         """
-        scroll_y = self.scroll_offset.y
-        height = self.size.height
-        visible_lines = self._tree_lines[scroll_y : scroll_y + height]
-        for line_no, line in enumerate(visible_lines, scroll_y):
-            if node in line.path:
-                self._refresh_line(line_no)
+        pass
 
-    @property
-    def _tree_lines(self) -> list[_TreeLine[TreeDataType]]:
-        if self._tree_lines_cached is None:
-            self._build()
-        assert self._tree_lines_cached is not None
-        return self._tree_lines_cached
 
     async def _on_idle(self, event: events.Idle) -> None:
         """Check tree needs a rebuild on idle."""
-        # Property calls build if required
-        async with self.lock:
-            self._tree_lines
+        pass
 
     def _build(self) -> None:
         """Builds the tree by traversing nodes, and creating tree lines."""
-
-        TreeLine = _TreeLine
-        lines: list[_TreeLine[TreeDataType]] = []
-        add_line = lines.append
-
-        root = self.root
-
-        def add_node(
-            path: list[TreeNode[TreeDataType]], node: TreeNode[TreeDataType], last: bool
-        ) -> None:
-            child_path = [*path, node]
-            node._line = len(lines)
-            add_line(TreeLine(child_path, last))
-            if node._expanded:
-                for last, child in loop_last(node._children):
-                    add_node(child_path, child, last)
-
-        if self.show_root:
-            add_node([], root, True)
-        else:
-            for node in self.root._children:
-                add_node([], node, True)
-        self._tree_lines_cached = lines
-
-        guide_depth = self.guide_depth
-        show_root = self.show_root
-        get_label_width = self.get_label_width
-
-        def get_line_width(line: _TreeLine[TreeDataType]) -> int:
-            return get_label_width(line.node) + line._get_guide_width(
-                guide_depth, show_root
-            )
-
-        if lines:
-            width = max([get_line_width(line) for line in lines])
-        else:
-            width = self.size.width
-
-        self.virtual_size = Size(width, len(lines))
-        if self.cursor_line != -1:
-            if self.cursor_node is not None:
-                self.cursor_line = self.cursor_node._line
-            if self.cursor_line >= len(lines):
-                self.cursor_line = -1
+        pass
 
     def render_lines(self, crop: Region) -> list[Strip]:
         self._pseudo_class_state = self.get_pseudo_class_state()
@@ -1438,31 +1243,8 @@ class Tree(Generic[TreeDataType], ScrollView, can_focus=True):
         strip = strip.crop(x1, x2)
         return strip
 
-    def _on_resize(self, event: events.Resize) -> None:
-        self._line_cache.grow(event.size.height)
-        self._invalidate()
 
-    def _toggle_node(self, node: TreeNode[TreeDataType]) -> None:
-        if not node.allow_expand:
-            return
-        if node.is_expanded:
-            node.collapse()
-        else:
-            node.expand()
 
-    async def _on_click(self, event: events.Click) -> None:
-        async with self.lock:
-            meta = event.style.meta
-            if "line" in meta:
-                cursor_line = meta["line"]
-                if meta.get("toggle", False):
-                    node = self.get_node_at_line(cursor_line)
-                    if node is not None:
-                        self._toggle_node(node)
-
-                else:
-                    self.cursor_line = cursor_line
-                    await self.run_action("select_cursor")
 
     def notify_style_update(self) -> None:
         super().notify_style_update()
@@ -1470,38 +1252,23 @@ class Tree(Generic[TreeDataType], ScrollView, can_focus=True):
 
     def action_cursor_up(self) -> None:
         """Move the cursor up one node."""
-        if self.cursor_line == -1:
-            self.cursor_line = self.last_line
-        else:
-            self.cursor_line -= 1
-        self.scroll_to_line(self.cursor_line, animate=False)
+        pass
 
     def action_cursor_down(self) -> None:
         """Move the cursor down one node."""
-        if self.cursor_line == -1:
-            self.cursor_line = 0
-        else:
-            self.cursor_line += 1
-        self.scroll_to_line(self.cursor_line, animate=False)
+        pass
 
     def action_page_down(self) -> None:
         """Move the cursor down a page's-worth of nodes."""
-        if self.cursor_line == -1:
-            self.cursor_line = 0
-        self.cursor_line += self.scrollable_content_region.height - 1
-        self.scroll_to_line(self.cursor_line)
+        pass
 
     def action_page_up(self) -> None:
         """Move the cursor up a page's-worth of nodes."""
-        if self.cursor_line == -1:
-            self.cursor_line = self.last_line
-        self.cursor_line -= self.scrollable_content_region.height - 1
-        self.scroll_to_line(self.cursor_line)
+        pass
 
     def action_scroll_home(self) -> None:
         """Move the cursor to the top of the tree."""
-        self.cursor_line = 0
-        self.scroll_to_line(self.cursor_line)
+        pass
 
     def action_scroll_end(self) -> None:
         """Move the cursor to the bottom of the tree.
@@ -1509,17 +1276,11 @@ class Tree(Generic[TreeDataType], ScrollView, can_focus=True):
         Note:
             Here bottom means vertically, not branch depth.
         """
-        self.cursor_line = self.last_line
-        self.scroll_to_line(self.cursor_line)
+        pass
 
     def action_toggle_node(self) -> None:
         """Toggle the expanded state of the target node."""
-        try:
-            line = self._tree_lines[self.cursor_line]
-        except IndexError:
-            pass
-        else:
-            self._toggle_node(line.path[-1])
+        pass
 
     def action_select_cursor(self) -> None:
         """Cause a select event for the target node.
@@ -1529,49 +1290,23 @@ class Tree(Generic[TreeDataType], ScrollView, can_focus=True):
             will cause both an expand/collapse event to occur, as well as a
             selected event.
         """
-        if self.cursor_line < 0:
-            return
-        try:
-            line = self._tree_lines[self.cursor_line]
-        except IndexError:
-            pass
-        else:
-            node = line.path[-1]
-            self.post_message(Tree.NodeSelected(node))
+        pass
 
     def action_cursor_parent(self) -> None:
         """Move the cursor to the parent node."""
-        cursor_node = self.cursor_node
-        if cursor_node is not None and cursor_node.parent is not None:
-            self.move_cursor(cursor_node.parent, animate=True)
+        pass
 
     def action_cursor_parent_next_sibling(self) -> None:
         """Move the cursor to the parent's next sibling."""
-        cursor_node = self.cursor_node
-        if cursor_node is not None and cursor_node.parent is not None:
-            self.move_cursor(cursor_node.parent.next_sibling, animate=True)
+        pass
 
     def action_cursor_previous_sibling(self) -> None:
         """Move the cursor to previous sibling, or to the parent if there are no more siblings."""
-        cursor_node = self.cursor_node
-        if cursor_node is not None:
-            previous_sibling = cursor_node.previous_sibling
-            if previous_sibling is None:
-                self.move_cursor(cursor_node.parent, animate=True)
-            else:
-                self.move_cursor(previous_sibling, animate=True)
+        pass
 
     def action_cursor_next_sibling(self) -> None:
         """Move the cursor to the next sibling, or to the paren't sibling if there are no more siblings."""
-        cursor_node = self.cursor_node
-        if cursor_node is not None:
-            next_sibling = cursor_node.next_sibling
-            if next_sibling is None:
-                if cursor_node.parent is not None:
-                    parent_sibling = cursor_node.parent.next_sibling
-                    self.move_cursor(parent_sibling, animate=True)
-            else:
-                self.move_cursor(next_sibling, animate=True)
+        pass
 
     def action_toggle_expand_all(self) -> None:
         """Expand or collapse all siblings.
@@ -1580,22 +1315,4 @@ class Tree(Generic[TreeDataType], ScrollView, can_focus=True):
         Otherwise they will all be collapsed.
 
         """
-
-        if self.cursor_node is None or self.cursor_node.parent is None:
-            return
-
-        siblings = self.cursor_node.siblings
-        cursor_node = self.cursor_node
-
-        # If all siblings are collapsed we want to expand them all
-        if all(child.is_collapsed for child in siblings):
-            for child in siblings:
-                if child.allow_expand:
-                    child.expand()
-        # Otherwise we want to collapse them all
-        else:
-            for child in siblings:
-                if child.allow_expand:
-                    child.collapse()
-
-        self.call_after_refresh(self.move_cursor, cursor_node, animate=False)
+        pass

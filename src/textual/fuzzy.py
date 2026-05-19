@@ -182,12 +182,12 @@ class Matcher:
     @property
     def match_style(self) -> Style:
         """The style that will be used to highlight hits in the matched text."""
-        return self._match_style
+        pass
 
     @property
     def case_sensitive(self) -> bool:
         """Is this matcher case sensitive?"""
-        return self._case_sensitive
+        pass
 
     def match(self, candidate: str) -> float:
         """Match the candidate against the query.

@@ -175,28 +175,7 @@ class StarCount(Vertical):
     @work
     async def get_stars(self):
         """Worker to get stars from GitHub API."""
-        if not HTTPX_AVAILABLE:
-            self.notify(
-                "Install httpx to update stars from the GitHub API.\n\n$ [b]pip install httpx[/b]",
-                title="GitHub Stars",
-            )
-            return
-        self.loading = True
-        try:
-            await asyncio.sleep(1)  # Time to admire the loading indicator
-            async with httpx.AsyncClient() as client:
-                repository_json = (
-                    await client.get("https://api.github.com/repos/textualize/textual")
-                ).json()
-            self.stars = repository_json["stargazers_count"]
-            self.forks = repository_json["forks"]
-        except Exception:
-            self.notify(
-                "Unable to update star count (maybe rate-limited)",
-                title="GitHub stars",
-                severity="error",
-            )
-        self.loading = False
+        pass
 
     def compose(self) -> ComposeResult:
         with Horizontal():
@@ -211,12 +190,7 @@ class StarCount(Vertical):
                 yield Label("Forks")
                 yield Digits(str(self.forks)).with_tooltip(f"{self.forks} Forks")
 
-    def on_mount(self) -> None:
-        self.tooltip = "Click to refresh"
-        self.get_stars()
 
-    def on_click(self) -> None:
-        self.get_stars()
 
 
 class Content(VerticalScroll, can_focus=False):

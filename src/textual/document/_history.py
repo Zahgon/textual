@@ -125,13 +125,7 @@ class EditHistory:
         Returns:
             The batch of Edits from the top of the undo stack or None if it's empty.
         """
-        undo_stack = self._undo_stack
-        redo_stack = self._redo_stack
-        if undo_stack:
-            batch = undo_stack.pop()
-            redo_stack.append(batch)
-            return batch
-        return None
+        pass
 
     def _pop_redo(self) -> list[Edit] | None:
         """Redo the latest batch on the redo stack and return it.
@@ -142,15 +136,7 @@ class EditHistory:
         Returns:
             The batch of Edits from the top of the redo stack or None if it's empty.
         """
-        undo_stack = self._undo_stack
-        redo_stack = self._redo_stack
-        if redo_stack:
-            batch = redo_stack.pop()
-            undo_stack.append(batch)
-            # Ensure edits which follow cannot be added to the redone batch.
-            self.checkpoint()
-            return batch
-        return None
+        pass
 
     def clear(self) -> None:
         """Completely clear the history."""
@@ -167,12 +153,12 @@ class EditHistory:
     @property
     def undo_stack(self) -> list[list[Edit]]:
         """A copy of the undo stack, with references to the original Edits."""
-        return list(self._undo_stack)
+        pass
 
     @property
     def redo_stack(self) -> list[list[Edit]]:
         """A copy of the redo stack, with references to the original Edits."""
-        return list(self._redo_stack)
+        pass
 
     def _get_time(self) -> float:
         """Get the time from the monotonic clock.

@@ -63,7 +63,7 @@ class TwoWayDict(Generic[Key, Value]):
         Returns:
             True if the value is within the values of this dict.
         """
-        return value in self._reverse
+        pass
 
     def __len__(self):
         return len(self._forward)

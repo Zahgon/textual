@@ -43,9 +43,6 @@ class LinuxInlineDriver(Driver):
     def __rich_repr__(self) -> rich.repr.Result:
         yield self._app
 
-    @property
-    def is_inline(self) -> bool:
-        return True
 
     def _enable_bracketed_paste(self) -> None:
         """Enable bracketed paste mode."""
@@ -108,73 +105,11 @@ class LinuxInlineDriver(Driver):
         Key thread target that wraps run_input_thread() to die gracefully if it raises
         an exception
         """
-        try:
-            self.run_input_thread()
-        except BaseException:
-            import rich.traceback
-
-            self._app.call_later(
-                self._app.panic,
-                rich.traceback.Traceback(),
-            )
+        pass
 
     def run_input_thread(self) -> None:
         """Wait for input and dispatch events."""
-        selector = selectors.SelectSelector()
-        selector.register(self.fileno, selectors.EVENT_READ)
-
-        fileno = self.fileno
-        EVENT_READ = selectors.EVENT_READ
-
-        parser = XTermParser(self._debug)
-        feed = parser.feed
-        tick = parser.tick
-
-        utf8_decoder = getincrementaldecoder("utf-8")().decode
-        decode = utf8_decoder
-        read = os.read
-
-        def process_selector_events(
-            selector_events: list[tuple[selectors.SelectorKey, int]],
-            final: bool = False,
-        ) -> None:
-            """Process events from selector.
-
-            Args:
-                selector_events: List of selector events.
-                final: True if this is the last call.
-
-            """
-            for last, (_selector_key, mask) in loop_last(selector_events):
-                if mask & EVENT_READ:
-                    unicode_data = decode(read(fileno, 1024 * 4), final=final and last)
-                    if not unicode_data:
-                        # This can occur if the stdin is piped
-                        break
-                    for event in feed(unicode_data):
-                        if isinstance(event, events.CursorPosition):
-                            self.cursor_origin = (event.x, event.y)
-                        else:
-                            self.process_message(event)
-            for event in tick():
-                if isinstance(event, events.CursorPosition):
-                    self.cursor_origin = (event.x, event.y)
-                else:
-                    self.process_message(event)
-
-        try:
-            while not self.exit_event.is_set():
-                process_selector_events(selector.select(0.1))
-            selector.unregister(self.fileno)
-            process_selector_events(selector.select(0.1), final=True)
-
-        finally:
-            selector.close()
-            try:
-                for event in feed(""):
-                    pass
-            except ParseError:
-                pass
+        pass
 
     def start_application_mode(self) -> None:
         loop = asyncio.get_running_loop()
@@ -201,8 +136,6 @@ class LinuxInlineDriver(Driver):
                 loop=loop,
             )
 
-        def on_terminal_resize(signum, stack) -> None:
-            send_size_event(clear=True)
 
         signal.signal(signal.SIGWINCH, on_terminal_resize)
 

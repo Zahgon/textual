@@ -28,13 +28,4 @@ class TextualHandler(Handler):
 
     def emit(self, record: LogRecord) -> None:
         """Invoked by logging."""
-        message = self.format(record)
-        try:
-            app = active_app.get()
-        except LookupError:
-            if self._stderr:
-                print(message, file=sys.stderr)
-            elif self._stdout:
-                print(message, file=sys.stdout)
-        else:
-            app.log.logging(message)
+        pass

@@ -247,12 +247,12 @@ class Animator:
     @cached_property
     def _idle_event(self) -> asyncio.Event:
         """The timer that runs the animator."""
-        return asyncio.Event()
+        pass
 
     @cached_property
     def _complete_event(self) -> asyncio.Event:
         """Flag if no animations are currently taking place."""
-        return asyncio.Event()
+        pass
 
     async def start(self) -> None:
         """Start the animator task."""
@@ -474,25 +474,7 @@ class Animator:
             key: The key for the animation to stop.
             complete: Should the animation be moved to its completed state?
         """
-        # First off, pull the timer out of the schedule and stop it; it
-        # won't be needed.
-        try:
-            schedule = self._scheduled.pop(key)
-        except KeyError:
-            return
-        schedule.stop()
-        # If we've been asked to complete (there's no point in making the
-        # animation only to then do nothing with it), and if there was a
-        # callback (there will be, but this just keeps type checkers happy
-        # really)...
-        if complete and schedule._callback is not None:
-            # ...invoke it to get the animator created and in the running
-            # animations. Yes, this does mean that a stopped scheduled
-            # animation will start running early...
-            await invoke(schedule._callback)
-            # ...but only so we can call on it to run right to the very end
-            # right away.
-            await self._stop_running_animation(key, complete)
+        pass
 
     async def _stop_running_animation(self, key: AnimationKey, complete: bool) -> None:
         """Stop a running animation.
@@ -501,11 +483,7 @@ class Animator:
             key: The key for the animation to stop.
             complete: Should the animation be moved to its completed state?
         """
-        try:
-            animation = self._animations.pop(key)
-        except KeyError:
-            return
-        await animation.stop(complete)
+        pass
 
     async def stop_animation(
         self, obj: object, attribute: str, complete: bool = True
@@ -520,11 +498,7 @@ class Animator:
         Note:
             If there is no animation scheduled or running, this is a no-op.
         """
-        key = (id(obj), attribute)
-        if key in self._scheduled:
-            await self._stop_scheduled_animation(key, complete)
-        elif key in self._animations:
-            await self._stop_running_animation(key, complete)
+        pass
 
     def force_stop_animation(self, obj: object, attribute: str) -> None:
         """Force stop an animation on an attribute. This will immediately stop the animation,

@@ -82,19 +82,11 @@ class Bar(Widget, can_focus=False):
 
     def _validate_percentage(self, percentage: float | None) -> float | None:
         """Avoid updating the bar, if the percentage increase is too small to render."""
-        width = self.size.width * 2
-        return (
-            None
-            if percentage is None
-            else (int(percentage * width) / width if width else percentage)
-        )
+        pass
 
     def watch_percentage(self, percentage: float | None) -> None:
         """Manage the timer that enables the indeterminate bar animation."""
-        if percentage is not None:
-            self.auto_refresh = None
-        else:
-            self.auto_refresh = 1 / 15
+        pass
 
     def render(self) -> RenderResult:
         """Render the bar with the correct portion filled."""
@@ -159,8 +151,6 @@ class PercentageStatus(Label):
     percentage: reactive[int | None] = reactive[Optional[int]](None)
     """The percentage of progress that has been completed."""
 
-    def _validate_percentage(self, percentage: float | None) -> int | None:
-        return None if percentage is None else round(percentage * 100)
 
     def render(self) -> RenderResult:
         return "--%" if self.percentage is None else f"{self.percentage}%"
@@ -284,10 +274,6 @@ class ProgressBar(Widget, can_focus=False):
         self.show_eta = show_eta
         self.set_reactive(ProgressBar.gradient, gradient)
 
-    def on_mount(self) -> None:
-        self.update()
-        self.set_interval(1, self.update)
-        self._clock.reset()
 
     def compose(self) -> ComposeResult:
         if self.show_bar:
@@ -303,28 +289,22 @@ class ProgressBar(Widget, can_focus=False):
 
     def _validate_total(self, total: float | None) -> float | None:
         """Ensure the total is not negative."""
-        if total is None:
-            return total
-        return max(0, total)
+        pass
 
     def _compute_percentage(self) -> float | None:
         """Keep the percentage of progress updated automatically.
 
         This will report a percentage of `1` if the total is zero.
         """
-        if self.total:
-            return clamp(self.progress / self.total, 0.0, 1.0)
-        elif self.total == 0:
-            return 1.0
-        return None
+        pass
 
     def _watch_progress(self, progress: float) -> None:
         """Perform update when progress is modified."""
-        self.update(progress=progress)
+        pass
 
     def _watch_total(self, total: float) -> None:
         """Update when the total is modified."""
-        self.update(total=total)
+        pass
 
     def advance(self, advance: float = 1) -> None:
         """Advance the progress of the progress bar by the given amount.

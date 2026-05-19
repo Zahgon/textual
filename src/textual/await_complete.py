@@ -44,7 +44,7 @@ class AwaitComplete:
         Args:
             pre_await: A callback.
         """
-        self._pre_await = pre_await
+        pass
 
     def call_next(self, node: MessagePump) -> Self:
         """Await after the next message.
@@ -67,19 +67,14 @@ class AwaitComplete:
     @property
     def is_done(self) -> bool:
         """`True` if the task has completed."""
-        return self._future.done()
+        pass
 
     @property
     def exception(self) -> BaseException | None:
         """An exception if the awaitables failed."""
-        if self._future.done():
-            return self._future.exception()
-        return None
+        pass
 
     @classmethod
     def nothing(cls):
         """Returns an already completed instance of AwaitComplete."""
-        instance = cls()
-        instance._future = Future()
-        instance._future.set_result(None)  # Mark it as completed with no result
-        return instance
+        pass

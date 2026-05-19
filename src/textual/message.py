@@ -88,12 +88,12 @@ class Message:
     @property
     def control(self) -> DOMNode | None:
         """The widget associated with this message, or None by default."""
-        return None
+        pass
 
     @property
     def is_forwarded(self) -> bool:
         """Has the message been forwarded?"""
-        return self._forwarded
+        pass
 
     def _set_forwarded(self) -> None:
         """Mark this event as being forwarded."""
@@ -136,8 +136,7 @@ class Message:
             prevent: True if the default action should be suppressed,
                 or False if the default actions should be performed.
         """
-        self._no_default_action = prevent
-        return self
+        pass
 
     def stop(self, stop: bool = True) -> Message:
         """Stop propagation of the message to parent.

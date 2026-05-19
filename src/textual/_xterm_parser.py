@@ -344,42 +344,7 @@ class XTermParser(Parser[Message]):
         Returns:
             Key event, or `None` of none could be parsed.
         """
-
-        if (match := _re_extended_key.fullmatch(sequence)) is None:
-            return None
-
-        codes, end = match.groups(default="")
-        codepoint_str, modifiers_str, text_str, *_ = codes.split(";") + ["", "", ""]
-
-        codepoint = int(codepoint_str or "1")
-        modifiers = int(modifiers_str or "0")
-        text = chr(int(text_str)) if text_str else None
-
-        if not (key := FUNCTIONAL_KEYS.get(f"{codepoint}{end}", "")):
-            key = _character_to_key(text if text else chr(codepoint))
-
-        key_tokens: list[str] = []
-        # The modifier is redundant on a modifier key
-        if modifiers and key not in MODIFIER_FUNCTIONAL_KEYS and text_str is not None:
-            modifier_bits = int(modifiers) - 1
-            # Not convinced of the utility in reporting caps_lock and num_lock
-            MODIFIERS = ("alt", "ctrl", "super", "hyper", "meta")
-            # Ignore caps_lock and num_lock modifiers
-            if modifier_bits & 1 and (text is None or text.isspace()):
-                key_tokens.append("shift")
-            for bit, modifier in enumerate(MODIFIERS, 1):
-                if modifier == "alt" and text is not None:
-                    continue
-                if modifier_bits & (1 << bit):
-                    key_tokens.append(modifier)
-
-        key_tokens.sort()
-        if key is not None:
-            key_tokens.append(key)
-        return events.Key(
-            "+".join(key_tokens),
-            text or (None if modifiers else SPECIAL_KEY_TO_CHARACTER.get(key, None)),
-        )
+        pass
 
     def _sequence_to_key_events(
         self, sequence: str, alt: bool = False
@@ -392,49 +357,4 @@ class XTermParser(Parser[Message]):
         Returns:
             Iterable of key events.
         """
-
-        if (
-            not constants.DISABLE_KITTY_KEY
-            and (key := self._parse_extended_key(sequence)) is not None
-        ):
-            yield key.copy()
-            return
-
-        keys = ANSI_SEQUENCES_KEYS.get(sequence)
-        # If we're being asked to ignore the key...
-        if keys is IGNORE_SEQUENCE:
-            # ...build a special ignore key event, which has the ignore
-            # name as the key (that is, the key this sequence is bound
-            # to is the ignore key) and the sequence that was ignored as
-            # the character.
-            yield events.Key(Keys.Ignore, sequence)
-            return
-        if isinstance(keys, tuple):
-            # If the sequence mapped to a tuple, then it's values from the
-            # `Keys` enum. Raise key events from what we find in the tuple.
-            for key in keys:
-                yield events.Key(key.value, sequence if len(sequence) == 1 else None)
-            return
-        # If keys is a string, the intention is that it's a mapping to a
-        # character, which should really be treated as the sequence for the
-        # purposes of the next step...
-        if isinstance(keys, str):
-            sequence = keys
-        # If the sequence is a single character, attempt to process it as a
-        # key.
-
-        if len(sequence) == 1:
-            try:
-                if not sequence.isalnum():
-                    name = _character_to_key(sequence)
-                else:
-                    name = sequence
-
-                name = KEY_NAME_REPLACEMENTS.get(name, name)
-                if len(name) == 1 and alt:
-                    if name.isupper():
-                        name = f"shift+{name.lower()}"
-                    name = f"alt+{name}"
-                yield events.Key(name, sequence)
-            except Exception:
-                yield events.Key(sequence, sequence)
+        pass

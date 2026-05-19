@@ -479,18 +479,7 @@ class Compositor:
     @property
     def full_map(self) -> CompositorMap:
         """Lazily built compositor map that covers all widgets."""
-
-        if self.root is None:
-            return {}
-        if self._full_map_invalidated:
-            self._full_map_invalidated = False
-            map, _widgets = self._arrange_root(self.root, self.size, visible_only=False)
-            # Update any widgets which became visible in the interim
-            self._full_map = map
-            self._visible_widgets = None
-            self._visible_map = None
-
-        return self._full_map
+        pass
 
     @property
     def visible_widgets(self) -> dict[Widget, tuple[Region, Region]]:
@@ -499,28 +488,7 @@ class Compositor:
         Returns:
             Visible widget mapping.
         """
-
-        if self._visible_widgets is None:
-            map = (
-                self._visible_map
-                if self._visible_map is not None
-                else (self._full_map or {})
-            )
-            screen = self.size.region
-            in_screen = screen.overlaps
-            overlaps = Region.overlaps
-
-            # Widgets and regions in render order
-            visible_widgets = [
-                (order, widget, region, clip)
-                for widget, (region, order, clip, _, _, _, _) in map.items()
-                if in_screen(region) and overlaps(clip, region)
-            ]
-            visible_widgets.sort(key=itemgetter(0), reverse=True)
-            self._visible_widgets = {
-                widget: (region, clip) for _, widget, region, clip in visible_widgets
-            }
-        return self._visible_widgets
+        pass
 
     def _arrange_root(
         self, root: Widget, size: Size, visible_only: bool = True
@@ -757,12 +725,7 @@ class Compositor:
     @property
     def layers(self) -> list[tuple[Widget, MapGeometry]]:
         """Get widgets and geometry in layer order."""
-        map = self._visible_map if self._visible_map is not None else self._full_map
-        if self._layers is None:
-            self._layers = sorted(
-                map.items(), key=lambda item: item[1].order, reverse=True
-            )
-        return self._layers
+        pass
 
     @property
     def layers_visible(self) -> list[list[tuple[Widget, Region, Region]]]:
@@ -774,22 +737,7 @@ class Compositor:
             the container.
 
         """
-
-        if self._layers_visible is None:
-            layers_visible: list[list[tuple[Widget, Region, Region]]]
-            layers_visible = [[] for y in range(self.size.height)]
-            layers_visible_appends = [layer.append for layer in layers_visible]
-            intersection = Region.intersection
-            _range = range
-            for widget, (region, clip) in self.visible_widgets.items():
-                cropped_region = intersection(region, clip)
-                _x, region_y, _width, region_height = cropped_region
-                if region_height:
-                    widget_location = (widget, cropped_region, region)
-                    for y in _range(region_y, region_y + region_height):
-                        layers_visible_appends[y](widget_location)
-            self._layers_visible = layers_visible
-        return self._layers_visible
+        pass
 
     def __contains__(self, widget: Widget) -> bool:
         """Check if the widget was included in the last update.
@@ -816,15 +764,7 @@ class Compositor:
         Returns:
             Offset of widget.
         """
-        try:
-            if self._visible_map is not None:
-                try:
-                    return self._visible_map[widget].region.offset
-                except KeyError:
-                    pass
-            return self.full_map[widget].region.offset
-        except KeyError:
-            raise errors.NoWidget("Widget is not in layout")
+        pass
 
     def get_widget_at(self, x: int, y: int) -> tuple[Widget, Region]:
         """Get the widget under a given coordinate.
@@ -1010,26 +950,7 @@ class Compositor:
         Returns:
             A list of cuts for every line.
         """
-        if self._cuts is not None:
-            return self._cuts
-
-        width, height = self.size
-        cuts = [[0, width] for _ in range(height)]
-
-        intersection = Region.intersection
-        extend = list.extend
-
-        for region, clip in self.visible_widgets.values():
-            x, y, region_width, region_height = intersection(region, clip)
-            if region_width and region_height:
-                region_cuts = (x, x + region_width)
-                for cut in cuts[y : y + region_height]:
-                    extend(cut, region_cuts)
-
-        # Sort the cuts for each line
-        self._cuts = [sorted(set(line_cuts)) for line_cuts in cuts]
-
-        return self._cuts
+        pass
 
     def _get_renders(
         self, crop: Region | None = None

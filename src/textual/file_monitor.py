@@ -61,4 +61,4 @@ class FileMonitor:
 
     async def on_change(self) -> None:
         """Called when any of the monitored files change."""
-        await invoke(self.callback)
+        pass

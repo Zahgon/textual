@@ -78,9 +78,6 @@ class Log(ScrollView, can_focus=True):
         """The Rich Highlighter object to use, if `highlight=True`"""
         self._clear_y = 0
 
-    @property
-    def allow_select(self) -> bool:
-        return True
 
     @property
     def lines(self) -> Sequence[str]:
@@ -90,7 +87,7 @@ class Log(ScrollView, can_focus=True):
         Changing the lines will not update the Log's contents.
 
         """
-        return self._lines
+        pass
 
     def notify_style_update(self) -> None:
         """Called by Textual when styles update."""
@@ -104,16 +101,12 @@ class Log(ScrollView, can_focus=True):
             updates: A counter of updates.
             size: Maximum size of new lines.
         """
-        if updates == self._updates:
-            self._width = max(size, self._width)
-            self.virtual_size = Size(self._width, self.line_count)
+        pass
 
     @property
     def line_count(self) -> int:
         """Number of lines of content."""
-        if self._lines:
-            return len(self._lines) - (self._lines[-1] == "")
-        return 0
+        pass
 
     @classmethod
     def _process_line(cls, line: str) -> str:
@@ -135,10 +128,7 @@ class Log(ScrollView, can_focus=True):
             updates: The update index at the time of invocation.
             lines: Lines that were added.
         """
-        if lines:
-            _process_line = self._process_line
-            max_length = max(cell_len(_process_line(line)) for line in lines)
-            self.app.call_from_thread(self._update_maximum_width, updates, max_length)
+        pass
 
     def _prune_max_lines(self) -> None:
         """Prune lines if there are more than the maximum."""
@@ -209,8 +199,7 @@ class Log(ScrollView, can_focus=True):
         Returns:
             The `Log` instance.
         """
-        self.write_lines([line], scroll_end)
-        return self
+        pass
 
     def write_lines(
         self,
@@ -226,27 +215,7 @@ class Log(ScrollView, can_focus=True):
         Returns:
             The `Log` instance.
         """
-        is_vertical_scroll_end = self.is_vertical_scroll_end
-        auto_scroll = self.auto_scroll if scroll_end is None else scroll_end
-        new_lines = []
-        for line in lines:
-            new_lines.extend(line.splitlines())
-        start_line = len(self._lines)
-        self._lines.extend(new_lines)
-        if self.max_lines is not None and len(self._lines) > self.max_lines:
-            self._prune_max_lines()
-        self.virtual_size = Size(self._width, len(self._lines))
-        self._update_size(self._updates, new_lines)
-        self.refresh_lines(start_line, len(new_lines))
-        if (
-            auto_scroll
-            and not self.is_vertical_scrollbar_grabbed
-            and is_vertical_scroll_end
-        ):
-            self.scroll_end(animate=False, immediate=True, x_axis=False)
-        else:
-            self.refresh()
-        return self
+        pass
 
     def clear(self) -> Self:
         """Clear the Log.
@@ -271,12 +240,8 @@ class Log(ScrollView, can_focus=True):
         Returns:
             Tuple of extracted text and ending (typically "\n" or " "), or `None` if no text could be extracted.
         """
-        text = "\n".join(self._lines)
-        return selection.extract(text), "\n"
+        pass
 
-    def selection_updated(self, selection: Selection | None) -> None:
-        self._render_line_cache.clear()
-        self.refresh()
 
     def render_line(self, y: int) -> Strip:
         """Render a line of content.

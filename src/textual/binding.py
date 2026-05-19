@@ -116,7 +116,7 @@ class Binding:
         Returns:
             A new binding with the key set to the specified value.
         """
-        return dataclasses.replace(self, key=key, key_display=key_display)
+        pass
 
     @classmethod
     def make_bindings(cls, bindings: Iterable[BindingType]) -> Iterable[Binding]:
@@ -212,7 +212,7 @@ class BindingsMap:
         Args:
             binding: New Binding to add.
         """
-        self.key_to_bindings.setdefault(binding.key, []).append(binding)
+        pass
 
     def __iter__(self) -> Iterator[tuple[str, Binding]]:
         """Iterating produces a sequence of (KEY, BINDING) tuples."""
@@ -278,70 +278,12 @@ class BindingsMap:
         Returns:
             KeymapApplyResult: The result of applying the keymap, including any clashed bindings.
         """
-        clashed_bindings: set[Binding] = set()
-        new_bindings: dict[str, list[Binding]] = {}
-
-        key_to_bindings = list(self.key_to_bindings.items())
-        for key, bindings in key_to_bindings:
-            for binding in bindings:
-                binding_id = binding.id
-                if binding_id is None:
-                    # Bindings without an ID are irrelevant when applying a keymap
-                    continue
-
-                # If the keymap has an override for this binding ID
-                if keymap_key_string := keymap.get(binding_id):
-                    keymap_keys = keymap_key_string.split(",")
-
-                    # Remove the old binding
-                    for key, key_bindings in key_to_bindings:
-                        key = key.strip()
-                        if any(binding.id == binding_id for binding in key_bindings):
-                            if key in self.key_to_bindings:
-                                del self.key_to_bindings[key]
-
-                    for keymap_key in keymap_keys:
-                        if (
-                            keymap_key in self.key_to_bindings
-                            or keymap_key in new_bindings
-                        ):
-                            # The key is already mapped either by default or by the keymap,
-                            # so there's a clash unless the existing binding is being rebound
-                            # to a different key.
-                            clashing_bindings = self.key_to_bindings.get(
-                                keymap_key, []
-                            ) + new_bindings.get(keymap_key, [])
-                            for clashed_binding in clashing_bindings:
-                                # If the existing binding is not being rebound, it's a clash
-                                if not (
-                                    clashed_binding.id
-                                    and keymap.get(clashed_binding.id)
-                                    != clashed_binding.key
-                                ):
-                                    clashed_bindings.add(clashed_binding)
-
-                            if keymap_key in self.key_to_bindings:
-                                del self.key_to_bindings[keymap_key]
-
-                    for keymap_key in keymap_keys:
-                        new_bindings.setdefault(keymap_key, []).append(
-                            binding.with_key(key=keymap_key, key_display=None)
-                        )
-
-        # Update the key_to_bindings with the new bindings
-        self.key_to_bindings.update(new_bindings)
-        return KeymapApplyResult(clashed_bindings)
+        pass
 
     @property
     def shown_keys(self) -> list[Binding]:
         """A list of bindings for shown keys."""
-        keys = [
-            binding
-            for bindings in self.key_to_bindings.values()
-            for binding in bindings
-            if binding.show
-        ]
-        return keys
+        pass
 
     def bind(
         self,
@@ -387,10 +329,7 @@ class BindingsMap:
         Returns:
             A list of bindings associated with the key.
         """
-        try:
-            return self.key_to_bindings[key]
-        except KeyError:
-            raise NoBinding(f"No binding for {key}") from None
+        pass
 
 
 class KeymapApplyResult(NamedTuple):

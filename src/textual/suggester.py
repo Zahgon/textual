@@ -59,18 +59,7 @@ class Suggester(ABC):
             requester: The message target that requested a suggestion.
             value: The current value to complete.
         """
-
-        normalized_value = value if self.case_sensitive else value.casefold()
-        if self.cache is None or normalized_value not in self.cache:
-            suggestion = await self.get_suggestion(normalized_value)
-            if self.cache is not None:
-                self.cache[normalized_value] = suggestion
-        else:
-            suggestion = self.cache[normalized_value]
-
-        if suggestion is None:
-            return
-        requester.post_message(SuggestionReady(value, suggestion))
+        pass
 
     @abstractmethod
     async def get_suggestion(self, value: str) -> str | None:

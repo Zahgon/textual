@@ -75,7 +75,7 @@ class WrappedDocument:
 
         In other words, this is True if the length of any line in the document is greater
         than the available width."""
-        return len(self._line_index_to_offsets) == len(self._offset_to_line_info)
+        pass
 
     def wrap(self, width: int, tab_width: int | None = None) -> None:
         """Wrap and cache all lines in the document.
@@ -140,18 +140,12 @@ class WrappedDocument:
         Returns:
             A list of lines from the wrapped version of the document.
         """
-        wrapped_lines: list[list[str]] = []
-        append = wrapped_lines.append
-        for line_index, line in enumerate(self.document.lines):
-            divided = Text(line).divide(self._wrap_offsets[line_index])
-            append([section.plain for section in divided])
-
-        return wrapped_lines
+        pass
 
     @property
     def height(self) -> int:
         """The height of the wrapped document."""
-        return sum(len(offsets) + 1 for offsets in self._wrap_offsets)
+        pass
 
     def wrap_range(
         self,
@@ -288,41 +282,7 @@ class WrappedDocument:
         Returns:
             The Location in the document corresponding to the given offset.
         """
-        x, y = offset
-        x = max(0, x)
-        y = max(0, y)
-
-        if not self._width:
-            # No wrapping, so we directly map offset to location and clamp.
-            line_index = min(y, len(self._wrap_offsets) - 1)
-            column_index = cell_width_to_column_index(
-                self.document.get_line(line_index), x, self._tab_width
-            )
-            return line_index, column_index
-
-        # Find the line corresponding to the given y offset in the wrapped document.
-        get_target_document_column = self.get_target_document_column
-
-        try:
-            offset_data = self._offset_to_line_info[y]
-        except IndexError:
-            # y-offset is too large
-            offset_data = self._offset_to_line_info[-1]
-
-        if offset_data is not None:
-            line_index, section_y = offset_data
-            location = line_index, get_target_document_column(
-                line_index,
-                x,
-                section_y,
-            )
-        else:
-            location = len(self._wrap_offsets) - 1, get_target_document_column(
-                -1, x, -1
-            )
-
-        # Offset doesn't match any line => land on bottom wrapped line
-        return location
+        pass
 
     def location_to_offset(self, location: Location) -> Offset:
         """
@@ -372,36 +332,7 @@ class WrappedDocument:
         Returns:
             The column index corresponding to the line index and y offset.
         """
-
-        # We've found the relevant line, now find the character by
-        # looking at the character corresponding to the offset width.
-        sections = self.get_sections(line_index)
-
-        # wrapped_section is the text that appears on a single y_offset within
-        # the TextArea. It's a potentially wrapped portion of a larger line from
-        # the original document.
-        target_section = sections[y_offset]
-
-        # Add the offsets from the wrapped sections above this one (from the same raw
-        # document line)
-        target_section_start = sum(
-            len(wrapped_section) for wrapped_section in sections[:y_offset]
-        )
-
-        # Get the column index within this wrapped section of the line
-        target_column_index = target_section_start + cell_width_to_column_index(
-            target_section, x_offset, self._tab_width
-        )
-
-        # If we're on the final section of a line, the cursor can legally rest beyond
-        # the end by a single cell. Otherwise, we'll need to ensure that we're
-        # keeping the cursor within the bounds of the target section.
-        if y_offset != len(sections) - 1 and y_offset != -1:
-            target_column_index = min(
-                target_column_index, target_section_start + len(target_section) - 1
-            )
-
-        return target_column_index
+        pass
 
     def get_sections(self, line_index: int) -> list[str]:
         """Return the sections for the given line index.

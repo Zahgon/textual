@@ -90,18 +90,11 @@ class ColorSystem:
     @property
     def shades(self) -> Iterable[str]:
         """The names of the colors and derived shades."""
-        for color in self.COLOR_NAMES:
-            for shade_number in range(-NUMBER_OF_SHADES, NUMBER_OF_SHADES + 1):
-                if shade_number < 0:
-                    yield f"{color}-darken-{abs(shade_number)}"
-                elif shade_number > 0:
-                    yield f"{color}-lighten-{shade_number}"
-                else:
-                    yield color
+        pass
 
     def get_or_default(self, name: str, default: str) -> str:
         """Get the value of a color variable, or the default value if not set."""
-        return self.variables.get(name, default)
+        pass
 
     def generate(self) -> dict[str, str]:
         """Generate a mapping of color name on to a CSS color.
@@ -540,20 +533,4 @@ def show_design(light: ColorSystem, dark: ColorSystem) -> Table:
     Returns:
         Table showing all colors.
     """
-
-    @group()
-    def make_shades(system: ColorSystem):
-        colors = system.generate()
-        for name in system.shades:
-            background = Color.parse(colors[name]).with_alpha(1.0)
-            foreground = background + background.get_contrast_text(0.9)
-
-            text = Text(f"${name}")
-
-            yield Padding(text, 1, style=f"{foreground.hex6} on {background.hex6}")
-
-    table = Table(box=None, expand=True)
-    table.add_column("Light", justify="center")
-    table.add_column("Dark", justify="center")
-    table.add_row(make_shades(light), make_shades(dark))
-    return table
+    pass

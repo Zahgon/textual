@@ -70,11 +70,7 @@ class ContentSwitcher(Container):
 
     def _on_mount(self, _: Mount) -> None:
         """Perform the initial setup of the widget once the DOM is ready."""
-        initial = self._initial
-        with self.app.batch_update():
-            for child in self.children:
-                child.display = bool(initial) and child.id == initial
-        self._reactive_current = initial
+        pass
 
     @property
     def visible_content(self) -> Widget | None:
@@ -82,7 +78,7 @@ class ContentSwitcher(Container):
 
         `None` if nothing is visible.
         """
-        return self.get_child_by_id(self.current) if self.current is not None else None
+        pass
 
     def watch_current(self, old: str | None, new: str | None) -> None:
         """React to the current visible child choice being changed.
@@ -91,14 +87,7 @@ class ContentSwitcher(Container):
             old: The old widget ID (or `None` if there was no widget).
             new: The new widget ID (or `None` if nothing should be shown).
         """
-        with self.app.batch_update():
-            if old:
-                try:
-                    self.get_child_by_id(old).display = False
-                except NoMatches:
-                    pass
-            if new:
-                self.get_child_by_id(new).display = True
+        pass
 
     def add_content(
         self, widget: Widget, *, id: str | None = None, set_current: bool = False

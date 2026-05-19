@@ -43,7 +43,7 @@ class GridLayout(Layout):
         Returns:
             A tuple of (WIDTH, HEIGHT) or `None` prior to the first `arrange`.
         """
-        return self._grid_size
+        pass
 
     def arrange(
         self, parent: Widget, children: list[Widget], size: Size, greedy: bool = True

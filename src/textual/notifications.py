@@ -51,12 +51,12 @@ class Notification:
     @property
     def time_left(self) -> float:
         """The time left until this notification expires"""
-        return (self.raised_at + self.timeout) - time()
+        pass
 
     @property
     def has_expired(self) -> bool:
         """Has the notification expired?"""
-        return self.time_left <= 0
+        pass
 
     def __rich_repr__(self) -> Result:
         yield "message", self.message

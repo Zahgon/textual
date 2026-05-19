@@ -60,12 +60,5 @@ class Link(Static, can_focus=True):
         self.set_reactive(Link.url, text if url is None else url)
         self.tooltip = tooltip
 
-    def watch_text(self, text: str) -> None:
-        self.update(text)
 
-    def on_click(self) -> None:
-        self.action_open_link()
 
-    def action_open_link(self) -> None:
-        if self.url:
-            self.app.open_url(self.url)

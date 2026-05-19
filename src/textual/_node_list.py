@@ -90,12 +90,7 @@ class NodeList(Sequence["Widget"]):
             key: A key function which accepts a widget, or `None` for no key function.
             reverse: Sort in descending order.
         """
-        if key is None:
-            self._nodes.sort(key=attrgetter("sort_order"), reverse=reverse)
-        else:
-            self._nodes.sort(key=key, reverse=reverse)
-
-        self.updated()
+        pass
 
     def index(self, widget: Any, start: int = 0, stop: int = sys.maxsize) -> int:
         """Return the index of the given widget.
@@ -193,27 +188,17 @@ class NodeList(Sequence["Widget"]):
     @property
     def displayed(self) -> Sequence[Widget]:
         """Just the nodes where `display==True`."""
-        if self._displayed_nodes[0] != self._updates:
-            self._displayed_nodes = (
-                self._updates,
-                list(filter(_display_getter, self._nodes)),
-            )
-        return self._displayed_nodes[1]
+        pass
 
     @property
     def displayed_and_visible(self) -> Sequence[Widget]:
         """Nodes with both `display==True` and `visible==True`."""
-        if self._displayed_visible_nodes[0] != self._updates:
-            self._displayed_nodes = (
-                self._updates,
-                list(filter(_visible_getter, self.displayed)),
-            )
-        return self._displayed_nodes[1]
+        pass
 
     @property
     def displayed_reverse(self) -> Iterator[Widget]:
         """Just the nodes where `display==True`, in reverse order."""
-        return filter(_display_getter, reversed(self._nodes))
+        pass
 
     if TYPE_CHECKING:
 

@@ -100,19 +100,17 @@ class Offset(NamedTuple):
     @property
     def is_origin(self) -> bool:
         """Is the offset at (0, 0)?"""
-        return self == (0, 0)
+        pass
 
     @property
     def clamped(self) -> Offset:
         """This offset with `x` and `y` restricted to values above zero."""
-        x, y = self
-        return Offset(0 if x < 0 else x, 0 if y < 0 else y)
+        pass
 
     @property
     def transpose(self) -> tuple[int, int]:
         """A tuple of x and y, in reverse order, i.e. (y, x)."""
-        x, y = self
-        return y, x
+        pass
 
     def __bool__(self) -> bool:
         return self != (0, 0)
@@ -218,18 +216,17 @@ class Size(NamedTuple):
     @property
     def area(self) -> int:
         """The area occupied by a region of this size."""
-        return self.width * self.height
+        pass
 
     @property
     def region(self) -> Region:
         """A region of the same size, at the origin."""
-        width, height = self
-        return Region(0, 0, width, height)
+        pass
 
     @property
     def line_range(self) -> range:
         """A range object that covers values between 0 and `height`."""
-        return range(self.height)
+        pass
 
     def with_width(self, width: int) -> Size:
         """Get a new Size with just the width changed.
@@ -240,7 +237,7 @@ class Size(NamedTuple):
         Returns:
             New Size instance.
         """
-        return Size(width, self.height)
+        pass
 
     def with_height(self, height: int) -> Size:
         """Get a new Size with just the height changed.
@@ -289,9 +286,7 @@ class Size(NamedTuple):
         Returns:
             True if the point is within the region.
         """
-        x, y = point
-        width, height = self
-        return width > x >= 0 and height > y >= 0
+        pass
 
     def __contains__(self, other: Any) -> bool:
         try:
@@ -406,9 +401,7 @@ class Region(NamedTuple):
         Returns:
             A region instance.
         """
-        x, y = offset
-        width, height = size
-        return cls(x, y, width, height)
+        pass
 
     @classmethod
     def get_scroll_to_visible(
@@ -475,7 +468,7 @@ class Region(NamedTuple):
 
         The end value is *exclusive*.
         """
-        return (self.x, self.x + self.width)
+        pass
 
     @property
     def line_span(self) -> tuple[int, int]:
@@ -483,22 +476,22 @@ class Region(NamedTuple):
 
         The end value is *exclusive*.
         """
-        return (self.y, self.y + self.height)
+        pass
 
     @property
     def right(self) -> int:
         """Maximum X value (non inclusive)."""
-        return self.x + self.width
+        pass
 
     @property
     def bottom(self) -> int:
         """Maximum Y value (non inclusive)."""
-        return self.y + self.height
+        pass
 
     @property
     def area(self) -> int:
         """The area under the region."""
-        return self.width * self.height
+        pass
 
     @property
     def offset(self) -> Offset:
@@ -507,7 +500,7 @@ class Region(NamedTuple):
         Returns:
             An offset.
         """
-        return Offset(*self[:2])
+        pass
 
     @property
     def center(self) -> tuple[float, float]:
@@ -518,8 +511,7 @@ class Region(NamedTuple):
         Returns:
             Tuple of floats.
         """
-        x, y, width, height = self
-        return (x + width / 2.0, y + height / 2.0)
+        pass
 
     @property
     def bottom_left(self) -> Offset:
@@ -528,8 +520,7 @@ class Region(NamedTuple):
         Returns:
             An offset.
         """
-        x, y, _width, height = self
-        return Offset(x, y + height)
+        pass
 
     @property
     def top_right(self) -> Offset:
@@ -538,8 +529,7 @@ class Region(NamedTuple):
         Returns:
             An offset.
         """
-        x, y, width, _height = self
-        return Offset(x + width, y)
+        pass
 
     @property
     def bottom_right(self) -> Offset:
@@ -548,35 +538,32 @@ class Region(NamedTuple):
         Returns:
             An offset.
         """
-        x, y, width, height = self
-        return Offset(x + width, y + height)
+        pass
 
     @property
     def bottom_right_inclusive(self) -> Offset:
         """Bottom right corner of the region, within its boundaries."""
-        x, y, width, height = self
-        return Offset(x + width - 1, y + height - 1)
+        pass
 
     @property
     def size(self) -> Size:
         """Get the size of the region."""
-        return Size(*self[2:])
+        pass
 
     @property
     def corners(self) -> tuple[int, int, int, int]:
         """The top left and bottom right coordinates as a tuple of four integers."""
-        x, y, width, height = self
-        return x, y, x + width, y + height
+        pass
 
     @property
     def column_range(self) -> range:
         """A range object for X coordinates."""
-        return range(self.x, self.x + self.width)
+        pass
 
     @property
     def line_range(self) -> range:
         """A range object for Y coordinates."""
-        return range(self.y, self.y + self.height)
+        pass
 
     @property
     def reset_offset(self) -> Region:
@@ -585,8 +572,7 @@ class Region(NamedTuple):
         Returns:
             A region at the origin.
         """
-        _, _, width, height = self
-        return Region(0, 0, width, height)
+        pass
 
     def __add__(self, other: object) -> Region:
         if isinstance(other, tuple):
@@ -701,12 +687,7 @@ class Region(NamedTuple):
         Returns:
             True if the point is within the region.
         """
-        x1, y1, x2, y2 = self.corners
-        try:
-            ox, oy = point
-        except Exception:
-            raise TypeError(f"a tuple of two integers is required, not {point!r}")
-        return (x2 > ox >= x1) and (y2 > oy >= y1)
+        pass
 
     @lru_cache(maxsize=1024)
     def contains_region(self, other: Region) -> bool:
@@ -763,16 +744,7 @@ class Region(NamedTuple):
         Returns:
             Clipped region.
         """
-        x1, y1, x2, y2 = self.corners
-
-        _clamp = clamp
-        new_region = Region.from_corners(
-            _clamp(x1, 0, width),
-            _clamp(y1, 0, height),
-            _clamp(x2, 0, width),
-            _clamp(y2, 0, height),
-        )
-        return new_region
+        pass
 
     @lru_cache(maxsize=4096)
     def grow(self, margin: tuple[int, int, int, int]) -> Region:
@@ -1165,40 +1137,37 @@ class Spacing(NamedTuple):
     @property
     def width(self) -> int:
         """Total space in the x axis."""
-        return self.left + self.right
+        pass
 
     @property
     def height(self) -> int:
         """Total space in the y axis."""
-        return self.top + self.bottom
+        pass
 
     @property
     def max_width(self) -> int:
         """The space between regions in the X direction if margins overlap, i.e. `max(self.left, self.right)`."""
-        _top, right, _bottom, left = self
-        return left if left > right else right
+        pass
 
     @property
     def max_height(self) -> int:
         """The space between regions in the Y direction if margins overlap, i.e. `max(self.top, self.bottom)`."""
-        top, _right, bottom, _left = self
-        return top if top > bottom else bottom
+        pass
 
     @property
     def top_left(self) -> tuple[int, int]:
         """A pair of integers for the left, and top space."""
-        return (self.left, self.top)
+        pass
 
     @property
     def bottom_right(self) -> tuple[int, int]:
         """A pair of integers for the right, and bottom space."""
-        return (self.right, self.bottom)
+        pass
 
     @property
     def totals(self) -> tuple[int, int]:
         """A pair of integers for the total horizontal and vertical space."""
-        top, right, bottom, left = self
-        return (left + right, top + bottom)
+        pass
 
     @property
     def css(self) -> str:
@@ -1206,13 +1175,7 @@ class Spacing(NamedTuple):
 
         For example: "1" or "2 4" or "4 2 8 2".
         """
-        top, right, bottom, left = self
-        if top == right == bottom == left:
-            return f"{top}"
-        if (top, right) == (bottom, left):
-            return f"{top} {right}"
-        else:
-            return f"{top} {right} {bottom} {left}"
+        pass
 
     @classmethod
     def unpack(cls, pad: SpacingDimensions) -> Spacing:
@@ -1254,7 +1217,7 @@ class Spacing(NamedTuple):
         Returns:
             `Spacing(amount, 0, amount, 0)`
         """
-        return Spacing(amount, 0, amount, 0)
+        pass
 
     @classmethod
     def horizontal(cls, amount: int) -> Spacing:
@@ -1267,7 +1230,7 @@ class Spacing(NamedTuple):
         Returns:
             `Spacing(0, amount, 0, amount)`
         """
-        return Spacing(0, amount, 0, amount)
+        pass
 
     @classmethod
     def all(cls, amount: int) -> Spacing:
@@ -1279,7 +1242,7 @@ class Spacing(NamedTuple):
         Returns:
             `Spacing(amount, amount, amount, amount)`
         """
-        return Spacing(amount, amount, amount, amount)
+        pass
 
     def __add__(self, other: object) -> Spacing:
         if isinstance(other, tuple):
@@ -1355,27 +1318,22 @@ class Shape:
 
         This is a debugging aid (do not use in production).
         """
-        width, height = size
-        map: list[list[str]] = []
-        for y in range(height):
-            map.append([".X"[self.contains_point(Offset(x, y))] for x in range(width)])
-        return "\n".join("".join(line) for line in map)
+        pass
 
     @property
     def regions(self) -> tuple[Region, ...]:
         """The regions in the shape."""
-        return self._regions
+        pass
 
     @property
     def bounds(self) -> Region:
         """A region that encloses the shape."""
-        return self._bounds
+        pass
 
     @property
     def area(self) -> int:
         """Cells covered by the shape."""
-        # TODO: Currently doesn't handle overlapping regions
-        return sum(region.area for region in self._regions)
+        pass
 
     @classmethod
     def selection_bounds(cls, container: Region, start: Offset, end: Offset) -> Shape:
@@ -1477,7 +1435,7 @@ class Shape:
         Returns:
             `True` if the given offset is anywhere within the shape, otherwise `False`.
         """
-        return any(region.contains_point(offset) for region in self._regions)
+        pass
 
 
 if not TYPE_CHECKING and os.environ.get("TEXTUAL_SPEEDUPS", "1") == "1":

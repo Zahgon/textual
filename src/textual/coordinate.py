@@ -31,8 +31,7 @@ class Coordinate(NamedTuple):
         Returns:
             The coordinate to the right.
         """
-        row, column = self
-        return Coordinate(row, column + 1)
+        pass
 
     def up(self) -> Coordinate:
         """Get the coordinate above.
@@ -40,8 +39,7 @@ class Coordinate(NamedTuple):
         Returns:
             The coordinate above.
         """
-        row, column = self
-        return Coordinate(row - 1, column)
+        pass
 
     def down(self) -> Coordinate:
         """Get the coordinate below.
@@ -49,5 +47,4 @@ class Coordinate(NamedTuple):
         Returns:
             The coordinate below.
         """
-        row, column = self
-        return Coordinate(row + 1, column)
+        pass

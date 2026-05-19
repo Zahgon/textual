@@ -299,7 +299,7 @@ class Key(InputEvent):
     @property
     def name_aliases(self) -> list[str]:
         """The corresponding name for every alias in `aliases` list."""
-        return [_key_to_identifier(key) for key in self.aliases]
+        pass
 
     @property
     def is_printable(self) -> bool:
@@ -308,12 +308,12 @@ class Key(InputEvent):
         Returns:
             `True` if the key is printable.
         """
-        return False if self.character is None else self.character.isprintable()
+        pass
 
     @property
     def aliases(self) -> list[str]:
         """The aliases for the key, including the key itself."""
-        return _get_key_aliases(self.key)
+        pass
 
 
 def _key_to_identifier(key: str) -> str:
@@ -407,52 +407,52 @@ class MouseEvent(InputEvent, bubble=True):
     @property
     def x(self) -> int:
         """The relative X coordinate of the cell under the mouse."""
-        return int(self._x)
+        pass
 
     @property
     def y(self) -> int:
         """The relative Y coordinate of the cell under the mouse."""
-        return int(self._y)
+        pass
 
     @property
     def delta_x(self) -> int:
         """Change in `x` since last message."""
-        return self._delta_x
+        pass
 
     @property
     def delta_y(self) -> int:
         """Change in `y` since the last message."""
-        return self._delta_y
+        pass
 
     @property
     def screen_x(self) -> int:
         """X coordinate of the cell relative to top left of screen."""
-        return int(self._screen_x)
+        pass
 
     @property
     def screen_y(self) -> int:
         """Y coordinate of the cell relative to top left of screen."""
-        return int(self._screen_y)
+        pass
 
     @property
     def pointer_x(self) -> float:
         """The relative X coordinate of the pointer."""
-        return self._x
+        pass
 
     @property
     def pointer_y(self) -> float:
         """The relative Y coordinate of the pointer."""
-        return self._y
+        pass
 
     @property
     def pointer_screen_x(self) -> float:
         """The X coordinate of the pointer relative to the screen."""
-        return self._screen_x
+        pass
 
     @property
     def pointer_screen_y(self) -> float:
         """The Y coordinate of the pointer relative to the screen."""
-        return self._screen_y
+        pass
 
     @classmethod
     def from_event(
@@ -493,9 +493,6 @@ class MouseEvent(InputEvent, bubble=True):
         if self.style:
             yield "style", self.style
 
-    @property
-    def control(self) -> Widget | None:
-        return self.widget
 
     @property
     def offset(self) -> Offset:
@@ -504,26 +501,23 @@ class MouseEvent(InputEvent, bubble=True):
         Returns:
             Mouse coordinate.
         """
-        return Offset(self.x, self.y)
+        pass
 
     @property
     def screen_offset(self) -> Offset:
         """Mouse coordinate relative to the screen."""
-        return Offset(self.screen_x, self.screen_y)
+        pass
 
     @property
     def delta(self) -> Offset:
         """Mouse coordinate delta (change since last event)."""
-        return Offset(self.delta_x, self.delta_y)
+        pass
 
     @property
     def style(self) -> Style:
         """The (Rich) Style under the cursor."""
-        return self._style or Style()
+        pass
 
-    @style.setter
-    def style(self, style: Style) -> None:
-        self._style = style
 
     def get_content_offset(self, widget: Widget) -> Offset | None:
         """Get offset within a widget's content area, or None if offset is not in content (i.e. padding or border).
@@ -534,9 +528,7 @@ class MouseEvent(InputEvent, bubble=True):
         Returns:
             An offset where the origin is at the top left of the content area.
         """
-        if self.screen_offset not in widget.content_region:
-            return None
-        return self.get_content_offset_capture(widget)
+        pass
 
     def get_content_offset_capture(self, widget: Widget) -> Offset:
         """Get offset from a widget's content area.
@@ -549,7 +541,7 @@ class MouseEvent(InputEvent, bubble=True):
         Returns:
             An offset where the origin is at the top left of the content area.
         """
-        return self.offset - widget.gutter.top_left
+        pass
 
     def _apply_offset(self, x: int, y: int) -> MouseEvent:
         return self.__class__(
@@ -768,7 +760,7 @@ class Enter(Event, bubble=True, verbose=True):
     @property
     def control(self) -> DOMNode:
         """Alias for the `node` under the mouse."""
-        return self.node
+        pass
 
 
 class Leave(Event, bubble=True, verbose=True):
@@ -793,7 +785,7 @@ class Leave(Event, bubble=True, verbose=True):
     @property
     def control(self) -> DOMNode:
         """Alias for the `node` that was previously under the mouse."""
-        return self.node
+        pass
 
 
 class Focus(Event, bubble=False):
@@ -864,7 +856,7 @@ class DescendantFocus(Event, bubble=True, verbose=True):
     @property
     def control(self) -> Widget:
         """The widget that was focused (alias of `widget`)."""
-        return self.widget
+        pass
 
 
 @dataclass
@@ -881,7 +873,7 @@ class DescendantBlur(Event, bubble=True, verbose=True):
     @property
     def control(self) -> Widget:
         """The widget that was blurred (alias of `widget`)."""
-        return self.widget
+        pass
 
 
 @rich.repr.auto

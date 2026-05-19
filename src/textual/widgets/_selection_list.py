@@ -65,12 +65,12 @@ class Selection(Generic[SelectionType], Option):
     @property
     def value(self) -> SelectionType:
         """The value for this selection."""
-        return self._value
+        pass
 
     @property
     def initial_state(self) -> bool:
         """The initial selected state for the selection."""
-        return self._initial_state
+        pass
 
 
 class SelectionList(Generic[SelectionType], OptionList):
@@ -157,7 +157,7 @@ class SelectionList(Generic[SelectionType], OptionList):
             [`SelectionMessage.selection_list`][textual.widgets.SelectionList.SelectionMessage.selection_list]
             and is used by the [`on`][textual.on] decorator.
             """
-            return self.selection_list
+            pass
 
         def __rich_repr__(self) -> Result:
             yield "selection_list", self.selection_list
@@ -209,7 +209,7 @@ class SelectionList(Generic[SelectionType], OptionList):
         @property
         def control(self) -> SelectionList[MessageSelectionType]:
             """An alias for `selection_list`."""
-            return self.selection_list
+            pass
 
     def __init__(
         self,
@@ -254,11 +254,11 @@ class SelectionList(Generic[SelectionType], OptionList):
         with selections in the list that are currently in the selected
         state.
         """
-        return list(self._selected.keys())
+        pass
 
     def _on_mount(self, _event: events.Mount) -> None:
         """Configure the list once the DOM is ready."""
-        self._send_messages = True
+        pass
 
     def _message_changed(self) -> None:
         """Post a message that the selected collection has changed, where appropriate.
@@ -268,8 +268,7 @@ class SelectionList(Generic[SelectionType], OptionList):
             makes this safe to call before the widget is ready for posting
             messages.
         """
-        if self._send_messages:
-            self.post_message(self.SelectedChanged(self).set_sender(self))
+        pass
 
     def _message_toggled(self, option_index: int) -> None:
         """Post a message that an option was toggled, where appropriate.
@@ -279,10 +278,7 @@ class SelectionList(Generic[SelectionType], OptionList):
             makes this safe to call before the widget is ready for posting
             messages.
         """
-        if self._send_messages:
-            self.post_message(
-                self.SelectionToggled(self, option_index).set_sender(self)
-            )
+        pass
 
     def _apply_to_all(self, state_change: Callable[[SelectionType], bool]) -> Self:
         """Apply a selection state change to all selection options in the list.
@@ -298,26 +294,7 @@ class SelectionList(Generic[SelectionType], OptionList):
             [`SelectedChanged`][textual.widgets.OptionList.SelectedChanged]
             message if a change is made in a call to this method.
         """
-
-        # Keep track of if anything changed.
-        changed = False
-
-        # Apply the state change function to all options.
-        # We don't send a SelectedChanged for each option, and instead
-        # send a single SelectedChanged afterwards if any values change.
-        with self.prevent(self.SelectedChanged):
-            for selection in self._options:
-                changed = (
-                    state_change(cast(Selection[SelectionType], selection).value)
-                    or changed
-                )
-
-        # If the above did make a change, *then* send a message.
-        if changed:
-            self._message_changed()
-
-        self.refresh()
-        return self
+        pass
 
     def _select(self, value: SelectionType) -> bool:
         """Mark the given value as selected.
@@ -328,11 +305,7 @@ class SelectionList(Generic[SelectionType], OptionList):
         Returns:
             `True` if the value was selected, `False` if not.
         """
-        if value not in self._selected:
-            self._selected[value] = None
-            self._message_changed()
-            return True
-        return False
+        pass
 
     def select(self, selection: Selection[SelectionType] | SelectionType) -> Self:
         """Mark the given selection as selected.
@@ -343,13 +316,7 @@ class SelectionList(Generic[SelectionType], OptionList):
         Returns:
             The [`SelectionList`][textual.widgets.SelectionList] instance.
         """
-        if self._select(
-            selection.value
-            if isinstance(selection, Selection)
-            else cast(SelectionType, selection)
-        ):
-            self.refresh()
-        return self
+        pass
 
     def select_all(self) -> Self:
         """Select all items.
@@ -357,7 +324,7 @@ class SelectionList(Generic[SelectionType], OptionList):
         Returns:
             The [`SelectionList`][textual.widgets.SelectionList] instance.
         """
-        return self._apply_to_all(self._select)
+        pass
 
     def _deselect(self, value: SelectionType) -> bool:
         """Mark the given selection as not selected.
@@ -368,12 +335,7 @@ class SelectionList(Generic[SelectionType], OptionList):
         Returns:
             `True` if the value was deselected, `False` if not.
         """
-        try:
-            del self._selected[value]
-        except KeyError:
-            return False
-        self._message_changed()
-        return True
+        pass
 
     def deselect(self, selection: Selection[SelectionType] | SelectionType) -> Self:
         """Mark the given selection as not selected.
@@ -384,13 +346,7 @@ class SelectionList(Generic[SelectionType], OptionList):
         Returns:
             The [`SelectionList`][textual.widgets.SelectionList] instance.
         """
-        if self._deselect(
-            selection.value
-            if isinstance(selection, Selection)
-            else cast(SelectionType, selection)
-        ):
-            self.refresh()
-        return self
+        pass
 
     def deselect_all(self) -> Self:
         """Deselect all items.
@@ -398,7 +354,7 @@ class SelectionList(Generic[SelectionType], OptionList):
         Returns:
             The [`SelectionList`][textual.widgets.SelectionList] instance.
         """
-        return self._apply_to_all(self._deselect)
+        pass
 
     def _toggle(self, value: SelectionType) -> bool:
         """Toggle the selection state of the given value.
@@ -409,12 +365,7 @@ class SelectionList(Generic[SelectionType], OptionList):
         Returns:
             `True`.
         """
-        if value in self._selected:
-            self._deselect(value)
-        else:
-            self._select(value)
-        self._message_toggled(self._values[value])
-        return True
+        pass
 
     def toggle(self, selection: Selection[SelectionType] | SelectionType) -> Self:
         """Toggle the selected state of the given selection.
@@ -425,13 +376,7 @@ class SelectionList(Generic[SelectionType], OptionList):
         Returns:
             The [`SelectionList`][textual.widgets.SelectionList] instance.
         """
-        self._toggle(
-            selection.value
-            if isinstance(selection, Selection)
-            else cast(SelectionType, selection)
-        )
-        self.refresh()
-        return self
+        pass
 
     def toggle_all(self) -> Self:
         """Toggle all items.
@@ -439,7 +384,7 @@ class SelectionList(Generic[SelectionType], OptionList):
         Returns:
             The [`SelectionList`][textual.widgets.SelectionList] instance.
         """
-        return self._apply_to_all(self._toggle)
+        pass
 
     def _make_selection(
         self,
@@ -460,35 +405,14 @@ class SelectionList(Generic[SelectionType], OptionList):
         Raises:
             SelectionError: If the selection was badly-formed.
         """
-
-        # If we've been given a tuple of some sort, turn that into a proper
-        # Selection.
-        if isinstance(selection, tuple):
-            if len(selection) == 2:
-                selection = cast(
-                    "tuple[ContentText, SelectionType, bool]", (*selection, False)
-                )
-            elif len(selection) != 3:
-                raise SelectionError(f"Expected 2 or 3 values, got {len(selection)}")
-            selection = Selection[SelectionType](*selection)
-
-        # At this point we should have a proper selection.
-        assert isinstance(selection, Selection)
-
-        # If the initial state for this is that it's selected, add it to the
-        # selected collection.
-        if selection.initial_state:
-            self._select(selection.value)
-
-        return selection
+        pass
 
     def _toggle_highlighted_selection(self) -> None:
         """Toggle the state of the highlighted selection.
 
         If nothing is selected in the list this is a non-operation.
         """
-        if self.highlighted is not None:
-            self.toggle(self.get_option_at_index(self.highlighted))
+        pass
 
     def _get_left_gutter_width(self) -> int:
         """Returns the size of any left gutter that should be taken into account.
@@ -574,8 +498,7 @@ class SelectionList(Generic[SelectionType], OptionList):
         Args:
             event: The event to capture and recreate.
         """
-        event.stop()
-        self.post_message(self.SelectionHighlighted(self, event.option_index))
+        pass
 
     def _on_option_list_option_selected(self, event: OptionList.OptionSelected) -> None:
         """Capture the `OptionList` selected event and turn it into a [`SelectionList`][textual.widgets.SelectionList] event.
@@ -583,8 +506,7 @@ class SelectionList(Generic[SelectionType], OptionList):
         Args:
             event: The event to capture and recreate.
         """
-        event.stop()
-        self._toggle_highlighted_selection()
+        pass
 
     def get_option_at_index(self, index: int) -> Selection[SelectionType]:
         """Get the selection option at the given index.
@@ -612,19 +534,11 @@ class SelectionList(Generic[SelectionType], OptionList):
         Raises:
             OptionDoesNotExist: If no selection option has the given ID.
         """
-        return cast("Selection[SelectionType]", super().get_option(option_id))
+        pass
 
     def _pre_remove_option(self, option: Option, index: int) -> None:
         """Hook called prior to removing an option."""
-        assert isinstance(option, Selection)
-        self._deselect(option.value)
-        del self._values[option.value]
-
-        # Decrement index of options after the one we just removed.
-        self._values = {
-            option_value: option_index - 1 if option_index > index else option_index
-            for option_value, option_index in self._values.items()
-        }
+        pass
 
     def add_options(
         self,
@@ -647,39 +561,7 @@ class SelectionList(Generic[SelectionType], OptionList):
             DuplicateID: If there is an attempt to use a duplicate ID.
             SelectionError: If one of the selection options is of the wrong form.
         """
-        # This... is sort of sub-optimal, but a natural consequence of
-        # inheriting from and narrowing down OptionList. Here we don't want
-        # things like a separator, or a base Option, being passed in. So we
-        # extend the types of accepted items to keep mypy and friends happy,
-        # but then we runtime check that we've been given sensible types (in
-        # this case the supported tuple values).
-        cleaned_options: list[Selection[SelectionType]] = []
-        for item in items:
-            if isinstance(item, tuple):
-                cleaned_options.append(
-                    self._make_selection(
-                        cast(
-                            "tuple[ContentText, SelectionType] | tuple[ContentText, SelectionType, bool]",
-                            item,
-                        )
-                    )
-                )
-            elif isinstance(item, Selection):
-                cleaned_options.append(self._make_selection(item))
-            else:
-                raise SelectionError(
-                    "Only Selection or a prompt/value tuple is supported in SelectionList"
-                )
-
-        # Add the new items to the value mappings.
-        self._values.update(
-            {
-                option.value: index
-                for index, option in enumerate(cleaned_options, start=self.option_count)
-            }
-        )
-
-        return super().add_options(cleaned_options)
+        pass
 
     def add_option(
         self,
@@ -702,7 +584,7 @@ class SelectionList(Generic[SelectionType], OptionList):
             DuplicateID: If there is an attempt to use a duplicate ID.
             SelectionError: If the selection option is of the wrong form.
         """
-        return self.add_options([item])
+        pass
 
     def clear_options(self) -> Self:
         """Clear the content of the selection list.
@@ -710,6 +592,4 @@ class SelectionList(Generic[SelectionType], OptionList):
         Returns:
             The `SelectionList` instance.
         """
-        self._selected.clear()
-        self._values.clear()
-        return super().clear_options()
+        pass

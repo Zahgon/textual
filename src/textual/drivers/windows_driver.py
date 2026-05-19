@@ -42,7 +42,7 @@ class WindowsDriver(Driver):
     @property
     def can_suspend(self) -> bool:
         """Can this driver be suspended?"""
-        return True
+        pass
 
     def write(self, data: str) -> None:
         """Write data to the output device.

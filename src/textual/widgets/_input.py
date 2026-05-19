@@ -65,7 +65,7 @@ class Selection(NamedTuple):
     @property
     def is_empty(self) -> bool:
         """Return True if the selection is empty."""
-        return self.start == self.end
+        pass
 
 
 class Input(ScrollView):
@@ -249,12 +249,12 @@ class Input(ScrollView):
     @property
     def cursor_position(self) -> int:
         """The current position of the cursor, corresponding to the end of the selection."""
-        return self.selection.end
+        pass
 
     @cursor_position.setter
     def cursor_position(self, position: int) -> None:
         """Set the current position of the cursor."""
-        self.selection = Selection.cursor(position)
+        pass
 
     selection: Reactive[Selection] = reactive(Selection.cursor(0))
     """The currently selected range of text."""
@@ -298,7 +298,7 @@ class Input(ScrollView):
         @property
         def control(self) -> Input:
             """Alias for self.input."""
-            return self.input
+            pass
 
     @dataclass
     class Submitted(Message):
@@ -320,7 +320,7 @@ class Input(ScrollView):
         @property
         def control(self) -> Input:
             """Alias for self.input."""
-            return self.input
+            pass
 
     @dataclass
     class Blurred(Message):
@@ -343,7 +343,7 @@ class Input(ScrollView):
         @property
         def control(self) -> Input:
             """Alias for self.input."""
-            return self.input
+            pass
 
     def __init__(
         self,
@@ -469,25 +469,22 @@ class Input(ScrollView):
         Returns:
             The cell position corresponding to the index.
         """
-        return cell_len(expand_tabs_inline(self.value[:position], 4))
+        pass
 
     @property
     def _cursor_offset(self) -> int:
         """The cell offset of the cursor."""
-        offset = self._position_to_cell(self.cursor_position)
-        if self.cursor_at_end:
-            offset += 1
-        return offset
+        pass
 
     @property
     def cursor_at_start(self) -> bool:
         """Flag to indicate if the cursor is at the start."""
-        return self.cursor_position == 0
+        pass
 
     @property
     def cursor_at_end(self) -> bool:
         """Flag to indicate if the cursor is at the end."""
-        return self.cursor_position == len(self.value)
+        pass
 
     def check_consume_key(self, key: str, character: str | None) -> bool:
         """Check if the widget may consume the given key.
@@ -501,65 +498,26 @@ class Input(ScrollView):
         Returns:
             `True` if the widget may capture the key in its `Key` message, or `False` if it won't.
         """
-        return character is not None and character.isprintable()
+        pass
 
-    def validate_selection(self, selection: Selection) -> Selection:
-        start, end = selection
-        value_length = len(self.value)
-        return Selection(clamp(start, 0, value_length), clamp(end, 0, value_length))
 
-    def _watch_selection(self, selection: Selection) -> None:
-        self.app.clear_selection()
-        self.app.cursor_position = self.cursor_screen_offset
-        if not self._initial_value:
-            self.scroll_to_region(
-                Region(self._cursor_offset, 0, width=1, height=1),
-                force=True,
-                animate=False,
-            )
 
     def _watch_cursor_blink(self, blink: bool) -> None:
         """Ensure we handle updating the cursor blink at runtime."""
-        if self._blink_timer is not None:
-            if blink:
-                self._blink_timer.resume()
-            else:
-                self._pause_blink()
-                self._cursor_visible = True
+        pass
 
     @property
     def cursor_screen_offset(self) -> Offset:
         """The offset of the cursor of this input in screen-space. (x, y)/(column, row)."""
-        x, y, _width, _height = self.content_region
-        scroll_x, _ = self.scroll_offset
-        return Offset(x + self._cursor_offset - scroll_x, y)
+        pass
 
     def _watch_value(self, value: str) -> None:
         """Update the virtual size and suggestion when the value changes."""
-        self.virtual_size = Size(self.content_width, 1)
-        self._suggestion = ""
-        if self.suggester and value:
-            self.run_worker(self.suggester._get_suggestion(self, value))
-        if self.styles.auto_dimensions:
-            self.refresh(layout=True)
-
-        validation_result = (
-            self.validate(value) if "changed" in self.validate_on else None
-        )
-        self.post_message(self.Changed(self, value, validation_result))
-
-        # If this is the first time the value has been updated, set the cursor position to the end
-        if self._initial_value:
-            self.cursor_position = len(self.value)
-            self._initial_value = False
-        else:
-            # Force a re-validation of the selection to ensure it accounts for
-            # the length of the new value
-            self.selection = self.selection
+        pass
 
     def _watch_valid_empty(self) -> None:
         """Repeat validation when valid_empty changes."""
-        self._watch_value(self.value)
+        pass
 
     def validate(self, value: str) -> ValidationResult | None:
         """Run all the validators associated with this Input on the supplied value.
@@ -575,32 +533,7 @@ class Input(ScrollView):
                 That is, if *any* validator fails, the result will be an unsuccessful
                 validation.
         """
-
-        def set_classes() -> None:
-            """Set classes for valid flag."""
-            valid = self._valid
-            self.set_class(not valid, "-invalid")
-            self.set_class(valid, "-valid")
-
-        # If no validators are supplied, and therefore no validation occurs, we return None.
-        if not self.validators:
-            self._valid = True
-            set_classes()
-            return None
-
-        if self.valid_empty and not value:
-            self._valid = True
-            set_classes()
-            return None
-
-        validation_results: list[ValidationResult] = [
-            validator.validate(value) for validator in self.validators
-        ]
-        combined_result = ValidationResult.merge(validation_results)
-        self._valid = combined_result.is_valid
-        set_classes()
-
-        return combined_result
+        pass
 
     @property
     def is_valid(self) -> bool:
@@ -675,22 +608,12 @@ class Input(ScrollView):
     @property
     def _value(self) -> Text:
         """Value rendered as text."""
-        if self.password:
-            return Text("•" * len(self.value), no_wrap=True, overflow="ignore", end="")
-        else:
-            text = Text(self.value, no_wrap=True, overflow="ignore", end="")
-            if self.highlighter is not None:
-                text = self.highlighter(text)
-            return text
+        pass
 
     @property
     def content_width(self) -> int:
         """The width of the content."""
-        if self.placeholder and not self.value:
-            return cell_len(self.placeholder)
-
-        # Extra space for cursor at the end.
-        return self._value.cell_len + 1
+        pass
 
     def get_content_width(self, container: Size, viewport: Size) -> int:
         """Get the widget of the content."""
@@ -701,61 +624,12 @@ class Input(ScrollView):
 
     def _toggle_cursor(self) -> None:
         """Toggle visibility of cursor."""
-        if self.screen.is_active:
-            self._cursor_visible = not self._cursor_visible
-        else:
-            self._cursor_visible = True
+        pass
 
-    def _on_mount(self, event: Mount) -> None:
-        def text_selection_started(screen: Screen) -> None:
-            """Signal callback to unselect when arbitrary text selection starts."""
-            self.selection = Selection.cursor(self.cursor_position)
 
-        self.screen.text_selection_started_signal.subscribe(
-            self, text_selection_started, immediate=True
-        )
-        self._blink_timer = self.set_interval(
-            0.5,
-            self._toggle_cursor,
-            pause=not (self.cursor_blink and self.has_focus),
-        )
 
-    def _on_blur(self, event: Blur) -> None:
-        self._pause_blink()
-        validation_result = (
-            self.validate(self.value) if "blur" in self.validate_on else None
-        )
-        self.post_message(self.Blurred(self, self.value, validation_result))
 
-    def _on_focus(self, event: Focus) -> None:
-        self._restart_blink()
-        if self.select_on_focus and not event.from_app_focus:
-            self.selection = Selection(0, len(self.value))
-        self.app.cursor_position = self.cursor_screen_offset
-        self._suggestion = ""
 
-    async def _on_key(self, event: events.Key) -> None:
-        self._restart_blink()
-
-        if event.is_printable:
-            event.stop()
-            assert event.character is not None
-            selection = self.selection
-            if selection.is_empty:
-                self.insert_text_at_cursor(event.character)
-            else:
-                self.replace(event.character, *selection)
-            event.prevent_default()
-
-    def _on_paste(self, event: events.Paste) -> None:
-        if event.text:
-            line = event.text.splitlines()[0]
-            selection = self.selection
-            if selection.is_empty:
-                self.insert_text_at_cursor(line)
-            else:
-                self.replace(line, *selection)
-        event.stop()
 
     def _cell_offset_to_index(self, offset: int) -> int:
         """Convert a cell offset to a character index, accounting for character width.
@@ -766,51 +640,19 @@ class Input(ScrollView):
         Returns:
             The character index corresponding to the cell offset.
         """
-        cell_offset = 0
-        _cell_size = get_character_cell_size
-        scroll_x, _ = self.scroll_offset
-        offset += scroll_x
-        for index, char in enumerate(self.value):
-            cell_width = _cell_size(char)
-            if cell_offset <= offset < (cell_offset + cell_width):
-                return index
-            cell_offset += cell_width
-        return clamp(offset, 0, len(self.value))
+        pass
 
-    async def _on_mouse_down(self, event: events.MouseDown) -> None:
-        self._pause_blink(visible=True)
-        offset_x, _ = event.get_content_offset_capture(self)
-        self.selection = Selection.cursor(self._cell_offset_to_index(offset_x))
-        self._selecting = True
-        self.capture_mouse()
 
     def _end_selecting(self) -> None:
         """End selecting if it is currently active."""
-        if self._selecting:
-            self._selecting = False
-            self.release_mouse()
-            self._restart_blink()
+        pass
 
-    async def _on_mouse_release(self, _event: events.MouseRelease) -> None:
-        self._end_selecting()
 
-    async def _on_mouse_up(self, _event: events.MouseUp) -> None:
-        self._end_selecting()
 
-    async def _on_mouse_move(self, event: events.MouseMove) -> None:
-        if self._selecting:
-            # As we drag the mouse, we update the end position of the selection,
-            # keeping the start position fixed.
-            offset = event.get_content_offset_capture(self)
-            selection_start, _ = self.selection
-            self.selection = Selection(
-                selection_start, self._cell_offset_to_index(offset.x)
-            )
 
     async def _on_suggestion_ready(self, event: SuggestionReady) -> None:
         """Handle suggestion messages and set the suggestion when relevant."""
-        if event.value == self.value:
-            self._suggestion = event.suggestion
+        pass
 
     def _restart_blink(self) -> None:
         """Restart the cursor blink cycle."""
@@ -820,9 +662,7 @@ class Input(ScrollView):
 
     def _pause_blink(self, visible: bool = False) -> None:
         """Hide the blinking cursor and pause the blink cycle."""
-        self._cursor_visible = visible
-        if self._blink_timer:
-            self._blink_timer.pause()
+        pass
 
     def insert_text_at_cursor(self, text: str) -> None:
         """Insert new text at the cursor, move the cursor to the end of the new text.
@@ -830,7 +670,7 @@ class Input(ScrollView):
         Args:
             text: New text to insert.
         """
-        self.insert(text, self.cursor_position)
+        pass
 
     def restricted(self) -> None:
         """Called when a character has been restricted.
@@ -847,8 +687,7 @@ class Input(ScrollView):
     @property
     def selected_text(self) -> str:
         """The text between the start and end points of the current selection."""
-        start, end = sorted(self.selection)
-        return self.value[start:end]
+        pass
 
     def action_cursor_left(self, select: bool = False) -> None:
         """Move the cursor one position to the left.
@@ -871,27 +710,15 @@ class Input(ScrollView):
         Args:
             select: If `True`, select the text to the right of the cursor.
         """
-        start, end = self.selection
-        if select:
-            self.selection = Selection(start, end + 1)
-        else:
-            if self.cursor_at_end and self._suggestion:
-                self.value = self._suggestion
-                self.cursor_position = len(self.value)
-            else:
-                if self.selection.is_empty:
-                    self.cursor_position += 1
-                else:
-                    self.cursor_position = max(start, end)
+        pass
 
     def select_all(self) -> None:
         """Select all of the text in the Input."""
-        self.selection = Selection(0, len(self.value))
-        self._suggestion = ""
+        pass
 
     def action_select_all(self) -> None:
         """Select all of the text in the Input."""
-        self.select_all()
+        pass
 
     def action_home(self, select: bool = False) -> None:
         """Move the cursor to the start of the input.
@@ -899,10 +726,7 @@ class Input(ScrollView):
         Args:
             select: If `True`, select the text between the old and new cursor positions.
         """
-        if select:
-            self.selection = Selection(self.cursor_position, 0)
-        else:
-            self.cursor_position = 0
+        pass
 
     def action_end(self, select: bool = False) -> None:
         """Move the cursor to the end of the input.
@@ -910,10 +734,7 @@ class Input(ScrollView):
         Args:
             select: If `True`, select the text between the old and new cursor positions.
         """
-        if select:
-            self.selection = Selection(self.cursor_position, len(self.value))
-        else:
-            self.cursor_position = len(self.value)
+        pass
 
     _WORD_START = re.compile(r"(?<=\W)\w")
 
@@ -923,25 +744,7 @@ class Input(ScrollView):
         Args:
             select: If `True`, select the text between the old and new cursor positions.
         """
-        if self.password:
-            # This is a password field so don't give any hints about word
-            # boundaries, even during movement.
-            self.action_home(select)
-        else:
-            start, _ = self.selection
-            try:
-                *_, hit = re.finditer(
-                    self._WORD_START, self.value[: self.cursor_position]
-                )
-            except ValueError:
-                target = 0
-            else:
-                target = hit.start()
-
-            if select:
-                self.selection = Selection(start, target)
-            else:
-                self.cursor_position = target
+        pass
 
     def action_cursor_right_word(self, select: bool = False) -> None:
         """Move the cursor right to the start of a word.
@@ -949,23 +752,7 @@ class Input(ScrollView):
         Args:
             select: If `True`, select the text between the old and new cursor positions.
         """
-        if self.password:
-            # This is a password field so don't give any hints about word
-            # boundaries, even during movement.
-            self.action_end(select)
-        else:
-            hit = re.search(self._WORD_START, self.value[self.cursor_position :])
-
-            start, end = self.selection
-            if hit is None:
-                target = len(self.value)
-            else:
-                target = end + hit.start()
-
-            if select:
-                self.selection = Selection(start, target)
-            else:
-                self.cursor_position = target
+        pass
 
     def replace(self, text: str, start: int, end: int) -> None:
         """Replace the text between the start and end locations with the given text.
@@ -1025,103 +812,47 @@ class Input(ScrollView):
 
     def delete_selection(self) -> None:
         """Delete the current selection."""
-        self.delete(*self.selection)
+        pass
 
     def action_delete_right(self) -> None:
         """Delete one character at the current cursor position."""
-        if self.selection.is_empty:
-            self.delete(self.cursor_position, self.cursor_position + 1)
-        else:
-            self.delete_selection()
+        pass
 
     def action_delete_right_word(self) -> None:
         """Delete the current character and all rightward to the start of the next word."""
-        if not self.selection.is_empty:
-            self.delete_selection()
-            return
-
-        if self.password:
-            # This is a password field so don't give any hints about word
-            # boundaries, even during deletion.
-            self.action_delete_right_all()
-        else:
-            after = self.value[self.cursor_position :]
-            hit = re.search(self._WORD_START, after)
-            if hit is None:
-                self.action_delete_right_all()
-            else:
-                start = self.cursor_position
-                end = start + hit.end() - 1
-                self.delete(start, end)
+        pass
 
     def action_delete_right_all(self) -> None:
         """Delete the current character and all characters to the right of the cursor position."""
-        if self.selection.is_empty:
-            self.delete(self.cursor_position, len(self.value))
-        else:
-            self.delete_selection()
+        pass
 
     def action_delete_left(self) -> None:
         """Delete one character to the left of the current cursor position."""
-        if self.selection.is_empty:
-            self.delete(self.cursor_position - 1, self.cursor_position)
-        else:
-            self.delete_selection()
+        pass
 
     def action_delete_left_word(self) -> None:
         """Delete leftward of the cursor position to the start of a word."""
-        if not self.selection.is_empty:
-            self.delete_selection()
-            return
-
-        if self.password:
-            # This is a password field so don't give any hints about word
-            # boundaries, even during deletion.
-            self.action_delete_left_all()
-        else:
-            try:
-                *_, hit = re.finditer(
-                    self._WORD_START, self.value[: self.cursor_position]
-                )
-            except ValueError:
-                target = 0
-            else:
-                target = hit.start()
-
-            self.delete(target, self.cursor_position)
+        pass
 
     def action_delete_left_all(self) -> None:
         """Delete all characters to the left of the cursor position."""
-        if self.selection.is_empty:
-            self.delete(0, self.cursor_position)
-        else:
-            self.delete_selection()
+        pass
 
     async def action_submit(self) -> None:
         """Handle a submit action.
 
         Normally triggered by the user pressing Enter. This may also run any validators.
         """
-        validation_result = (
-            self.validate(self.value) if "submitted" in self.validate_on else None
-        )
-        self.post_message(self.Submitted(self, self.value, validation_result))
+        pass
 
     def action_cut(self) -> None:
         """Cut the current selection (copy to clipboard and remove from input)."""
-        self.app.copy_to_clipboard(self.selected_text)
-        self.delete_selection()
+        pass
 
     def action_copy(self) -> None:
         """Copy the current selection to the clipboard."""
-        selected_text = self.selected_text
-        if selected_text:
-            self.app.copy_to_clipboard(selected_text)
-        else:
-            raise SkipAction()
+        pass
 
     def action_paste(self) -> None:
         """Paste from the local clipboard."""
-        clipboard = self.app.clipboard
-        start, end = self.selection
-        self.replace(clipboard, start, end)
+        pass

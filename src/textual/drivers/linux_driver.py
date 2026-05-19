@@ -80,26 +80,16 @@ class LinuxDriver(Driver):
 
     def _sigtstp_application(self, *_) -> None:
         """Handle a SIGTSTP signal."""
-        # If we're supposed to auto-restart, that means we need to shut down
-        # first.
-        if self._auto_restart:
-            self.suspend_application_mode()
-            # Flag that we'll need to signal a resume on successful startup
-            # again.
-            self._must_signal_resume = True
-        # Now send a SIGSTOP to our process to *actually* suspend the
-        # process.
-        os.kill(os.getpid(), signal.SIGSTOP)
+        pass
 
     def _sigcont_application(self, *_) -> None:
         """Handle a SICONT application."""
-        if self._auto_restart:
-            self.resume_application_mode()
+        pass
 
     @property
     def can_suspend(self) -> bool:
         """Can this driver be suspended?"""
-        return True
+        pass
 
     def __rich_repr__(self) -> rich.repr.Result:
         yield self._app
@@ -144,10 +134,7 @@ class LinuxDriver(Driver):
 
     def _enable_mouse_pixels(self) -> None:
         """Enable mouse reporting as pixels."""
-        if not self._mouse:
-            return
-        self.write("\x1b[?1016h")
-        self._mouse_pixels = True
+        pass
 
     def _enable_bracketed_paste(self) -> None:
         """Enable bracketed paste mode."""
@@ -156,8 +143,6 @@ class LinuxDriver(Driver):
     def _query_in_band_window_resize(self) -> None:
         self.write("\x1b[?2048$p")
 
-    def _enable_in_band_window_resize(self) -> None:
-        self.write("\x1b[?2048h")
 
     def _enable_line_wrap(self) -> None:
         self.write("\x1b[?7h")
@@ -198,7 +183,7 @@ class LinuxDriver(Driver):
 
         def _stop_again(*_) -> None:
             """Signal handler that will put the application back to sleep."""
-            os.kill(os.getpid(), signal.SIGSTOP)
+            pass
 
         # If we're working with an actual tty...
         # https://github.com/Textualize/textual/issues/4104
@@ -243,9 +228,6 @@ class LinuxDriver(Driver):
         self._writer_thread = WriterThread(self._file)
         self._writer_thread.start()
 
-        def on_terminal_resize(signum, stack) -> None:
-            if not self._in_band_window_resize:
-                send_size_event()
 
         signal.signal(signal.SIGWINCH, on_terminal_resize)
         send_size_event()
@@ -405,81 +387,9 @@ class LinuxDriver(Driver):
         Key thread target that wraps run_input_thread() to die gracefully if it raises
         an exception
         """
-        try:
-            self.run_input_thread()
-        except BaseException:
-            import rich.traceback
-
-            self._app.call_later(
-                self._app.panic,
-                rich.traceback.Traceback(),
-            )
+        pass
 
     def run_input_thread(self) -> None:
         """Wait for input and dispatch events."""
-        selector = selectors.SelectSelector()
-        selector.register(self.fileno, selectors.EVENT_READ)
+        pass
 
-        fileno = self.fileno
-        EVENT_READ = selectors.EVENT_READ
-
-        parser = XTermParser(self._debug)
-        feed = parser.feed
-        tick = parser.tick
-
-        utf8_decoder = getincrementaldecoder("utf-8")().decode
-        decode = utf8_decoder
-        read = os.read
-
-        def process_selector_events(
-            selector_events: list[tuple[selectors.SelectorKey, int]],
-            final: bool = False,
-        ) -> None:
-            """Process events from selector.
-
-            Args:
-                selector_events: List of selector events.
-                final: True if this is the last call.
-
-            """
-            for last, (_selector_key, mask) in loop_last(selector_events):
-                if mask & EVENT_READ:
-                    unicode_data = decode(read(fileno, 1024 * 4), final=final and last)
-                    if not unicode_data:
-                        # This can occur if the stdin is piped
-                        break
-                    for event in feed(unicode_data):
-                        self.process_message(event)
-            for event in tick():
-                self.process_message(event)
-
-        try:
-            while not self.exit_event.is_set():
-                process_selector_events(selector.select(0.1))
-            selector.unregister(self.fileno)
-            process_selector_events(selector.select(0.1), final=True)
-
-        finally:
-            selector.close()
-            try:
-                for event in feed(""):
-                    pass
-            except (EOFError, ParseError):
-                pass
-
-    def process_message(self, message: Message) -> None:
-        # intercept in-band window resize
-        if isinstance(message, InBandWindowResize):
-            if message.supported:
-                self._in_band_window_resize = True
-                if message.enabled:
-                    # Supported and enabled
-                    super().process_message(message)
-                else:
-                    # Supported, but not enabled
-                    self._enable_in_band_window_resize()
-                    super().process_message(InBandWindowResize(True, True))
-                self._enable_mouse_pixels()
-                return
-
-        super().process_message(message)

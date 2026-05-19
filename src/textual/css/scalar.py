@@ -67,7 +67,7 @@ def _resolve_cells(
     Returns:
         Resolved unit.
     """
-    return Fraction(value)
+    pass
 
 
 def _resolve_fraction(
@@ -84,7 +84,7 @@ def _resolve_fraction(
     Returns:
         Resolved unit.
     """
-    return fraction_unit * Fraction(value)
+    pass
 
 
 def _resolve_width(
@@ -101,7 +101,7 @@ def _resolve_width(
     Returns:
         Resolved unit.
     """
-    return Fraction(value) * Fraction(size.width, 100)
+    pass
 
 
 def _resolve_height(
@@ -118,7 +118,7 @@ def _resolve_height(
     Returns:
         Resolved unit.
     """
-    return Fraction(value) * Fraction(size.height, 100)
+    pass
 
 
 def _resolve_view_width(
@@ -135,7 +135,7 @@ def _resolve_view_width(
     Returns:
         Resolved unit.
     """
-    return Fraction(value) * Fraction(viewport.width, 100)
+    pass
 
 
 def _resolve_view_height(
@@ -152,7 +152,7 @@ def _resolve_view_height(
     Returns:
         Resolved unit.
     """
-    return Fraction(value) * Fraction(viewport.height, 100)
+    pass
 
 
 RESOLVE_MAP = {
@@ -193,39 +193,37 @@ class Scalar(NamedTuple):
     @property
     def is_cells(self) -> bool:
         """Check if the Scalar is explicit cells."""
-        return self.unit == Unit.CELLS
+        pass
 
     @property
     def is_percent(self) -> bool:
         """Check if the Scalar is a percentage unit."""
-        return self.unit == Unit.PERCENT
+        pass
 
     @property
     def is_fraction(self) -> bool:
         """Check if the unit is a fraction."""
-        return self.unit == Unit.FRACTION
+        pass
 
     @property
     def cells(self) -> int | None:
         """Check if the unit is explicit cells."""
-        value, unit, _ = self
-        return int(value) if unit == Unit.CELLS else None
+        pass
 
     @property
     def fraction(self) -> int | None:
         """Get the fraction value, or None if not a value."""
-        value, unit, _ = self
-        return int(value) if unit == Unit.FRACTION else None
+        pass
 
     @property
     def symbol(self) -> str:
         """Get the symbol of this unit."""
-        return UNIT_SYMBOL[self.unit]
+        pass
 
     @property
     def is_auto(self) -> bool:
         """Check if this is an auto unit."""
-        return self.unit == Unit.AUTO
+        pass
 
     @classmethod
     def from_number(cls, value: float) -> Scalar:
@@ -304,11 +302,7 @@ class Scalar(NamedTuple):
             unit: The new unit, or None to keep the same unit
             percent_unit: The new percent_unit, or None to keep the same percent_unit
         """
-        return Scalar(
-            value if value is not None else self.value,
-            unit if unit is not None else self.unit,
-            percent_unit if percent_unit is not None else self.percent_unit,
-        )
+        pass
 
 
 @rich.repr.auto(angular=True)
@@ -333,11 +327,7 @@ class ScalarOffset(NamedTuple):
         Returns:
             New offset.
         """
-        x, y = offset
-        return cls(
-            Scalar(x, Unit.CELLS, Unit.WIDTH),
-            Scalar(y, Unit.CELLS, Unit.HEIGHT),
-        )
+        pass
 
     def __bool__(self) -> bool:
         x, y = self

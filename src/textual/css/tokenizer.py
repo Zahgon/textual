@@ -50,25 +50,7 @@ class TokenError(Exception):
         Returns:
             A renderable.
         """
-        from rich.syntax import Syntax
-
-        line_no = self.start[0]
-        # TODO: Highlight column number
-        syntax = Syntax(
-            self.code,
-            lexer="scss",
-            theme="ansi_light",
-            line_numbers=True,
-            indent_guides=True,
-            line_range=(max(0, line_no - 2), line_no + 2),
-            highlight_lines={line_no},
-        )
-        syntax.stylize_range(
-            "reverse bold",
-            (self.start[0], self.start[1] - 1),
-            (self.end[0], self.end[1] - 1),
-        )
-        return Panel(syntax, border_style="red")
+        pass
 
     def __rich__(self) -> RenderableType:
         highlighter = ReprHighlighter()
@@ -237,113 +219,7 @@ class Tokenizer:
         Returns:
             A new Token.
         """
-
-        line_no = self.line_no
-        col_no = self.col_no
-        if line_no >= len(self.lines):
-            if expect._expect_eof:
-                return Token(
-                    "eof",
-                    "",
-                    self.read_from,
-                    self.code,
-                    (line_no, col_no),
-                    None,
-                )
-            else:
-                raise UnexpectedEnd(
-                    self.read_from,
-                    self.code,
-                    (line_no + 1, col_no + 1),
-                    (
-                        "Unexpected end of file; did you forget a '}' ?"
-                        if expect._expect_semicolon
-                        else "Unexpected end of text"
-                    ),
-                )
-        line = self.lines[line_no]
-        preceding_text: str = ""
-        if expect._extract_text:
-            match = expect.search(line, col_no)
-            if match is None:
-                preceding_text = line[self.col_no :]
-                self.line_no += 1
-                self.col_no = 0
-            else:
-                col_no = match.start()
-                preceding_text = line[self.col_no : col_no]
-                self.col_no = col_no
-            if preceding_text:
-                token = Token(
-                    "text",
-                    preceding_text,
-                    self.read_from,
-                    self.code,
-                    (line_no, col_no),
-                    referenced_by=None,
-                )
-
-                return token
-
-        else:
-            match = expect.match(line, col_no)
-
-        if match is None:
-            error_line = line[col_no:]
-            error_message = (
-                f"{expect.description} (found {error_line.split(';')[0]!r})."
-            )
-            if expect._expect_semicolon and not error_line.endswith(";"):
-                error_message += "; Did you forget a semicolon at the end of a line?"
-            raise TokenError(
-                self.read_from, self.code, (line_no + 1, col_no + 1), error_message
-            )
-
-        for name, value in zip(expect.names, match.groups()[1:]):
-            if value is not None:
-                break
-        else:
-            # For MyPy's benefit
-            raise AssertionError("can't reach here")
-
-        token = Token(
-            name,
-            value,
-            self.read_from,
-            self.code,
-            (line_no, col_no),
-            referenced_by=None,
-        )
-
-        if (
-            token.name == "pseudo_class"
-            and token.value.strip(":") not in VALID_PSEUDO_CLASSES
-        ):
-            pseudo_class = token.value.strip(":")
-            suggestion = get_suggestion(pseudo_class, list(VALID_PSEUDO_CLASSES))
-            all_valid = f"must be one of {friendly_list(VALID_PSEUDO_CLASSES)}"
-            if suggestion:
-                raise TokenError(
-                    self.read_from,
-                    self.code,
-                    (line_no + 1, col_no + 1),
-                    f"unknown pseudo-class {pseudo_class!r}; did you mean {suggestion!r}?; {all_valid}",
-                )
-            else:
-                raise TokenError(
-                    self.read_from,
-                    self.code,
-                    (line_no + 1, col_no + 1),
-                    f"unknown pseudo-class {pseudo_class!r}; {all_valid}",
-                )
-
-        col_no += len(value)
-        if col_no >= len(line):
-            line_no += 1
-            col_no = 0
-        self.line_no = line_no
-        self.col_no = col_no
-        return token
+        pass
 
     def skip_to(self, expect: Expect) -> Token:
         """Skip tokens.
@@ -357,28 +233,4 @@ class Tokenizer:
         Returns:
             A new token.
         """
-        line_no = self.line_no
-        col_no = self.col_no
-
-        while True:
-            if line_no >= len(self.lines):
-                raise UnexpectedEnd(
-                    self.read_from,
-                    self.code,
-                    (line_no, col_no),
-                    (
-                        "Unexpected end of file; did you forget a '}' ?"
-                        if expect._expect_semicolon
-                        else "Unexpected end of markup"
-                    ),
-                )
-            line = self.lines[line_no]
-            match = expect.search(line, col_no)
-
-            if match is None:
-                line_no += 1
-                col_no = 0
-            else:
-                self.line_no = line_no
-                self.col_no = match.span(0)[0]
-                return self.get_token(expect)
+        pass

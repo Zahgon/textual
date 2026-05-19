@@ -54,15 +54,11 @@ class LoadingIndicator(Widget):
         self._start_time: float = 0.0
         """The time the loading indicator was mounted (a Unix timestamp)."""
 
-    def _on_mount(self, _: Mount) -> None:
-        self._start_time = time()
-        self.auto_refresh = 1 / 16
 
     @on(InputEvent)
     def on_input(self, event: InputEvent) -> None:
         """Prevent all input events from bubbling, thus disabling widgets in a loading state."""
-        event.stop()
-        event.prevent_default()
+        pass
 
     def render(self) -> RenderResult:
         if self.app.animation_level == "none":

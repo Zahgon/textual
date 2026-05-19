@@ -123,9 +123,7 @@ class Navigator:
         Returns:
             A path for the current document.
         """
-        if not self.stack:
-            return Path(".")
-        return self.stack[self.index]
+        pass
 
     @property
     def start(self) -> bool:
@@ -146,16 +144,7 @@ class Navigator:
         Returns:
             New location.
         """
-        location, anchor = Markdown.sanitize_location(str(path))
-        if location == Path(".") and anchor:
-            current_file, _ = Markdown.sanitize_location(str(self.location))
-            path = f"{current_file}#{anchor}"
-        new_path = self.location.parent / Path(path)
-        self.stack = self.stack[: self.index + 1]
-        new_path = new_path.absolute()
-        self.stack.append(new_path)
-        self.index = len(self.stack) - 1
-        return new_path
+        pass
 
     def back(self) -> bool:
         """Go back in the stack.
@@ -163,10 +152,7 @@ class Navigator:
         Returns:
             True if the location changed, otherwise False.
         """
-        if self.index:
-            self.index -= 1
-            return True
-        return False
+        pass
 
     def forward(self) -> bool:
         """Go forward in the stack.
@@ -174,10 +160,7 @@ class Navigator:
         Returns:
             True if the location changed, otherwise False.
         """
-        if self.index < len(self.stack) - 1:
-            self.index += 1
-            return True
-        return False
+        pass
 
 
 class MarkdownBlock(Static):
@@ -232,21 +215,13 @@ class MarkdownBlock(Static):
     @property
     def _markdown(self) -> Markdown:
         """Resolve the weak ref to _markdown"""
-        markdown = self._markdown_ref()
-        assert markdown is not None
-        return markdown
+        pass
 
-    @property
-    def select_container(self) -> Widget:
-        return self.query_ancestor(Markdown)
 
     @property
     def source(self) -> str | None:
         """The source of this block if known, otherwise `None`."""
-        if self.source_range is None:
-            return None
-        start, end = self.source_range
-        return "".join(self._markdown.source.splitlines(keepends=True)[start:end])
+        pass
 
     def _copy_context(self, block: MarkdownBlock) -> None:
         """Copy the context from another block."""
@@ -266,7 +241,7 @@ class MarkdownBlock(Static):
 
     async def action_link(self, href: str) -> None:
         """Called on link click."""
-        self.post_message(Markdown.LinkClicked(self._markdown, href))
+        pass
 
     def build_from_token(self, token: Token) -> None:
         """Build inline block content from its source token.
@@ -611,7 +586,7 @@ class MarkdownTableCellContents(Static):
 
     async def action_link(self, href: str) -> None:
         """Pass a link action on to the MarkdownTable parent."""
-        self.post_message(Markdown.LinkClicked(self.query_ancestor(Markdown), href))
+        pass
 
 
 class MarkdownTableContent(Widget):
@@ -681,14 +656,7 @@ class MarkdownTableContent(Widget):
 
     def _update_content(self, headers: list[Content], rows: list[list[Content]]):
         """Update cell contents."""
-        self.headers = headers
-        self.rows = rows
-        cells: list[Content] = [
-            *self.headers,
-            *[cell for row in self.rows for cell in row],
-        ]
-        for child, updated_cell in zip(self.query(MarkdownTableCellContents), cells):
-            child.update(updated_cell, layout=False)
+        pass
 
     async def _update_rows(self, updated_rows: list[list[Content]]) -> None:
         self.styles.grid_size_columns = len(self.headers)
@@ -705,13 +673,10 @@ class MarkdownTableContent(Widget):
         self.last_row = row_index
         await self.mount_all(new_cells)
 
-    def on_mount(self) -> None:
-        self.styles.grid_size_columns = len(self.headers)
 
     async def action_link(self, href: str) -> None:
         """Pass a link action on to the MarkdownTable parent."""
-        if isinstance(self.parent, MarkdownTable):
-            await self.parent.action_link(href)
+        pass
 
 
 class MarkdownTable(MarkdownBlock):
@@ -822,8 +787,6 @@ class MarkdownBullet(Widget):
     symbol = reactive("\u25cf")
     """The symbol for the bullet."""
 
-    def get_selection(self, _selection) -> tuple[str, str] | None:
-        return self.symbol, " "
 
     def render(self) -> Content:
         return Content(self.symbol)
@@ -914,9 +877,6 @@ class MarkdownFence(MarkdownBlock):
         self.set_content(self._highlighted_code)
         return super().notify_style_update()
 
-    @property
-    def allow_horizontal_scroll(self) -> bool:
-        return True
 
     @classmethod
     def highlight(
@@ -1056,13 +1016,7 @@ class Markdown(Widget):
     @property
     def table_of_contents(self) -> TableOfContentsType:
         """The document's table of contents."""
-        if self._table_of_contents is None:
-            self._table_of_contents = [
-                (header.LEVEL, header._content.plain, header.id)
-                for header in self.children
-                if isinstance(header, MarkdownHeader)
-            ]
-        return self._table_of_contents
+        pass
 
     class TableOfContentsUpdated(Message):
         """The table of contents was updated."""
@@ -1083,7 +1037,7 @@ class Markdown(Widget):
             This is an alias for [`TableOfContentsUpdated.markdown`][textual.widgets.Markdown.TableOfContentsSelected.markdown]
             and is used by the [`on`][textual.on] decorator.
             """
-            return self.markdown
+            pass
 
     class TableOfContentsSelected(Message):
         """An item in the TOC was selected."""
@@ -1102,7 +1056,7 @@ class Markdown(Widget):
             This is an alias for [`TableOfContentsSelected.markdown`][textual.widgets.Markdown.TableOfContentsSelected.markdown]
             and is used by the [`on`][textual.on] decorator.
             """
-            return self.markdown
+            pass
 
     class LinkClicked(Message):
         """A link in the document was clicked."""
@@ -1121,12 +1075,12 @@ class Markdown(Widget):
             This is an alias for [`LinkClicked.markdown`][textual.widgets.Markdown.LinkClicked.markdown]
             and is used by the [`on`][textual.on] decorator.
             """
-            return self.markdown
+            pass
 
     @property
     def source(self) -> str:
         """The markdown source."""
-        return self._markdown or ""
+        pass
 
     def get_block_class(self, block_name: str) -> type[MarkdownBlock]:
         """Get the block widget class.
@@ -1139,17 +1093,6 @@ class Markdown(Widget):
         """
         return self.BLOCKS[block_name]
 
-    async def _on_mount(self, _: Mount) -> None:
-        initial_markdown = self._initial_markdown
-        self._initial_markdown = None
-        await self.update(initial_markdown or "")
-
-        if initial_markdown is None:
-            self.post_message(
-                Markdown.TableOfContentsUpdated(
-                    self, self._table_of_contents
-                ).set_sender(self)
-            )
 
     @classmethod
     def get_stream(cls, markdown: Markdown) -> MarkdownStream:
@@ -1187,13 +1130,8 @@ class Markdown(Widget):
         Returns:
             The Markdown stream object.
         """
-        updater = MarkdownStream(markdown)
-        updater.start()
-        return updater
+        pass
 
-    def on_markdown_link_clicked(self, event: LinkClicked) -> None:
-        if self._open_links:
-            self.app.open_url(event.href)
 
     @staticmethod
     def sanitize_location(location: str) -> tuple[Path, str]:
@@ -1365,13 +1303,7 @@ class Markdown(Widget):
         Returns:
             A list of MarkdownBlock instances.
         """
-        parser = (
-            MarkdownIt("gfm-like")
-            if self._parser_factory is None
-            else self._parser_factory()
-        )
-        tokens = parser.parse(markdown)
-        return list(self._parse_markdown(tokens))
+        pass
 
     def update(self, markdown: str) -> AwaitComplete:
         """Update the document with new Markdown.
@@ -1565,7 +1497,7 @@ class MarkdownTableOfContents(Widget, can_focus_children=True):
 
     def watch_table_of_contents(self, table_of_contents: TableOfContentsType) -> None:
         """Triggered when the table of contents changes."""
-        self.rebuild_table_of_contents(table_of_contents)
+        pass
 
     def rebuild_table_of_contents(self, table_of_contents: TableOfContentsType) -> None:
         """Rebuilds the tree representation of the table of contents data.
@@ -1573,28 +1505,8 @@ class MarkdownTableOfContents(Widget, can_focus_children=True):
         Args:
             table_of_contents: Table of contents.
         """
-        tree = self.query_one(Tree)
-        tree.clear()
-        root = tree.root
-        for level, name, block_id in table_of_contents:
-            node = root
-            for _ in range(level - 1):
-                if node._children:
-                    node = node._children[-1]
-                    node.expand()
-                    node.allow_expand = True
-                else:
-                    node = node.add(NUMERALS[level], expand=True)
-            node_label = Text.assemble((f"{NUMERALS[level]} ", "dim"), name)
-            node.add_leaf(node_label, {"block_id": block_id})
+        pass
 
-    async def _on_tree_node_selected(self, message: Tree.NodeSelected) -> None:
-        node_data = message.node.data
-        if node_data is not None:
-            await self._post_message(
-                Markdown.TableOfContentsSelected(self.markdown, node_data["block_id"])
-            )
-        message.stop()
 
 
 class MarkdownViewer(VerticalScroll, can_focus=False, can_focus_children=True):
@@ -1658,45 +1570,27 @@ class MarkdownViewer(VerticalScroll, can_focus=False, can_focus_children=True):
     @property
     def document(self) -> Markdown:
         """The [`Markdown`][textual.widgets.Markdown] document widget."""
-        return self.query_one(Markdown)
+        pass
 
     @property
     def table_of_contents(self) -> MarkdownTableOfContents:
         """The [table of contents][textual.widgets.markdown.MarkdownTableOfContents] widget."""
-        return self.query_one(MarkdownTableOfContents)
+        pass
 
-    async def _on_mount(self, _: Mount) -> None:
-        await self.document.update(self._markdown or "")
 
     async def go(self, location: str | PurePath) -> None:
         """Navigate to a new document path."""
-        path, anchor = self.document.sanitize_location(str(location))
-        if path == Path(".") and anchor:
-            # We've been asked to go to an anchor but with no file specified.
-            self.document.goto_anchor(anchor)
-        else:
-            # We've been asked to go to a file, optionally with an anchor.
-            await self.document.load(self.navigator.go(location))
-            self.post_message(self.NavigatorUpdated())
+        pass
 
     async def back(self) -> None:
         """Go back one level in the history."""
-        if self.navigator.back():
-            await self.document.load(self.navigator.location)
-            self.post_message(self.NavigatorUpdated())
+        pass
 
     async def forward(self) -> None:
         """Go forward one level in the history."""
-        if self.navigator.forward():
-            await self.document.load(self.navigator.location)
-            self.post_message(self.NavigatorUpdated())
+        pass
 
-    async def _on_markdown_link_clicked(self, message: Markdown.LinkClicked) -> None:
-        message.stop()
-        await self.go(message.href)
 
-    def watch_show_table_of_contents(self, show_table_of_contents: bool) -> None:
-        self.set_class(show_table_of_contents, "-show-table-of-contents")
 
     def compose(self) -> ComposeResult:
         markdown = Markdown(
@@ -1706,18 +1600,4 @@ class MarkdownViewer(VerticalScroll, can_focus=False, can_focus_children=True):
         yield markdown
         yield MarkdownTableOfContents(markdown)
 
-    def _on_markdown_table_of_contents_updated(
-        self, message: Markdown.TableOfContentsUpdated
-    ) -> None:
-        self.query_one(MarkdownTableOfContents).table_of_contents = (
-            message.table_of_contents
-        )
-        message.stop()
 
-    def _on_markdown_table_of_contents_selected(
-        self, message: Markdown.TableOfContentsSelected
-    ) -> None:
-        block_selector = f"#{message.block_id}"
-        block = self.query_one(block_selector, MarkdownBlock)
-        self.scroll_to_widget(block, top=True)
-        message.stop()

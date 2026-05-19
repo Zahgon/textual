@@ -99,8 +99,7 @@ class GenericProperty(Generic[PropertyGetType, PropertySetType]):
         Returns:
             The value to be set.
         """
-        # Raise StyleValueError here
-        return cast(PropertyGetType, value)
+        pass
 
     def __set_name__(self, owner: StylesBase, name: str) -> None:
         self.name = name
@@ -122,18 +121,11 @@ class GenericProperty(Generic[PropertyGetType, PropertySetType]):
 
 
 class IntegerProperty(GenericProperty[int, int]):
-    def validate_value(self, value: object) -> int:
-        if isinstance(value, (int, float)):
-            return int(value)
-        else:
-            raise StyleValueError(f"Expected a number here, got {value!r}")
 
 
 class BooleanProperty(GenericProperty[bool, bool]):
     """A property that requires a True or False value."""
 
-    def validate_value(self, value: object) -> bool:
-        return bool(value)
 
 
 class ScalarProperty:
@@ -382,13 +374,7 @@ class Edges(NamedTuple):
         Returns:
             Spacing for top, right, bottom, and left.
         """
-        (top, _), (right, _), (bottom, _), (left, _) = self
-        return Spacing(
-            1 if top else 0,
-            1 if right else 0,
-            1 if bottom else 0,
-            1 if left else 0,
-        )
+        pass
 
 
 class BorderProperty:
@@ -453,11 +439,7 @@ class BorderProperty:
 
         def check_refresh() -> None:
             """Check if an update requires a layout"""
-            if not self._layout:
-                obj.refresh()
-            else:
-                layout = Edges(*self._get_properties(obj)).spacing != border_spacing
-                obj.refresh(layout=layout)
+            pass
 
         if border is None:
             clear_rule = obj.clear_rule
@@ -888,11 +870,6 @@ class StringEnumProperty(Generic[EnumType]):
 class OverflowProperty(StringEnumProperty):
     """Descriptor for overflow styles that forces widgets to refresh scrollbars."""
 
-    def _before_refresh(self, obj: StylesBase, value: str | None) -> None:
-        from textual.widget import Widget  # Avoid circular import
-
-        if isinstance(obj.node, Widget):
-            obj.node._refresh_scrollbars()
 
 
 class NameProperty:

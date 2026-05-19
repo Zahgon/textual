@@ -135,7 +135,7 @@ class RadioSet(VerticalScroll, can_focus=True, can_focus_children=False):
             This is an alias for [`Changed.radio_set`][textual.widgets.RadioSet.Changed.radio_set]
             and is used by the [`on`][textual.on] decorator.
             """
-            return self.radio_set
+            pass
 
         def __rich_repr__(self) -> rich.repr.Result:
             yield "radio_set", self.radio_set
@@ -186,39 +186,8 @@ class RadioSet(VerticalScroll, can_focus=True, can_focus_children=False):
 
     def _on_mount(self, _: Mount) -> None:
         """Perform some processing once mounted in the DOM."""
+        pass
 
-        # If there are radio buttons, select the first available one.
-        self.action_next_button()
-
-        # Get all the buttons within us; we'll be doing a couple of things
-        # with that list.
-        buttons = list(self.query(RadioButton))
-
-        # RadioButtons can have focus, by default. But we're going to take
-        # that over and handle movement between them. So here we tell them
-        # all they can't focus.
-        for button in buttons:
-            button.can_focus = False
-
-        # It's possible for the user to pass in a collection of radio
-        # buttons, with more than one set to on; they shouldn't, but we
-        # can't stop them. So here we check for that and, for want of a
-        # better approach, we keep the first one on and turn all the others
-        # off.
-        switched_on = [button for button in buttons if button.value]
-        with self.prevent(RadioButton.Changed):
-            for button in switched_on[1:]:
-                button.value = False
-
-        # Keep track of which button is initially pressed.
-        if switched_on:
-            self._pressed_button = switched_on[0]
-
-    def watch__selected(self) -> None:
-        self.query(RadioButton).remove_class("-selected")
-        if self._selected is not None:
-            self._nodes[self._selected].add_class("-selected")
-            self._scroll_to_selected()
 
     def _on_radio_button_changed(self, event: RadioButton.Changed) -> None:
         """Respond to the value of a button in the set being changed.
@@ -226,28 +195,7 @@ class RadioSet(VerticalScroll, can_focus=True, can_focus_children=False):
         Args:
             event: The event.
         """
-        # We're going to consume the underlying radio button events, making
-        # it appear as if they don't emit their own, as far as the caller is
-        # concerned. As such, stop the event bubbling and also prohibit the
-        # same event being sent out if/when we make a value change in here.
-        event.stop()
-        with self.prevent(RadioButton.Changed):
-            # If the message pertains to a button being clicked to on...
-            if event.radio_button.value:
-                # If there's a button pressed right now and it's not really a
-                # case of the user mashing on the same button...
-                if (
-                    self._pressed_button is not None
-                    and self._pressed_button != event.radio_button
-                ):
-                    self._pressed_button.value = False
-                # Make the pressed button this new button.
-                self._pressed_button = event.radio_button
-                # Emit a message to say our state has changed.
-                self.post_message(self.Changed(self, event.radio_button))
-            else:
-                # We're being clicked off, we don't want that.
-                event.radio_button.value = True
+        pass
 
     def _on_radio_set_changed(self, event: RadioSet.Changed) -> None:
         """Handle a change to which button in the set is pressed.
@@ -255,7 +203,7 @@ class RadioSet(VerticalScroll, can_focus=True, can_focus_children=False):
         This handler ensures that, when a button is pressed, it's also the
         selected button.
         """
-        self._selected = event.index
+        pass
 
     async def _on_click(self, _: Click) -> None:
         """Handle a click on or within the radio set.
@@ -263,53 +211,36 @@ class RadioSet(VerticalScroll, can_focus=True, can_focus_children=False):
         This handler ensures that focus moves to the clicked radio set, even
         if there's a click on one of the radio buttons it contains.
         """
-        self.focus()
+        pass
 
     @property
     def pressed_button(self) -> RadioButton | None:
         """The currently-pressed [`RadioButton`][textual.widgets.RadioButton], or `None` if none are pressed."""
-        return self._pressed_button
+        pass
 
     @property
     def pressed_index(self) -> int:
         """The index of the currently-pressed [`RadioButton`][textual.widgets.RadioButton], or -1 if none are pressed."""
-        return (
-            self._nodes.index(self._pressed_button)
-            if self._pressed_button is not None
-            else -1
-        )
+        pass
 
     def action_previous_button(self) -> None:
         """Navigate to the previous button in the set.
 
         Note that this will wrap around to the end if at the start.
         """
-        self._selected = _widget_navigation.find_next_enabled(
-            self.children,
-            anchor=self._selected,
-            direction=-1,
-        )
+        pass
 
     def action_next_button(self) -> None:
         """Navigate to the next button in the set.
 
         Note that this will wrap around to the start if at the end.
         """
-        self._selected = _widget_navigation.find_next_enabled(
-            self.children,
-            anchor=self._selected,
-            direction=1,
-        )
+        pass
 
     def action_toggle_button(self) -> None:
         """Toggle the state of the currently-selected button."""
-        if self._selected is not None:
-            button = self._nodes[self._selected]
-            assert isinstance(button, RadioButton)
-            button.toggle()
+        pass
 
     def _scroll_to_selected(self) -> None:
         """Ensure that the selected button is in view."""
-        if self._selected is not None:
-            button = self._nodes[self._selected]
-            self.call_after_refresh(self.scroll_to_widget, button, animate=False)
+        pass

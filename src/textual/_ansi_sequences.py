@@ -448,7 +448,4 @@ def set_pointer_shape(shape: str) -> str:
 
     See: https://sw.kovidgoyal.net/kitty/pointer-shapes/
     """
-    # Kitty pointer shape protocol: ESC ] 22 ; <shape> ST
-    # where ST is ESC \ or BEL (\x07)
-    # Using BEL as terminator for better compatibility
-    return f"\x1b]22;{shape}\x07"
+    pass

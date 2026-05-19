@@ -14,10 +14,5 @@ def camel_to_snake(
         Name in snake case.
     """
 
-    def repl(match: Match[str]) -> str:
-        lower: str
-        upper: str
-        lower, upper = match.group()  # type: ignore
-        return f"{lower}_{upper.lower()}"
 
     return _re_snake.sub(repl, name).lower()

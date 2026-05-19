@@ -21,7 +21,7 @@ def _markup_and_highlight(text: str) -> Text:
     Returns:
         The Text, with highlighting and markup applied.
     """
-    return _highlighter(render(text))
+    pass
 
 
 class Example:

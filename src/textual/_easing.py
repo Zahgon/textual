@@ -8,87 +8,47 @@ from math import cos, pi, sin, sqrt
 
 def _in_out_expo(x: float) -> float:
     """https://easings.net/#easeInOutExpo"""
-    if 0 < x < 0.5:
-        return pow(2, 20 * x - 10) / 2
-    elif 0.5 <= x < 1:
-        return (2 - pow(2, -20 * x + 10)) / 2
-    else:
-        return x  # x in (0, 1)
+    pass
 
 
 def _in_out_circ(x: float) -> float:
     """https://easings.net/#easeInOutCirc"""
-    if x < 0.5:
-        return (1 - sqrt(1 - pow(2 * x, 2))) / 2
-    else:
-        return (sqrt(1 - pow(-2 * x + 2, 2)) + 1) / 2
+    pass
 
 
 def _in_out_back(x: float) -> float:
     """https://easings.net/#easeInOutBack"""
-    c = 1.70158 * 1.525
-    if x < 0.5:
-        return (pow(2 * x, 2) * ((c + 1) * 2 * x - c)) / 2
-    else:
-        return (pow(2 * x - 2, 2) * ((c + 1) * (x * 2 - 2) + c) + 2) / 2
+    pass
 
 
 def _in_elastic(x: float) -> float:
     """https://easings.net/#easeInElastic"""
-    c = 2 * pi / 3
-    if 0 < x < 1:
-        return -pow(2, 10 * x - 10) * sin((x * 10 - 10.75) * c)
-    else:
-        return x  # x in (0, 1)
+    pass
 
 
 def _in_out_elastic(x: float) -> float:
     """https://easings.net/#easeInOutElastic"""
-    c = 2 * pi / 4.5
-    if 0 < x < 0.5:
-        return -(pow(2, 20 * x - 10) * sin((20 * x - 11.125) * c)) / 2
-    elif 0.5 <= x < 1:
-        return (pow(2, -20 * x + 10) * sin((20 * x - 11.125) * c)) / 2 + 1
-    else:
-        return x  # x in (0, 1)
+    pass
 
 
 def _out_elastic(x: float) -> float:
     """https://easings.net/#easeInOutElastic"""
-    c = 2 * pi / 3
-    if 0 < x < 1:
-        return pow(2, -10 * x) * sin((x * 10 - 0.75) * c) + 1
-    else:
-        return x  # x in (0, 1)
+    pass
 
 
 def _out_bounce(x: float) -> float:
     """https://easings.net/#easeOutBounce"""
-    n, d = 7.5625, 2.75
-    if x < 1 / d:
-        return n * x * x
-    elif x < 2 / d:
-        x_ = x - 1.5 / d
-        return n * x_ * x_ + 0.75
-    elif x < 2.5 / d:
-        x_ = x - 2.25 / d
-        return n * x_ * x_ + 0.9375
-    else:
-        x_ = x - 2.625 / d
-        return n * x_ * x_ + 0.984375
+    pass
 
 
 def _in_bounce(x: float) -> float:
     """https://easings.net/#easeInBounce"""
-    return 1 - _out_bounce(1 - x)
+    pass
 
 
 def _in_out_bounce(x: float) -> float:
     """https://easings.net/#easeInOutBounce"""
-    if x < 0.5:
-        return (1 - _out_bounce(1 - 2 * x)) / 2
-    else:
-        return (1 + _out_bounce(2 * x - 1)) / 2
+    pass
 
 
 EASING = {

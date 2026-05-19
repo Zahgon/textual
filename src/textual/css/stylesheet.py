@@ -48,20 +48,6 @@ class StylesheetErrors:
         self.rules = rules
         self.variables: dict[str, str] = {}
 
-    @classmethod
-    def _get_snippet(cls, code: str, line_no: int) -> RenderableType:
-        from rich.syntax import Syntax
-
-        syntax = Syntax(
-            code,
-            lexer="scss",
-            theme="ansi_light",
-            line_numbers=True,
-            indent_guides=True,
-            line_range=(max(0, line_no - 2), line_no + 2),
-            highlight_lines={line_no},
-        )
-        return syntax
 
     def __rich_console__(
         self, console: Console, options: ConsoleOptions
@@ -156,11 +142,6 @@ class Stylesheet:
     def __rich_repr__(self) -> rich.repr.Result:
         yield list(self.source.keys())
 
-    @property
-    def _variable_tokens(self) -> dict[str, list[Token]]:
-        if self.__variable_tokens is None:
-            self.__variable_tokens = tokenize_values(self._variables)
-        return self.__variable_tokens
 
     @property
     def rules(self) -> list[RuleSet]:
@@ -169,11 +150,7 @@ class Stylesheet:
         Returns:
             List of rules sets for this stylesheet.
         """
-        if self._require_parse:
-            self.parse()
-            self._require_parse = False
-        assert self._rules is not None
-        return self._rules
+        pass
 
     @property
     def rules_map(self) -> dict[str, list[RuleSet]]:
@@ -182,13 +159,7 @@ class Stylesheet:
         Returns:
             Mapping of selector to rule sets.
         """
-        if self._rules_map is None:
-            rules_map: dict[str, list[RuleSet]] = defaultdict(list)
-            for rule in self.rules:
-                for name in rule.selector_names:
-                    rules_map[name].append(rule)
-            self._rules_map = dict(rules_map)
-        return self._rules_map
+        pass
 
     @property
     def css(self) -> str:
@@ -196,7 +167,7 @@ class Stylesheet:
 
         Note that this may not produce the same content as the file(s) used to generate the stylesheet.
         """
-        return "\n\n".join(rule_set.css for rule_set in self.rules)
+        pass
 
     def copy(self) -> Stylesheet:
         """Create a copy of this stylesheet.

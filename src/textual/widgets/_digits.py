@@ -52,10 +52,8 @@ class Digits(Widget):
     @property
     def value(self) -> str:
         """The current value displayed in the Digits."""
-        return self._value
+        pass
 
-    def get_selection(self, selection: Selection) -> str | None:
-        return self._value
 
     def update(self, value: str) -> None:
         """Update the Digits with a new value.

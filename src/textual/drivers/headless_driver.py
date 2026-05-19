@@ -13,7 +13,7 @@ class HeadlessDriver(Driver):
     @property
     def is_headless(self) -> bool:
         """Is the driver running in 'headless' mode?"""
-        return True
+        pass
 
     def _get_terminal_size(self) -> tuple[int, int]:
         if self._size is not None:

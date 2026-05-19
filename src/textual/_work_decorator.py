@@ -119,36 +119,7 @@ def work(
             *args: DecoratorParamSpec.args, **kwargs: DecoratorParamSpec.kwargs
         ) -> Worker[ReturnType]:
             """The replaced callable."""
-            from textual.dom import DOMNode
-
-            self = args[0]
-            assert isinstance(self, DOMNode)
-
-            if description is not None:
-                debug_description = description
-            else:
-                try:
-                    positional_arguments = ", ".join(repr(arg) for arg in args[1:])
-                    keyword_arguments = ", ".join(
-                        f"{name}={value!r}" for name, value in kwargs.items()
-                    )
-                    tokens = [positional_arguments, keyword_arguments]
-                    debug_description = f"{method.__name__}({', '.join(token for token in tokens if token)})"
-                except Exception:
-                    debug_description = "<worker>"
-            worker = cast(
-                "Worker[ReturnType]",
-                self.run_worker(
-                    partial(method, *args, **kwargs),
-                    name=name or method.__name__,
-                    group=group,
-                    description=debug_description,
-                    exclusive=exclusive,
-                    exit_on_error=exit_on_error,
-                    thread=thread,
-                ),
-            )
-            return worker
+            pass
 
         return decorated
 

@@ -110,29 +110,12 @@ class DOMQuery(Generic[QueryType]):
     @property
     def node(self) -> DOMNode:
         """The node being queried."""
-        return self._node
+        pass
 
     @property
     def nodes(self) -> list[QueryType]:
         """Lazily evaluate nodes."""
-        from textual.widget import Widget
-
-        if self._nodes is None:
-            initial_nodes = list(
-                self._node.walk_children(Widget) if self._deep else self._node._nodes
-            )
-            nodes = [
-                node
-                for node in initial_nodes
-                if all(match(selector_set, node) for selector_set in self._filters)
-            ]
-            nodes = [
-                node
-                for node in nodes
-                if not any(match(selector_set, node) for selector_set in self._excludes)
-            ]
-            self._nodes = cast("list[QueryType]", nodes)
-        return self._nodes
+        pass
 
     def __len__(self) -> int:
         return len(self.nodes)
@@ -188,13 +171,7 @@ class DOMQuery(Generic[QueryType]):
         Returns:
             New DOM Query.
         """
-
-        return DOMQuery(
-            self.node,
-            filter=selector,
-            deep=self._deep,
-            parent=self,
-        )
+        pass
 
     def exclude(self, selector: str) -> DOMQuery[QueryType]:
         """Exclude nodes that match a given selector.
@@ -205,12 +182,7 @@ class DOMQuery(Generic[QueryType]):
         Returns:
             New DOM query.
         """
-        return DOMQuery(
-            self.node,
-            exclude=selector,
-            deep=self._deep,
-            parent=self,
-        )
+        pass
 
     if TYPE_CHECKING:
 
@@ -273,27 +245,7 @@ class DOMQuery(Generic[QueryType]):
         Returns:
             The matching Widget.
         """
-        _rich_traceback_omit = True
-        # Call on first to get the first item. Here we'll use all of the
-        # testing and checking it provides.
-        the_one: ExpectType | QueryType = (
-            self.first(expect_type) if expect_type is not None else self.first()
-        )
-        try:
-            # Now see if we can access a subsequent item in the nodes. There
-            # should *not* be anything there, so we *should* get an
-            # IndexError. We *could* have just checked the length of the
-            # query, but the idea here is to do the check as cheaply as
-            # possible. "There can be only one!" -- Kurgan et al.
-            _ = self.nodes[1]
-            raise TooManyMatches(
-                "Call to only_one resulted in more than one matched node"
-            )
-        except IndexError:
-            # The IndexError was got, that's a good thing in this case. So
-            # we return what we found.
-            pass
-        return the_one
+        pass
 
     if TYPE_CHECKING:
 
@@ -319,14 +271,7 @@ class DOMQuery(Generic[QueryType]):
         Returns:
             The matching Widget.
         """
-        if not self.nodes:
-            raise NoMatches(f"No nodes match {self!r} on dom{self.node!r}")
-        last = self.nodes[-1]
-        if expect_type is not None and not isinstance(last, expect_type):
-            raise WrongType(
-                f"Query value is the wrong type; expected type {expect_type.__name__!r}, found {last}"
-            )
-        return last
+        pass
 
     if TYPE_CHECKING:
 
@@ -348,12 +293,7 @@ class DOMQuery(Generic[QueryType]):
         Yields:
             Iterator[Widget | ExpectType]: An iterator of Widget instances.
         """
-        if filter_type is None:
-            yield from self
-        else:
-            for node in self:
-                if isinstance(node, filter_type):
-                    yield node
+        pass
 
     def set_class(self, add: bool, *class_names: str) -> DOMQuery[QueryType]:
         """Set the given class name(s) according to a condition.
@@ -377,15 +317,7 @@ class DOMQuery(Generic[QueryType]):
         Returns:
             Self.
         """
-
-        if isinstance(classes, str):
-            for node in self:
-                node.set_classes(classes)
-        else:
-            class_names = list(classes)
-            for node in self:
-                node.set_classes(class_names)
-        return self
+        pass
 
     def add_class(self, *class_names: str) -> DOMQuery[QueryType]:
         """Add the given class name(s) to nodes."""
@@ -401,9 +333,7 @@ class DOMQuery(Generic[QueryType]):
 
     def toggle_class(self, *class_names: str) -> DOMQuery[QueryType]:
         """Toggle the given class names from matched nodes."""
-        for node in self:
-            node.toggle_class(*class_names)
-        return self
+        pass
 
     def remove(self) -> AwaitRemove:
         """Remove matched nodes from the DOM.
@@ -422,19 +352,7 @@ class DOMQuery(Generic[QueryType]):
         Args:
             css: CSS declarations to parser, or None.
         """
-        _rich_traceback_omit = True
-
-        for node in self:
-            node.set_styles(**update_styles)
-        if css is not None:
-            try:
-                new_styles = parse_declarations(css, read_from=("set_styles", ""))
-            except DeclarationError as error:
-                raise DeclarationError(error.name, error.token, error.message) from None
-            for node in self:
-                node._inline_styles.merge(new_styles)
-                node.refresh(layout=True)
-        return self
+        pass
 
     def refresh(
         self, *, repaint: bool = True, layout: bool = False, recompose: bool = False
@@ -471,12 +389,7 @@ class DOMQuery(Generic[QueryType]):
         Returns:
             Query for chaining.
         """
-        focused = self._node.screen.focused
-        if focused is not None:
-            nodes: list[Widget] = list(self)
-            if focused in nodes:
-                self._node.screen._reset_focus(focused, avoiding=nodes)
-        return self
+        pass
 
     def set(
         self,
@@ -496,13 +409,4 @@ class DOMQuery(Generic[QueryType]):
         Returns:
             Query for chaining.
         """
-        for node in self:
-            if display is not None:
-                node.display = display
-            if visible is not None:
-                node.visible = visible
-            if disabled is not None:
-                node.disabled = disabled
-            if loading is not None:
-                node.loading = loading
-        return self
+        pass

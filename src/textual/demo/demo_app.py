@@ -72,27 +72,6 @@ class DemoApp(App):
         ),
     ]
 
-    def action_maximize(self) -> None:
-        if self.screen.is_maximized:
-            return
-        if self.screen.focused is None:
-            self.notify(
-                "Nothing to be maximized (try pressing [b]tab[/b])",
-                title="Maximize",
-                severity="warning",
-            )
-        else:
-            if self.screen.maximize(self.screen.focused):
-                self.notify(
-                    "You are now in the maximized view. Press [b]escape[/b] to return.",
-                    title="Maximize",
-                )
-            else:
-                self.notify(
-                    "This widget may not be maximized.",
-                    title="Maximize",
-                    severity="warning",
-                )
 
     def check_action(self, action: str, parameters: tuple[object, ...]) -> bool | None:
         """Disable switching to a mode we are already on."""

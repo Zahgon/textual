@@ -564,7 +564,7 @@ TextArea {
         @property
         def control(self) -> TextArea:
             """The `TextArea` that sent this message."""
-            return self.text_area
+            pass
 
     @dataclass
     class SelectionChanged(Message):
@@ -577,9 +577,6 @@ TextArea {
         text_area: TextArea
         """The `text_area` that sent this message."""
 
-        @property
-        def control(self) -> TextArea:
-            return self.text_area
 
     def __init__(
         self,
@@ -812,14 +809,7 @@ TextArea {
         Returns:
             `True` if the widget may capture the key in its `Key` message, or `False` if it won't.
         """
-        if self.read_only:
-            # In read only mode we don't consume any key events
-            return False
-        if self.tab_behavior == "indent" and key == "tab":
-            # If tab_behavior is indent, then we consume the tab
-            return True
-        # Otherwise we capture all printable keys
-        return character is not None and character.isprintable()
+        pass
 
     def _build_highlight_map(self) -> None:
         """Query the tree for ranges to highlights, and update the internal highlights mapping."""
@@ -853,59 +843,14 @@ TextArea {
                         (0, node_end_column, highlight_name)
                     )
 
-    def _watch_has_focus(self, focus: bool) -> None:
-        self._cursor_visible = focus
-        if focus:
-            self._restart_blink()
-            self.app.cursor_position = self.cursor_screen_offset
-            self.history.checkpoint()
-        else:
-            self._pause_blink(visible=False)
 
     def _watch_selection(
         self, previous_selection: Selection, selection: Selection
     ) -> None:
         """When the cursor moves, scroll it into view."""
-        # Find the visual offset of the cursor in the document
+        pass
 
-        if not self.is_mounted:
-            return
 
-        self.app.clear_selection()
-
-        cursor_location = selection.end
-
-        self.scroll_cursor_visible()
-
-        cursor_row, cursor_column = cursor_location
-
-        try:
-            character = self.document[cursor_row][cursor_column]
-        except IndexError:
-            character = ""
-
-        # Record the location of a matching closing/opening bracket.
-        match_location = self.find_matching_bracket(character, cursor_location)
-        self._matching_bracket_location = match_location
-        if match_location is not None:
-            _, offset_y = self._cursor_offset
-            self.refresh_lines(offset_y)
-
-        self.app.cursor_position = self.cursor_screen_offset
-        if previous_selection != selection:
-            self.post_message(self.SelectionChanged(selection, self))
-
-    def _watch_cursor_blink(self, blink: bool) -> None:
-        if not self.is_mounted:
-            return None
-        if blink and self.has_focus:
-            self._restart_blink()
-        else:
-            self._pause_blink(visible=self.has_focus)
-
-    def _watch_read_only(self, read_only: bool) -> None:
-        self.set_class(read_only, "-read-only")
-        self._set_theme(self._theme.name)
 
     def _recompute_cursor_offset(self):
         """Recompute the (x, y) coordinate of the cursor in the wrapped document."""
@@ -926,115 +871,35 @@ TextArea {
             The `Location` of the matching bracket, or `None` if it's not found.
             If the character is not available for bracket matching, `None` is returned.
         """
-        match_location = None
-        bracket_stack: list[str] = []
-        if bracket in _OPENING_BRACKETS:
-            # Search forwards for a closing bracket
-            for candidate, candidate_location in self._yield_character_locations(
-                search_from
-            ):
-                if candidate in _OPENING_BRACKETS:
-                    bracket_stack.append(candidate)
-                elif candidate in _CLOSING_BRACKETS:
-                    if (
-                        bracket_stack
-                        and bracket_stack[-1] == _CLOSING_BRACKETS[candidate]
-                    ):
-                        bracket_stack.pop()
-                        if not bracket_stack:
-                            match_location = candidate_location
-                            break
-        elif bracket in _CLOSING_BRACKETS:
-            # Search backwards for an opening bracket
-            for (
-                candidate,
-                candidate_location,
-            ) in self._yield_character_locations_reverse(search_from):
-                if candidate in _CLOSING_BRACKETS:
-                    bracket_stack.append(candidate)
-                elif candidate in _OPENING_BRACKETS:
-                    if (
-                        bracket_stack
-                        and bracket_stack[-1] == _OPENING_BRACKETS[candidate]
-                    ):
-                        bracket_stack.pop()
-                        if not bracket_stack:
-                            match_location = candidate_location
-                            break
-
-        return match_location
+        pass
 
     def _validate_selection(self, selection: Selection) -> Selection:
         """Clamp the selection to valid locations."""
-        start, end = selection
-        clamp_visitable = self.clamp_visitable
-        return Selection(clamp_visitable(start), clamp_visitable(end))
+        pass
 
     def _watch_language(self, language: str | None) -> None:
         """When the language is updated, update the type of document."""
-        self._set_document(self.document.text, language)
+        pass
 
     def _watch_show_line_numbers(self) -> None:
         """The line number gutter contributes to virtual size, so recalculate."""
-        self._rewrap_and_refresh_virtual_size()
-        self.scroll_cursor_visible()
+        pass
 
     def _watch_line_number_start(self) -> None:
         """The line number gutter max size might change and contributes to virtual size, so recalculate."""
-        self._rewrap_and_refresh_virtual_size()
-        self.scroll_cursor_visible()
+        pass
 
     def _watch_indent_width(self) -> None:
         """Changing width of tabs will change the document display width."""
-        self._rewrap_and_refresh_virtual_size()
-        self.scroll_cursor_visible()
+        pass
 
-    def _watch_show_vertical_scrollbar(self) -> None:
-        if self.wrap_width:
-            self._rewrap_and_refresh_virtual_size()
-        self.scroll_cursor_visible()
 
     def _watch_theme(self, theme: str) -> None:
         """We set the styles on this widget when the theme changes, to ensure that
         if padding is applied, the colors match."""
-        self._set_theme(theme)
+        pass
 
-    def _app_theme_changed(self) -> None:
-        self._set_theme(self._theme.name)
 
-    def _set_theme(self, theme: str) -> None:
-        theme_object: TextAreaTheme | None
-
-        # If the user supplied a string theme name, find it and apply it.
-        try:
-            theme_object = self._themes[theme]
-        except KeyError:
-            theme_object = TextAreaTheme.get_builtin_theme(theme)
-            if theme_object is None:
-                raise ThemeDoesNotExist(
-                    f"{theme!r} is not a builtin theme, or it has not been registered. "
-                    f"To use a custom theme, register it first using `register_theme`, "
-                    f"then switch to that theme by setting the `TextArea.theme` attribute."
-                ) from None
-
-        self._theme = dataclasses.replace(theme_object)
-        if theme_object:
-            base_style = theme_object.base_style
-            if base_style:
-                color = base_style.color
-                background = base_style.bgcolor
-                if color:
-                    self.styles.color = Color.from_rich_color(color)
-                if background:
-                    self.styles.background = Color.from_rich_color(background)
-            else:
-                # When the theme doesn't define a base style (e.g. the `css` theme),
-                # the TextArea background/color should fallback to its CSS colors.
-                #
-                # Since these styles may have already been changed by another theme,
-                # we need to reset the background/color styles to the default values.
-                self.styles.color = None
-                self.styles.background = None
 
     @property
     def available_themes(self) -> set[str]:
@@ -1050,9 +915,7 @@ TextArea {
         (which contain the full theme specification) by calling
         `TextAreaTheme.builtin_themes()`.
         """
-        return {
-            theme.name for theme in TextAreaTheme.builtin_themes()
-        } | self._themes.keys()
+        pass
 
     def register_theme(self, theme: TextAreaTheme) -> None:
         """Register a theme for use by the `TextArea`.
@@ -1065,7 +928,7 @@ TextArea {
         If you supply a theme with a name that already exists that theme
         will be overwritten.
         """
-        self._themes[theme.name] = theme
+        pass
 
     @property
     def available_languages(self) -> set[str]:
@@ -1077,7 +940,7 @@ TextArea {
         The returned set contains the builtin languages installed with the syntax extras,
         plus those registered via the `register_language` method.
         """
-        return set(BUILTIN_LANGUAGES) | self._languages.keys()
+        pass
 
     def register_language(
         self,
@@ -1101,7 +964,7 @@ TextArea {
             language: A tree-sitter `Language` object.
             highlight_query: The highlight query to use for syntax highlighting this language.
         """
-        self._languages[name] = TextAreaLanguage(name, language, highlight_query)
+        pass
 
     def update_highlight_query(self, name: str, highlight_query: str) -> None:
         """Update the highlight query for an already registered language.
@@ -1110,15 +973,7 @@ TextArea {
             name: The name of the language.
             highlight_query: The highlight query to use for syntax highlighting this language.
         """
-        if name not in self._languages:
-            self._languages[name] = TextAreaLanguage(name, None, highlight_query)
-        else:
-            self._languages[name].highlight_query = highlight_query
-
-        # If this is the currently loaded language, reload the document because
-        # it could be a different highlight query for the same language.
-        if name == self.language:
-            self._set_document(self.text, name)
+        pass
 
     def _set_document(self, text: str, language: str | None) -> None:
         """Construct and return an appropriate document.
@@ -1192,14 +1047,9 @@ TextArea {
         Returns:
             A tuple (top, bottom) indicating the top and bottom visible line indices.
         """
-        _, scroll_offset_y = self.scroll_offset
-        return scroll_offset_y, scroll_offset_y + self.size.height
+        pass
 
-    def _watch_scroll_x(self) -> None:
-        self.app.cursor_position = self.cursor_screen_offset
 
-    def _watch_scroll_y(self) -> None:
-        self.app.cursor_position = self.cursor_screen_offset
 
     def load_text(self, text: str) -> None:
         """Load text into the TextArea.
@@ -1214,12 +1064,7 @@ TextArea {
         self.post_message(self.Changed(self).set_sender(self))
         self.update_suggestion()
 
-    def _on_resize(self) -> None:
-        self._rewrap_and_refresh_virtual_size()
 
-    def _watch_soft_wrap(self) -> None:
-        self._rewrap_and_refresh_virtual_size()
-        self.call_after_refresh(self.scroll_cursor_visible, center=True)
 
     @property
     def wrap_width(self) -> int:
@@ -1227,11 +1072,7 @@ TextArea {
 
         Accounts for gutter, scrollbars, etc.
         """
-        width, _ = self.scrollable_content_region.size
-        cursor_width = 1
-        if self.soft_wrap:
-            return max(0, width - self.gutter_width - cursor_width)
-        return 0
+        pass
 
     def _rewrap_and_refresh_virtual_size(self) -> None:
         self.wrapped_document.wrap(self.wrap_width, tab_width=self.indent_width)
@@ -1241,7 +1082,7 @@ TextArea {
     @property
     def is_syntax_aware(self) -> bool:
         """True if the TextArea is currently syntax aware - i.e. it's parsing document content."""
-        return isinstance(self.document, SyntaxAwareDocument)
+        pass
 
     def _yield_character_locations(
         self, start: Location
@@ -1256,33 +1097,8 @@ TextArea {
         Returns:
             Yields tuples of (character, (row, column)).
         """
-        row, column = start
-        document = self.document
-        line_count = document.line_count
+        pass
 
-        while 0 <= row < line_count:
-            line = document[row]
-            while column < len(line):
-                yield line[column], (row, column)
-                column += 1
-            column = 0
-            row += 1
-
-    def _yield_character_locations_reverse(
-        self, start: Location
-    ) -> Iterable[tuple[str, Location]]:
-        row, column = start
-        document = self.document
-        line_count = document.line_count
-
-        while line_count > row >= 0:
-            line = document[row]
-            if column == -1:
-                column = len(line) - 1
-            while column >= 0:
-                yield line[column], (row, column)
-                column -= 1
-            row -= 1
 
     def _refresh_size(self) -> None:
         """Update the virtual size of the TextArea."""
@@ -1297,20 +1113,12 @@ TextArea {
     @property
     def _draw_cursor(self) -> bool:
         """Draw the cursor?"""
-        if self.read_only:
-            # If we are in read only mode, we don't want the cursor to blink
-            return self.show_cursor and self.has_focus
-        draw_cursor = (
-            self.has_focus
-            and not self.cursor_blink
-            or (self.cursor_blink and self._cursor_visible)
-        )
-        return draw_cursor
+        pass
 
     @property
     def _has_cursor(self) -> bool:
         """Is there a usable cursor?"""
-        return not (self.read_only and not self.show_cursor)
+        pass
 
     def get_line(self, line_index: int) -> Text:
         """Retrieve the line at the given line index.
@@ -1631,7 +1439,7 @@ TextArea {
     @property
     def text(self) -> str:
         """The entire text content of the document."""
-        return self.document.text
+        pass
 
     @text.setter
     def text(self, value: str) -> None:
@@ -1642,18 +1450,17 @@ TextArea {
         Args:
             value: The text to load into the TextArea.
         """
-        self.load_text(value)
+        pass
 
     @property
     def selected_text(self) -> str:
         """The text between the start and end points of the current selection."""
-        start, end = self.selection
-        return self.get_text_range(start, end)
+        pass
 
     @property
     def matching_bracket_location(self) -> Location | None:
         """The location of the matching bracket, if there is one."""
-        return self._matching_bracket_location
+        pass
 
     def get_text_range(self, start: Location, end: Location) -> str:
         """Get the text between a start and end location.
@@ -1705,21 +1512,19 @@ TextArea {
 
     def undo(self) -> None:
         """Undo the edits since the last checkpoint (the most recent batch of edits)."""
-        if edits := self.history._pop_undo():
-            self._undo_batch(edits)
+        pass
 
     def action_undo(self) -> None:
         """Undo the edits since the last checkpoint (the most recent batch of edits)."""
-        self.undo()
+        pass
 
     def redo(self) -> None:
         """Redo the most recently undone batch of edits."""
-        if edits := self.history._pop_redo():
-            self._redo_batch(edits)
+        pass
 
     def action_redo(self) -> None:
         """Redo the most recently undone batch of edits."""
-        self.redo()
+        pass
 
     def _undo_batch(self, edits: Sequence[Edit]) -> None:
         """Undo a batch of Edits.
@@ -1732,39 +1537,7 @@ TextArea {
         Args:
             edits: The edits to undo, in the order they were originally performed.
         """
-        if not edits:
-            return
-
-        old_gutter_width = self.gutter_width
-        minimum_top = edits[-1].top
-        maximum_old_bottom = (0, 0)
-        maximum_new_bottom = (0, 0)
-        for edit in reversed(edits):
-            edit.undo(self)
-            end_location = (
-                edit._edit_result.end_location if edit._edit_result else (0, 0)
-            )
-            if edit.top < minimum_top:
-                minimum_top = edit.top
-            if end_location > maximum_old_bottom:
-                maximum_old_bottom = end_location
-            if edit.bottom > maximum_new_bottom:
-                maximum_new_bottom = edit.bottom
-
-        new_gutter_width = self.gutter_width
-        if old_gutter_width != new_gutter_width:
-            self.wrapped_document.wrap(self.wrap_width, self.indent_width)
-        else:
-            self.wrapped_document.wrap_range(
-                minimum_top, maximum_old_bottom, maximum_new_bottom
-            )
-
-        self._refresh_size()
-        for edit in reversed(edits):
-            edit.after(self)
-        self._build_highlight_map()
-        self.post_message(self.Changed(self))
-        self.update_suggestion()
+        pass
 
     def _redo_batch(self, edits: Sequence[Edit]) -> None:
         """Redo a batch of Edits in order.
@@ -1779,74 +1552,11 @@ TextArea {
         Args:
             edits: The edits to redo.
         """
-        if not edits:
-            return
-
-        old_gutter_width = self.gutter_width
-        minimum_top = edits[0].top
-        maximum_old_bottom = (0, 0)
-        maximum_new_bottom = (0, 0)
-        for edit in edits:
-            edit.do(self, record_selection=False)
-            end_location = (
-                edit._edit_result.end_location if edit._edit_result else (0, 0)
-            )
-            if edit.top < minimum_top:
-                minimum_top = edit.top
-            if end_location > maximum_new_bottom:
-                maximum_new_bottom = end_location
-            if edit.bottom > maximum_old_bottom:
-                maximum_old_bottom = edit.bottom
-
-        new_gutter_width = self.gutter_width
-        if old_gutter_width != new_gutter_width:
-            self.wrapped_document.wrap(self.wrap_width, self.indent_width)
-        else:
-            self.wrapped_document.wrap_range(
-                minimum_top,
-                maximum_old_bottom,
-                maximum_new_bottom,
-            )
-
-        self._refresh_size()
-        for edit in edits:
-            edit.after(self)
-        self._build_highlight_map()
-        self.post_message(self.Changed(self))
-        self.update_suggestion()
+        pass
 
     async def _on_key(self, event: events.Key) -> None:
         """Handle key presses which correspond to document inserts."""
-
-        self._restart_blink()
-
-        if self.read_only:
-            return
-
-        key = event.key
-        insert_values = {
-            "enter": "\n",
-        }
-        if self.tab_behavior == "indent":
-            if key == "escape":
-                event.stop()
-                event.prevent_default()
-                self.screen.focus_next()
-                return
-            if self.indent_type == "tabs":
-                insert_values["tab"] = "\t"
-            else:
-                insert_values["tab"] = " " * self._find_columns_to_next_tab_stop()
-
-        if event.is_printable or key in insert_values:
-            event.stop()
-            event.prevent_default()
-            insert = insert_values.get(key, event.character)
-            # `insert` is not None because event.character cannot be
-            # None because we've checked that it's printable.
-            assert insert is not None
-            start, end = self.selection
-            self._replace_via_keyboard(insert, start, end)
+        pass
 
     def _find_columns_to_next_tab_stop(self) -> int:
         """Get the location of the next tab stop after the cursors position on the current line.
@@ -1856,18 +1566,7 @@ TextArea {
         Returns:
             The number of cells to the next tab stop from the current cursor column.
         """
-        cursor_row, cursor_column = self.cursor_location
-        line_text = self.document[cursor_row]
-        indent_width = self.indent_width
-        if not line_text:
-            return indent_width
-
-        width_before_cursor = self.get_column_width(cursor_row, cursor_column)
-        spaces_to_insert = indent_width - (
-            (indent_width + width_before_cursor) % indent_width
-        )
-
-        return spaces_to_insert
+        pass
 
     def get_target_document_location(self, event: MouseEvent) -> Location:
         """Given a MouseEvent, return the row and column offset of the event in document-space.
@@ -1878,11 +1577,7 @@ TextArea {
         Returns:
             The location of the mouse event within the document.
         """
-        scroll_x, scroll_y = self.scroll_offset
-        target_x = event.x - self.gutter_width + scroll_x - self.gutter.left
-        target_y = event.y + scroll_y - self.gutter.top
-        location = self.wrapped_document.offset_to_location(Offset(target_x, target_y))
-        return location
+        pass
 
     @property
     def gutter_width(self) -> int:
@@ -1891,46 +1586,16 @@ TextArea {
         Returns:
             The cell-width of the line number column. If `show_line_numbers` is `False` returns 0.
         """
-        # The longest number in the gutter plus two extra characters: `│ `.
-        gutter_margin = 2
-        gutter_width = (
-            len(str(self.document.line_count - 1 + self.line_number_start))
-            + gutter_margin
-            if self.show_line_numbers
-            else 0
-        )
-        return gutter_width
+        pass
 
-    def _on_mount(self, event: events.Mount) -> None:
-        def text_selection_started(screen: Screen) -> None:
-            """Signal callback to unselect when arbitrary text selection starts."""
-            self.selection = Selection(self.cursor_location, self.cursor_location)
-
-        self.screen.text_selection_started_signal.subscribe(
-            self, text_selection_started, immediate=True
-        )
-
-        # When `app.theme` reactive is changed, reset the theme to clear cached styles.
-        self.watch(self.app, "theme", self._app_theme_changed, init=False)
-        self.blink_timer = self.set_interval(
-            0.5,
-            self._toggle_cursor_blink_visible,
-            pause=not (self.cursor_blink and self.has_focus),
-        )
 
     def _toggle_cursor_blink_visible(self) -> None:
         """Toggle visibility of the cursor for the purposes of 'cursor blink'."""
-        if not self.screen.is_active:
-            return
-
-        self._cursor_visible = not self._cursor_visible
-        _, cursor_y = self._cursor_offset
-        self.refresh_lines(cursor_y)
+        pass
 
     def _watch__cursor_visible(self) -> None:
         """When the cursor visibility is toggled, ensure the row is refreshed."""
-        _, cursor_y = self._cursor_offset
-        self.refresh_lines(cursor_y)
+        pass
 
     def _restart_blink(self) -> None:
         """Reset the cursor blink timer."""
@@ -1941,51 +1606,31 @@ TextArea {
 
     def _pause_blink(self, visible: bool = True) -> None:
         """Pause the cursor blinking but ensure it stays visible."""
-        self._cursor_visible = visible
-        if self.is_mounted:
-            self.blink_timer.pause()
+        pass
 
     async def _on_mouse_down(self, event: events.MouseDown) -> None:
         """Update the cursor position, and begin a selection using the mouse."""
-        target = self.get_target_document_location(event)
-        self.selection = Selection.cursor(target)
-        self._selecting = True
-        # Capture the mouse so that if the cursor moves outside the
-        # TextArea widget while selecting, the widget still scrolls.
-        self.capture_mouse()
-        self._pause_blink(visible=False)
-        self.history.checkpoint()
+        pass
 
     async def _on_mouse_move(self, event: events.MouseMove) -> None:
         """Handles click and drag to expand and contract the selection."""
-        if self._selecting:
-            target = self.get_target_document_location(event)
-            selection_start, _ = self.selection
-            self.selection = Selection(selection_start, target)
+        pass
 
     def _end_mouse_selection(self) -> None:
         """Finalize the selection that has been made using the mouse."""
-        if self._selecting:
-            self._selecting = False
-            self.release_mouse()
-            self.record_cursor_width()
-            self._restart_blink()
+        pass
 
     async def _on_mouse_up(self, event: events.MouseUp) -> None:
         """Finalize the selection that has been made using the mouse."""
-        self._end_mouse_selection()
+        pass
 
     async def _on_hide(self, event: events.Hide) -> None:
         """Finalize the selection that has been made using the mouse when the widget is hidden."""
-        self._end_mouse_selection()
+        pass
 
     async def _on_paste(self, event: events.Paste) -> None:
         """When a paste occurs, insert the text from the paste event into the document."""
-        if self.read_only:
-            return
-        if result := self._replace_via_keyboard(event.text, *self.selection):
-            self.move_cursor(result.end_location)
-            self.focus()
+        pass
 
     def cell_width_to_column_index(self, cell_width: int, row_index: int) -> int:
         """Return the column that the cell width corresponds to on the given row.
@@ -2009,18 +1654,7 @@ TextArea {
         Returns:
             The nearest location that we could conceivably navigate to using the cursor.
         """
-        document = self.document
-
-        row, column = location
-        try:
-            line_text = document[row]
-        except IndexError:
-            line_text = ""
-
-        row = clamp(row, 0, document.line_count - 1)
-        column = clamp(column, 0, len(line_text))
-
-        return row, column
+        pass
 
     # --- Cursor/selection utilities
     def scroll_cursor_visible(
@@ -2101,11 +1735,7 @@ TextArea {
                 so that we jump back to the same width the next time we move to a row
                 that is wide enough.
         """
-        clamp_visitable = self.clamp_visitable
-        _start, end = self.selection
-        current_row, current_column = end
-        target = clamp_visitable((current_row + rows, current_column + columns))
-        self.move_cursor(target, select, center, record_width)
+        pass
 
     def select_line(self, index: int) -> None:
         """Select all the text in the specified line.
@@ -2113,31 +1743,19 @@ TextArea {
         Args:
             index: The index of the line to select (starting from 0).
         """
-        try:
-            line = self.document[index]
-        except IndexError:
-            return
-        else:
-            self.selection = Selection((index, 0), (index, len(line)))
-            self.record_cursor_width()
+        pass
 
     def action_select_line(self) -> None:
         """Select all the text on the current line."""
-        cursor_row, _ = self.cursor_location
-        self.select_line(cursor_row)
+        pass
 
     def select_all(self) -> None:
         """Select all of the text in the `TextArea`."""
-        last_line = self.document.line_count - 1
-        length_of_last_line = len(self.document[last_line])
-        selection_start = (0, 0)
-        selection_end = (last_line, length_of_last_line)
-        self.selection = Selection(selection_start, selection_end)
-        self.record_cursor_width()
+        pass
 
     def action_select_all(self) -> None:
         """Select all the text in the document."""
-        self.select_all()
+        pass
 
     @property
     def cursor_location(self) -> Location:
@@ -2145,7 +1763,7 @@ TextArea {
 
         This is a utility for accessing the `end` of `TextArea.selection`.
         """
-        return self.selection.end
+        pass
 
     @cursor_location.setter
     def cursor_location(self, location: Location) -> None:
@@ -2153,52 +1771,42 @@ TextArea {
 
         If a selection is in progress, the anchor point will remain.
         """
-        self.move_cursor(location, select=not self.selection.is_empty)
+        pass
 
     @property
     def cursor_screen_offset(self) -> Offset:
         """The offset of the cursor relative to the screen."""
-        cursor_x, cursor_y = self._cursor_offset
-        scroll_x, scroll_y = self.scroll_offset
-        region_x, region_y, _width, _height = self.content_region
-
-        offset_x = region_x + cursor_x - scroll_x + self.gutter_width
-        offset_y = region_y + cursor_y - scroll_y
-
-        return Offset(offset_x, offset_y)
+        pass
 
     @property
     def cursor_at_first_line(self) -> bool:
         """True if and only if the cursor is on the first line."""
-        return self.selection.end[0] == 0
+        pass
 
     @property
     def cursor_at_last_line(self) -> bool:
         """True if and only if the cursor is on the last line."""
-        return self.selection.end[0] == self.document.line_count - 1
+        pass
 
     @property
     def cursor_at_start_of_line(self) -> bool:
         """True if and only if the cursor is at column 0."""
-        return self.selection.end[1] == 0
+        pass
 
     @property
     def cursor_at_end_of_line(self) -> bool:
         """True if and only if the cursor is at the end of a row."""
-        cursor_row, cursor_column = self.selection.end
-        row_length = len(self.document[cursor_row])
-        cursor_at_end = cursor_column == row_length
-        return cursor_at_end
+        pass
 
     @property
     def cursor_at_start_of_text(self) -> bool:
         """True if and only if the cursor is at location (0, 0)"""
-        return self.selection.end == (0, 0)
+        pass
 
     @property
     def cursor_at_end_of_text(self) -> bool:
         """True if and only if the cursor is at the very end of the document."""
-        return self.cursor_at_last_line and self.cursor_at_end_of_line
+        pass
 
     # ------ Cursor movement actions
     def action_cursor_left(self, select: bool = False) -> None:
@@ -2240,18 +1848,7 @@ TextArea {
         Args:
             select: If True, select the text while moving.
         """
-        if not self._has_cursor:
-            self.scroll_right()
-            return
-        if self.suggestion:
-            self.insert(self.suggestion)
-            return
-        target = (
-            self.get_cursor_right_location()
-            if select or self.selection.is_empty
-            else max(*self.selection)
-        )
-        self.move_cursor(target, select=select)
+        pass
 
     def get_cursor_right_location(self) -> Location:
         """Get the location the cursor will move to if it moves right.
@@ -2259,7 +1856,7 @@ TextArea {
         Returns:
             the location the cursor will move to if it moves right.
         """
-        return self.navigator.get_location_right(self.cursor_location)
+        pass
 
     def action_cursor_down(self, select: bool = False) -> None:
         """Move the cursor down one cell.
@@ -2267,11 +1864,7 @@ TextArea {
         Args:
             select: If True, select the text while moving.
         """
-        if not self._has_cursor:
-            self.scroll_down()
-            return
-        target = self.get_cursor_down_location()
-        self.move_cursor(target, record_width=False, select=select)
+        pass
 
     def get_cursor_down_location(self) -> Location:
         """Get the location the cursor will move to if it moves down.
@@ -2279,7 +1872,7 @@ TextArea {
         Returns:
             The location the cursor will move to if it moves down.
         """
-        return self.navigator.get_location_below(self.cursor_location)
+        pass
 
     def action_cursor_up(self, select: bool = False) -> None:
         """Move the cursor up one cell.
@@ -2287,11 +1880,7 @@ TextArea {
         Args:
             select: If True, select the text while moving.
         """
-        if not self._has_cursor:
-            self.scroll_up()
-            return
-        target = self.get_cursor_up_location()
-        self.move_cursor(target, record_width=False, select=select)
+        pass
 
     def get_cursor_up_location(self) -> Location:
         """Get the location the cursor will move to if it moves up.
@@ -2299,15 +1888,11 @@ TextArea {
         Returns:
             The location the cursor will move to if it moves up.
         """
-        return self.navigator.get_location_above(self.cursor_location)
+        pass
 
     def action_cursor_line_end(self, select: bool = False) -> None:
         """Move the cursor to the end of the line."""
-        if not self._has_cursor:
-            self.scroll_end()
-            return
-        location = self.get_cursor_line_end_location()
-        self.move_cursor(location, select=select)
+        pass
 
     def get_cursor_line_end_location(self) -> Location:
         """Get the location of the end of the current line.
@@ -2315,15 +1900,11 @@ TextArea {
         Returns:
             The (row, column) location of the end of the cursors current line.
         """
-        return self.navigator.get_location_end(self.cursor_location)
+        pass
 
     def action_cursor_line_start(self, select: bool = False) -> None:
         """Move the cursor to the start of the line."""
-        if not self._has_cursor:
-            self.scroll_home()
-            return
-        target = self.get_cursor_line_start_location(smart_home=True)
-        self.move_cursor(target, select=select)
+        pass
 
     def get_cursor_line_start_location(self, smart_home: bool = False) -> Location:
         """Get the location of the start of the current line.
@@ -2336,9 +1917,7 @@ TextArea {
         Returns:
             The (row, column) location of the start of the cursors current line.
         """
-        return self.navigator.get_location_home(
-            self.cursor_location, smart_home=smart_home
-        )
+        pass
 
     def action_cursor_word_left(self, select: bool = False) -> None:
         """Move the cursor left by a single word, skipping trailing whitespace.
@@ -2346,12 +1925,7 @@ TextArea {
         Args:
             select: Whether to select while moving the cursor.
         """
-        if not self.show_cursor:
-            return
-        if self.cursor_at_start_of_text:
-            return
-        target = self.get_cursor_word_left_location()
-        self.move_cursor(target, select=select)
+        pass
 
     def get_cursor_word_left_location(self) -> Location:
         """Get the location the cursor will jump to if it goes 1 word left.
@@ -2359,27 +1933,11 @@ TextArea {
         Returns:
             The location the cursor will jump on "jump word left".
         """
-        cursor_row, cursor_column = self.cursor_location
-        if cursor_row > 0 and cursor_column == 0:
-            # Going to the previous row
-            return cursor_row - 1, len(self.document[cursor_row - 1])
-
-        # Staying on the same row
-        line = self.document[cursor_row][:cursor_column]
-        search_string = line.rstrip()
-        matches = list(re.finditer(self._word_pattern, search_string))
-        cursor_column = matches[-1].start() if matches else 0
-        return cursor_row, cursor_column
+        pass
 
     def action_cursor_word_right(self, select: bool = False) -> None:
         """Move the cursor right by a single word, skipping leading whitespace."""
-        if not self.show_cursor:
-            return
-        if self.cursor_at_end_of_text:
-            return
-
-        target = self.get_cursor_word_right_location()
-        self.move_cursor(target, select=select)
+        pass
 
     def get_cursor_word_right_location(self) -> Location:
         """Get the location the cursor will jump to if it goes 1 word right.
@@ -2387,53 +1945,15 @@ TextArea {
         Returns:
             The location the cursor will jump on "jump word right".
         """
-        cursor_row, cursor_column = self.selection.end
-        line = self.document[cursor_row]
-        if cursor_row < self.document.line_count - 1 and cursor_column == len(line):
-            # Moving to the line below
-            return cursor_row + 1, 0
-
-        # Staying on the same line
-        search_string = line[cursor_column:]
-        pre_strip_length = len(search_string)
-        search_string = search_string.lstrip()
-        strip_offset = pre_strip_length - len(search_string)
-
-        matches = list(re.finditer(self._word_pattern, search_string))
-        if matches:
-            cursor_column += matches[0].start() + strip_offset
-        else:
-            cursor_column = len(line)
-
-        return cursor_row, cursor_column
+        pass
 
     def action_cursor_page_up(self) -> None:
         """Move the cursor and scroll up one page."""
-        if not self.show_cursor:
-            self.scroll_page_up()
-            return
-        height = self.content_size.height
-        _, cursor_location = self.selection
-        target = self.navigator.get_location_at_y_offset(
-            cursor_location,
-            -height,
-        )
-        self.scroll_relative(y=-height, animate=False)
-        self.move_cursor(target)
+        pass
 
     def action_cursor_page_down(self) -> None:
         """Move the cursor and scroll down one page."""
-        if not self.show_cursor:
-            self.scroll_page_down()
-            return
-        height = self.content_size.height
-        _, cursor_location = self.selection
-        target = self.navigator.get_location_at_y_offset(
-            cursor_location,
-            height,
-        )
-        self.scroll_relative(y=height, animate=False)
-        self.move_cursor(target)
+        pass
 
     def get_column_width(self, row: int, column: int) -> int:
         """Get the cell offset of the column from the start of the row.
@@ -2445,8 +1965,7 @@ TextArea {
         Returns:
             The cell width of the column relative to the start of the row.
         """
-        line = self.document[row]
-        return cell_len(expand_tabs_inline(line[:column], self.indent_width))
+        pass
 
     def record_cursor_width(self) -> None:
         """Record the current cell width of the cursor.
@@ -2556,9 +2075,7 @@ TextArea {
         Returns:
             An EditResult or None if no edit was performed (e.g. on read-only mode).
         """
-        if self.read_only:
-            return None
-        return self.delete(start, end, maintain_selection_offset=False)
+        pass
 
     def _replace_via_keyboard(
         self,
@@ -2576,152 +2093,58 @@ TextArea {
         Returns:
             An EditResult or None if no edit was performed (e.g. on read-only mode).
         """
-        if self.read_only:
-            return None
-        return self.replace(insert, start, end, maintain_selection_offset=False)
+        pass
 
     def action_delete_left(self) -> None:
         """Deletes the character to the left of the cursor and updates the cursor location.
 
         If there's a selection, then the selected range is deleted."""
-
-        if self.read_only:
-            return
-
-        selection = self.selection
-        start, end = selection
-
-        if selection.is_empty:
-            end = self.get_cursor_left_location()
-
-        self._delete_via_keyboard(start, end)
+        pass
 
     def action_delete_right(self) -> None:
         """Deletes the character to the right of the cursor and keeps the cursor at the same location.
 
         If there's a selection, then the selected range is deleted."""
-        if self.read_only:
-            return
-
-        selection = self.selection
-        start, end = selection
-
-        if selection.is_empty:
-            end = self.get_cursor_right_location()
-
-        self._delete_via_keyboard(start, end)
+        pass
 
     def action_delete_line(self) -> None:
         """Deletes the lines which intersect with the selection."""
-        if self.read_only:
-            return
-        self._delete_cursor_line()
+        pass
 
     def _delete_cursor_line(self) -> EditResult | None:
         """Deletes the line (including the line terminator) that the cursor is on."""
-        start, end = self.selection
-        start, end = sorted((start, end))
-        start_row, _start_column = start
-        end_row, end_column = end
-
-        # Generally editors will only delete line the end line of the
-        # selection if the cursor is not at column 0 of that line.
-        if start_row != end_row and end_column == 0 and end_row >= 0:
-            end_row -= 1
-
-        from_location = (start_row, 0)
-        to_location = (end_row + 1, 0)
-
-        deletion = self._delete_via_keyboard(from_location, to_location)
-        if deletion is not None:
-            self.move_cursor_relative(columns=end_column, record_width=False)
-        return deletion
+        pass
 
     def action_cut(self) -> None:
         """Cut text (remove and copy to clipboard)."""
-        if self.read_only:
-            return
-        start, end = self.selection
-        if start == end:
-            edit_result = self._delete_cursor_line()
-        else:
-            edit_result = self._delete_via_keyboard(start, end)
-
-        if edit_result is not None:
-            self.app.copy_to_clipboard(edit_result.replaced_text)
+        pass
 
     def action_copy(self) -> None:
         """Copy selection to clipboard."""
-        selected_text = self.selected_text
-        if selected_text:
-            self.app.copy_to_clipboard(selected_text)
-        else:
-            raise SkipAction()
+        pass
 
     def action_paste(self) -> None:
         """Paste from local clipboard."""
-        if self.read_only:
-            return
-        clipboard = self.app.clipboard
-        if result := self._replace_via_keyboard(clipboard, *self.selection):
-            self.move_cursor(result.end_location)
+        pass
 
     def action_delete_to_start_of_line(self) -> None:
         """Deletes from the cursor location to the start of the line."""
-        if self.read_only:
-            return
-
-        if self.cursor_at_start_of_line:
-            selection = self.selection
-            start, end = selection
-            if selection.is_empty:
-                end = self.get_cursor_left_location()
-            self._delete_via_keyboard(start, end)
-        else:
-            from_location = self.selection.end
-            to_location = self.get_cursor_line_start_location()
-            self._delete_via_keyboard(from_location, to_location)
+        pass
 
     def action_delete_to_end_of_line(self) -> None:
         """Deletes from the cursor location to the end of the line."""
-        from_location = self.selection.end
-        to_location = self.get_cursor_line_end_location()
-        self._delete_via_keyboard(from_location, to_location)
+        pass
 
     async def action_delete_to_end_of_line_or_delete_line(self) -> None:
         """Deletes from the cursor location to the end of the line, or deletes the line.
 
         The line will be deleted if the line is empty.
         """
-        # Assume we're just going to delete to the end of the line.
-        action = "delete_to_end_of_line"
-        if self.get_cursor_line_start_location() == self.get_cursor_line_end_location():
-            # The line is empty, so we'll simply remove the line itself.
-            action = "delete_line"
-        elif (
-            self.selection.start
-            == self.selection.end
-            == self.get_cursor_line_end_location()
-        ):
-            # We're at the end of the line, so the kill delete operation
-            # should join the next line to this.
-            action = "delete_right"
-        await self.run_action(action)
+        pass
 
     def action_delete_word_left(self) -> None:
         """Deletes the word to the left of the cursor and updates the cursor location."""
-        if self.cursor_at_start_of_text:
-            return
-
-        # If there's a non-zero selection, then "delete word left" typically only
-        # deletes the characters within the selection range, ignoring word boundaries.
-        start, end = self.selection
-        if start != end:
-            self._delete_via_keyboard(start, end)
-            return
-
-        to_location = self.get_cursor_word_left_location()
-        self._delete_via_keyboard(self.selection.end, to_location)
+        pass
 
     def action_delete_word_right(self) -> None:
         """Deletes the word to the right of the cursor and keeps the cursor at the same location.
@@ -2730,32 +2153,7 @@ TextArea {
         as the location we move to when we move the cursor one word to the right.
         This action does not skip leading whitespace, whereas cursor movement does.
         """
-        if self.cursor_at_end_of_text:
-            return
-
-        start, end = self.selection
-        if start != end:
-            self._delete_via_keyboard(start, end)
-            return
-
-        cursor_row, cursor_column = end
-
-        # Check the current line for a word boundary
-        line = self.document[cursor_row][cursor_column:]
-        matches = list(re.finditer(r"\s*\w+", line))
-
-        current_row_length = len(self.document[cursor_row])
-        if matches:
-            to_location = (cursor_row, cursor_column + matches[0].end())
-        elif (
-            cursor_row < self.document.line_count - 1
-            and cursor_column == current_row_length
-        ):
-            to_location = (cursor_row + 1, 0)
-        else:
-            to_location = (cursor_row, current_row_length)
-
-        self._delete_via_keyboard(end, to_location)
+        pass
 
 
 @lru_cache(maxsize=128)

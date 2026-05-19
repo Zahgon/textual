@@ -88,7 +88,7 @@ else:
 
         def cancel_inner():
             """Sets the cancel event so we know we can stop waiting for the timer."""
-            kernel32.SetEvent(cancel_event)
+            pass
 
         async def cancel():
             """Cancels the timer by setting the cancel event."""
@@ -96,16 +96,7 @@ else:
 
         def wait_inner():
             """Function responsible for waiting for the timer or the cancel event."""
-            if (
-                kernel32.WaitForMultipleObjects(
-                    2,
-                    ctypes.pointer((HANDLE * 2)(cancel_event, timer)),
-                    False,
-                    INFINITE,
-                )
-                == WAIT_FAILED
-            ):
-                time_sleep(sleep_for)
+            pass
 
         async def wait():
             """Wraps the actual sleeping so we can detect if the thread was cancelled."""

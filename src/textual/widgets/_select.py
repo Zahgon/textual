@@ -77,45 +77,12 @@ class SelectOverlay(OptionList):
         self._search_reset_delay: float = 0.7
         """The number of seconds to wait after the most recent key press before resetting the search query."""
 
-    def on_mount(self) -> None:
-        def reset_query() -> None:
-            self._search_query = ""
 
-        self._search_reset_timer = Timer(
-            self, self._search_reset_delay, callback=reset_query
-        )
 
-    def watch_has_focus(self, value: bool) -> None:
-        self._search_query = ""
-        if value:
-            self._search_reset_timer._start()
-        else:
-            self._search_reset_timer.reset()
-            self._search_reset_timer.stop()
-        super().watch_has_focus(value)
-
-    async def _on_key(self, event: events.Key) -> None:
-        if not self._type_to_search:
-            return
-
-        self._search_reset_timer.reset()
-
-        if event.character is not None and event.is_printable:
-            event.time = 0
-            event.stop()
-            event.prevent_default()
-
-            # Update the search query and jump to the next option that matches.
-            self._search_query += event.character
-            index = self._find_search_match(self._search_query)
-            if index is not None:
-                self.select(index)
 
     def check_consume_key(self, key: str, character: str | None = None) -> bool:
         """Check if the widget may consume the given key."""
-        return (
-            self._type_to_search and character is not None and character.isprintable()
-        )
+        pass
 
     def select(self, index: int | None) -> None:
         """Move selection.
@@ -123,8 +90,7 @@ class SelectOverlay(OptionList):
         Args:
             index: Index of new selection.
         """
-        self.highlighted = index
-        self.scroll_to_highlight()
+        pass
 
     def _find_search_match(self, query: str) -> int | None:
         """A simple substring search which favors options containing the substring
@@ -136,47 +102,25 @@ class SelectOverlay(OptionList):
         Returns:
             The index of the option that matches the query, or `None` if no match is found.
         """
-        best_match: int | None = None
-        minimum_index: int | None = None
-
-        query = query.lower()
-        for index, option in enumerate(self._options):
-            prompt = option.prompt
-            if isinstance(prompt, Text):
-                lower_prompt = prompt.plain.lower()
-            elif isinstance(prompt, str):
-                lower_prompt = prompt.lower()
-            else:
-                continue
-
-            match_index = lower_prompt.find(query)
-            if match_index != -1 and (
-                minimum_index is None or match_index < minimum_index
-            ):
-                best_match = index
-                minimum_index = match_index
-
-        return best_match
+        pass
 
     def action_dismiss(self) -> None:
         """Dismiss the overlay."""
-        self.post_message(self.Dismiss())
+        pass
 
     def _on_blur(self, _event: events.Blur) -> None:
         """On blur we want to dismiss the overlay."""
-        self.post_message(self.Dismiss(lost_focus=True))
-        self.suppress_click()
+        pass
 
     def on_option_list_option_selected(self, event: OptionList.OptionSelected) -> None:
         """Inform parent when an option is selected."""
-        event.stop()
-        self.post_message(self.UpdateSelection(event.option_index))
+        pass
 
     def on_option_list_option_highlighted(
         self, event: OptionList.OptionHighlighted
     ) -> None:
         """Stop option list highlighted messages leaking."""
-        event.stop()
+        pass
 
 
 class SelectCurrent(Horizontal):
@@ -265,12 +209,11 @@ class SelectCurrent(Horizontal):
 
     def _watch_has_value(self, has_value: bool) -> None:
         """Toggle the class."""
-        self.set_class(has_value, "-has-value")
+        pass
 
     def _on_click(self, event: events.Click) -> None:
         """Inform ancestor we want to toggle."""
-        event.stop()
-        self.post_message(self.Toggle())
+        pass
 
 
 SelectType = TypeVar("SelectType", bound=Hashable)
@@ -396,7 +339,7 @@ class Select(Generic[SelectType], Vertical, can_focus=True):
         @property
         def control(self) -> Select[SelectType]:
             """The Select that sent the message."""
-            return self.select
+            pass
 
     def __init__(
         self,
@@ -508,10 +451,7 @@ class Select(Generic[SelectType], Vertical, can_focus=True):
         If nothing is selected, this will return `None`.
 
         """
-        value = self.value
-        if isinstance(value, NoSelection):
-            return None
-        return value
+        pass
 
     def _setup_variables_for_options(
         self,
@@ -521,40 +461,15 @@ class Select(Generic[SelectType], Vertical, can_focus=True):
 
         This method sets up `self._options` and `self._legal_values`.
         """
-        self._options: list[tuple[RenderableType, SelectType | NoSelection]] = []
-        if self._allow_blank:
-            self._options.append(("", self.NULL))
-        self._options.extend(options)
-
-        if not self._options:
-            raise EmptySelectError(
-                "Select options cannot be empty if selection can't be blank."
-            )
-
-        self._legal_values: set[SelectType | NoSelection] = {
-            value for _, value in self._options
-        }
+        pass
 
     def _setup_options_renderables(self) -> None:
         """Sets up the `Option` renderables associated with the `Select` options."""
-        options: list[Option] = [
-            (
-                Option(Text(self.prompt, style="dim"))
-                if value == self.NULL
-                else Option(prompt)
-            )
-            for prompt, value in self._options
-        ]
-
-        option_list = self.query_one(SelectOverlay)
-        option_list.clear_options()
-        option_list.add_options(options)
+        pass
 
     def _init_selected_option(self, hint: SelectType | NoSelection = NULL) -> None:
         """Initialises the selected option for the `Select`."""
-        if hint == self.NULL and not self._allow_blank:
-            hint = self._options[0][1]
-        self.value = hint
+        pass
 
     def set_options(self, options: Iterable[tuple[RenderableType, SelectType]]) -> None:
         """Set the options for the Select.
@@ -570,9 +485,7 @@ class Select(Generic[SelectType], Vertical, can_focus=True):
             EmptySelectError: If the options iterable is empty and `allow_blank` is
                 `False`.
         """
-        self._setup_variables_for_options(options)
-        self._setup_options_renderables()
-        self._init_selected_option()
+        pass
 
     def _validate_value(
         self, value: SelectType | NoSelection
@@ -586,35 +499,11 @@ class Select(Generic[SelectType], Vertical, can_focus=True):
             InvalidSelectValueError: If the new value does not correspond to any known
                 value.
         """
-        if value not in self._legal_values:
-            # It would make sense to use `None` to flag that the Select has no selection,
-            # so we provide a helpful message to catch this mistake in case people didn't
-            # realise we use a special value to flag "no selection".
-            help_text = " Did you mean to use Select.clear()?" if value is None else ""
-            raise InvalidSelectValueError(
-                f"Illegal select value {value!r}." + help_text
-            )
-
-        return value
+        pass
 
     def _watch_value(self, value: SelectType | NoSelection) -> None:
         """Update the current value when it changes."""
-        self._value = value
-        try:
-            select_current = self.query_one(SelectCurrent)
-        except NoMatches:
-            pass
-        else:
-            if value == self.NULL:
-                select_current.update(self.NULL)
-            else:
-                for index, (prompt, _value) in enumerate(self._options):
-                    if _value == value:
-                        select_overlay = self.query_one(SelectOverlay)
-                        select_overlay.highlighted = index
-                        select_current.update(prompt)
-                        break
-            self.post_message(self.Changed(self, value))
+        pass
 
     def compose(self) -> ComposeResult:
         """Compose Select with overlay and current value."""
@@ -625,65 +514,30 @@ class Select(Generic[SelectType], Vertical, can_focus=True):
 
     def _on_mount(self, _event: events.Mount) -> None:
         """Set initial values."""
-        self._setup_options_renderables()
-        self._init_selected_option(self._value)
+        pass
 
     def _watch_expanded(self, expanded: bool) -> None:
         """Display or hide overlay."""
-        try:
-            overlay = self.query_one(SelectOverlay)
-        except NoMatches:
-            # The widget has likely been removed
-            return
-        self.set_class(expanded, "-expanded")
-        if expanded:
-            overlay.focus(scroll_visible=False)
-            if self.value is self.NULL:
-                overlay.select(None)
-                self.query_one(SelectCurrent).has_value = False
-            else:
-                value = self.value
-                for index, (_prompt, prompt_value) in enumerate(self._options):
-                    if value == prompt_value:
-                        overlay.select(index)
-                        break
-                self.query_one(SelectCurrent).has_value = True
+        pass
 
     @on(SelectCurrent.Toggle)
     def _select_current_toggle(self, event: SelectCurrent.Toggle) -> None:
         """Show the overlay when toggled."""
-        event.stop()
-        self.expanded = not self.expanded
+        pass
 
     @on(SelectOverlay.Dismiss)
     def _select_overlay_dismiss(self, event: SelectOverlay.Dismiss) -> None:
         """Dismiss the overlay."""
-        event.stop()
-        self.expanded = False
-        if not event.lost_focus:
-            # If the overlay didn't lose focus, we want to re-focus the select.
-            self.focus()
+        pass
 
     @on(SelectOverlay.UpdateSelection)
     def _update_selection(self, event: SelectOverlay.UpdateSelection) -> None:
         """Update the current selection."""
-        event.stop()
-        value = self._options[event.option_index][1]
-        if value != self.value:
-            self.value = value
-
-        self.focus()
-        self.expanded = False
+        pass
 
     def action_show_overlay(self) -> None:
         """Show the overlay."""
-        select_current = self.query_one(SelectCurrent)
-        select_current.has_value = True
-        self.expanded = True
-        # If we haven't opened the overlay yet, highlight the first option.
-        select_overlay = self.query_one(SelectOverlay)
-        if select_overlay.highlighted is None:
-            select_overlay.action_first()
+        pass
 
     def is_blank(self) -> bool:
         """Indicates whether this `Select` is blank or not.
@@ -691,7 +545,7 @@ class Select(Generic[SelectType], Vertical, can_focus=True):
         Returns:
             True if the selection is blank, False otherwise.
         """
-        return self.value == self.NULL
+        pass
 
     def clear(self) -> None:
         """Clear the selection if `allow_blank` is `True`.
@@ -706,14 +560,3 @@ class Select(Generic[SelectType], Vertical, can_focus=True):
                 "Can't clear selection if allow_blank is set to False."
             ) from None
 
-    def _watch_prompt(self, prompt: str) -> None:
-        if not self.is_mounted:
-            return
-        select_current = self.query_one(SelectCurrent)
-        select_current.placeholder = prompt
-        if not self._allow_blank:
-            return
-        if self.value == self.NULL:
-            select_current.update(self.NULL)
-        option_list = self.query_one(SelectOverlay)
-        option_list.replace_option_prompt_at_index(0, Text(prompt, style="dim"))

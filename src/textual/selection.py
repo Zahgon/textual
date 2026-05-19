@@ -40,38 +40,7 @@ class Selection(NamedTuple):
         Returns:
             Extracted text.
         """
-        lines = text.splitlines()
-        if not lines:
-            return ""
-        if self.start is None:
-            start_line_index = 0
-            start_offset = 0
-        else:
-            start_line_index, start_offset = self.start.transpose
-
-        if self.end is None:
-            end_line = len(lines)
-            end_offset = len(lines[-1])
-        else:
-            end_line, end_offset = self.end.transpose
-        end_line = min(len(lines), end_line)
-
-        if start_line_index == end_line:
-            return lines[start_line_index][start_offset:end_offset]
-
-        selection: list[str] = []
-        selected_lines = lines[start_line_index : end_line + 1]
-        if len(selected_lines) >= 2:
-            first_line, *mid_lines, last_line = selected_lines
-            selection.append(first_line[start_offset:])
-            selection.extend(mid_lines)
-            selection.append(last_line[:end_offset])
-        else:
-            try:
-                selection.append(lines[start_line_index][start_offset:end_offset])
-            except IndexError:
-                pass
-        return "\n".join(selection)
+        pass
 
     def get_span(self, y: int) -> tuple[int, int] | None:
         """Get the selected span in a given line.
@@ -140,11 +109,7 @@ class SelectStart(NamedTuple):
     @property
     def pointer_start_offset(self) -> Offset:
         """The pointer start offset adjusted for scroll."""
-        return (
-            self.container.region.offset
-            + self.container_pointer_delta
-            + (self.container.scroll_offset - self.container_initial_scroll_offset)
-        )
+        pass
 
 
 class SelectEnd(NamedTuple):
@@ -170,70 +135,22 @@ class SelectState(NamedTuple):
 
     def is_attached_to_dom(self) -> bool:
         """Are the widgets involved attached to the DOM?"""
-        # This may return False if the widgets have been removed since selection started
-        if not self.start.container.is_attached:
-            return False
-        if self.end is not None and not self.end.container.is_attached:
-            return False
-        return True
+        pass
 
     @property
     def is_single_content_widget(self) -> bool:
         """Does the start and end fall on the same widget?"""
-        assert self.end is not None
-        return (
-            self.start.content_widget is not None
-            and self.start.content_widget is self.end.content_widget
-            and self.start.content_offset is not None
-            and self.end.content_offset is not None
-        )
+        pass
 
     @property
     def content_offsets(self) -> tuple[Offset, Offset]:
         """Get the content offset in select order."""
-        assert (
-            self.end is not None
-        ), "Unavailable until there is an end point to the selection"
-        start_offset = self.start.content_offset
-        end_offset = self.end.content_offset
-        assert start_offset is not None
-        assert end_offset is not None
-        if end_offset.transpose < start_offset.transpose:
-            start_offset, end_offset = end_offset, start_offset
-        return start_offset, end_offset
+        pass
 
     @property
     def select_container(self) -> Widget:
         """A widget that contains both ends of the select."""
-        from textual.screen import Screen
-        from textual.widget import Widget
-
-        widgets = [
-            (
-                self.start.content_widget
-                if self.start.content_widget is not None
-                else self.start.container
-            )
-        ]
-        if self.end is not None:
-            widgets.append(
-                self.end.content_widget
-                if self.end.content_widget is not None
-                else self.end.container
-            )
-
-        if len(widgets) == 2:
-            widget1, widget2 = widgets
-            if isinstance(widget1, Screen):
-                return widget1
-            if isinstance(widget2, Screen):
-                return widget2
-            try:
-                return Widget.get_common_ancestor(widget1, widget2)
-            except ValueError:
-                return widget1
-        else:
-            return widgets[0]
+        pass
 
     @property
     def selection_bounds(self) -> Shape:
@@ -249,13 +166,7 @@ class SelectState(NamedTuple):
     @property
     def ordered_offsets(self) -> tuple[Offset, Offset]:
         """Offsets used in selection bounds, in selection order."""
-        start_offset = self.start.pointer_start_offset
-        end_offset = self.screen_offset
-
-        if start_offset.transpose > end_offset.transpose:
-            start_offset, end_offset = end_offset, start_offset
-
-        return start_offset, end_offset
+        pass
 
     def update_end(self, pointer_offset: Offset, select_end: SelectEnd) -> SelectState:
         """Update the state with the selction end.
@@ -322,30 +233,7 @@ class SelectState(NamedTuple):
 
         def walk_in_select_order(root: Widget) -> Iterable[Widget]:
             """Walk descendants of `root` depth-first in selection order."""
-            stack: list[Iterator[Widget]] = [
-                iter(
-                    sorted(
-                        root.displayed_and_visible_children,
-                        key=get_selection_order,
-                    )
-                )
-            ]
-            while stack:
-                widget = next(stack[-1], None)
-                if widget is None:
-                    stack.pop()
-                    continue
-                yield widget
-                children = widget.displayed_and_visible_children
-                if children:
-                    stack.append(
-                        iter(
-                            sorted(
-                                children,
-                                key=get_selection_order,
-                            )
-                        )
-                    )
+            pass
 
         def collect_range(
             container: Widget,
@@ -373,29 +261,7 @@ class SelectState(NamedTuple):
                 from_y: Start `y` of selection, or `None` for top.
                 to_y: End `y` of selection, or `None` for end.
             """
-            started = from_widget is None and from_y is None
-            for descendant in walk_in_select_order(container):
-                if descendant.is_container or not descendant.allow_select:
-                    continue
-                widget_y = descendant.content_region.y
-                if not started:
-                    if from_widget is not None:
-                        if descendant is from_widget:
-                            started = True
-                        else:
-                            continue
-                    else:
-                        # from_y bound is active.
-                        assert from_y is not None
-                        if widget_y >= from_y:
-                            started = True
-                        else:
-                            continue
-                if to_widget is None and to_y is not None and widget_y > to_y:
-                    return
-                selected.append(descendant)
-                if to_widget is not None and descendant is to_widget:
-                    return
+            pass
 
         def visit(root: Widget) -> None:
             """Walk children of `parent`, deciding inclusion per child.
@@ -403,59 +269,7 @@ class SelectState(NamedTuple):
             Args:
                 root: Initial node to walk from.
             """
-            for child in sorted(
-                root.displayed_and_visible_children,
-                key=get_selection_order,
-            ):
-                if child.is_container:
-                    child_region = child.region
-                    if not child_region:
-                        continue
-                    if not selection_bounds.overlaps(child_region):
-                        continue
-
-                    has_hidden_content = child.is_scrollable and (
-                        child.max_scroll_y > 0 or child.max_scroll_x > 0
-                    )
-
-                    if has_hidden_content:
-                        child_top = child_region.y
-                        child_bottom = child_region.bottom
-                        extends_above = start_y < child_top
-                        extends_below = end_y >= child_bottom
-
-                        if extends_above and extends_below:
-                            # Selection passes through this container; select
-                            # everything inside it.
-                            collect_range(child, None, None)
-                            continue
-                        if extends_above:
-                            # Selection enters this container from above;
-                            # select from top down to the end content widget,
-                            # or to the pointer y if the pointer is on a gap.
-                            if last_content_widget is not None:
-                                collect_range(child, None, last_content_widget)
-                            else:
-                                collect_range(child, None, None, to_y=end_y)
-                            continue
-                        if extends_below:
-                            # Selection exits this container below; select
-                            # from the start content widget (or the pointer y
-                            # if on a gap) down to the end.
-                            if first_content_widget is not None:
-                                collect_range(child, first_content_widget, None)
-                            else:
-                                collect_range(child, None, None, from_y=start_y)
-                            continue
-
-                    # Both endpoints inside this child, or nothing scrolled
-                    # out; fall back to the standard visual walk.
-                    visit(child)
-                else:
-                    if child.allow_select and selection_bounds.overlaps(
-                        child.content_region
-                    ):
-                        selected.append(child)
+            pass
 
         visit(select_container)
         return selected

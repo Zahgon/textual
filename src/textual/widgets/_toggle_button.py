@@ -178,39 +178,18 @@ class ToggleButton(Static, can_focus=True):
         Returns:
             A `Content` rendering of the label for use in the button.
         """
-        label = Content.from_text(label).first_line.rstrip()
-        return label
+        pass
 
     @property
     def label(self) -> Content:
         """The label associated with the button."""
-        return self._label
+        pass
 
-    @label.setter
-    def label(self, label: ContentText) -> None:
-        self._label = self._make_label(label)
-        self.refresh(layout=True)
 
     @property
     def _button(self) -> Content:
         """The button, reflecting the current value."""
-
-        # Grab the button style.
-        button_style = self.get_visual_style("toggle--button")
-
-        # Building the style for the side characters. Note that this is
-        # sensitive to the type of character used, so pay attention to
-        # BUTTON_LEFT and BUTTON_RIGHT.
-        side_style = Style(
-            foreground=button_style.background,
-            background=self.background_colors[1],
-        )
-
-        return Content.assemble(
-            (self.BUTTON_LEFT, side_style),
-            (self.BUTTON_INNER, button_style),
-            (self.BUTTON_RIGHT, side_style),
-        )
+        pass
 
     def render(self) -> Content:
         """Render the content of the widget.
@@ -244,19 +223,18 @@ class ToggleButton(Static, can_focus=True):
         Returns:
             The `ToggleButton` instance.
         """
-        self.value = not self.value
-        return self
+        pass
 
     def action_toggle_button(self) -> None:
         """Toggle the value of the widget when called as an action.
 
         This would normally be used for a keyboard binding.
         """
-        self.toggle()
+        pass
 
     async def _on_click(self, _: Click) -> None:
         """Toggle the value of the widget when clicked with the mouse."""
-        self.toggle()
+        pass
 
     class Changed(Message):
         """Posted when the value of the toggle button changes."""
@@ -281,5 +259,4 @@ class ToggleButton(Static, can_focus=True):
         `value` has become `True`, or it is removed if it has become
         `False`. Subsequently a related `Changed` event will be posted.
         """
-        self.set_class(self.value, "-on")
-        self.post_message(self.Changed(self, self.value))
+        pass

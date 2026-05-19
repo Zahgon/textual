@@ -184,11 +184,6 @@ Cells may be individually styled, and may include Rich renderables.
         with containers.Center():
             yield DataTable(fixed_columns=1)
 
-    def on_mount(self) -> None:
-        ROWS = list(csv.reader(io.StringIO(MOVIES)))
-        table = self.query_one(DataTable)
-        table.add_columns(*ROWS[0])
-        table.add_rows(ROWS[1:])
 
 
 class Inputs(containers.VerticalGroup):
@@ -359,56 +354,14 @@ def loop_first_last(values: Iterable[T]) -> Iterable[tuple[bool, bool, T]]:
             yield Log(max_lines=10_000, highlight=True)
             yield RichLog(max_lines=10_000)
 
-    def on_mount(self) -> None:
-        log = self.query_one(Log)
-        rich_log = self.query_one(RichLog)
-        log.anchor()
-        rich_log.anchor()
-        log.write("I am a Log Widget")
-        rich_log.write("I am a Rich Log Widget")
-        self.set_interval(0.25, self.update_log)
-        self.set_interval(1, self.update_rich_log)
 
     def update_log(self) -> None:
         """Update the Log with new content."""
-        log = self.query_one(Log)
-        if self.is_scrolling:
-            return
-        if not self.app.screen.can_view_entire(log) and not log.is_in_maximized_view:
-            return
-        self.log_count += 1
-        line_no = self.log_count % len(self.TEXT)
-        line = self.TEXT[self.log_count % len(self.TEXT)]
-        log.write_line(f"fear[{line_no}] = {line!r}")
+        pass
 
     def update_rich_log(self) -> None:
         """Update the Rich Log with content."""
-        rich_log = self.query_one(RichLog)
-        if self.is_scrolling:
-            return
-        if (
-            not self.app.screen.can_view_entire(rich_log)
-            and not rich_log.is_in_maximized_view
-        ):
-            return
-        self.rich_log_count += 1
-        log_option = self.rich_log_count % 3
-        if log_option == 0:
-            rich_log.write("Syntax highlighted code", animate=True)
-            rich_log.write(Syntax(self.CODE, lexer="python"), animate=True)
-        elif log_option == 1:
-            rich_log.write("A Rich Table", animate=True)
-            table = Table(*self.CSV_ROWS[0])
-            for row in self.CSV_ROWS[1:]:
-                table.add_row(*row)
-            rich_log.write(table, animate=True)
-        elif log_option == 2:
-            rich_log.write("A Rich Traceback", animate=True)
-            try:
-                1 / 0
-            except Exception:
-                traceback = Traceback()
-                rich_log.write(traceback, animate=True)
+        pass
 
 
 class Markdowns(containers.VerticalGroup):
@@ -564,21 +517,10 @@ For detailed graphs, see [textual-plotext](https://github.com/Textualize/textual
                 Sparklines.data,
             )
 
-    def on_mount(self) -> None:
-        self.set_interval(0.1, self.update_sparks)
 
     def update_sparks(self) -> None:
         """Update the sparks data."""
-        if self.is_scrolling:
-            return
-        if (
-            not self.app.screen.can_view_partial(self)
-            and not self.query_one(Sparkline).is_in_maximized_view
-        ):
-            return
-        self.count += 1
-        offset = self.count * 40
-        self.data = [abs(sin(x / 3.14)) for x in range(offset, offset + 360 * 6, 20)]
+        pass
 
 
 class Switches(containers.VerticalGroup):
@@ -613,31 +555,8 @@ Switches {
     @on(events.Click, "Label")
     def on_click(self, event: events.Click) -> None:
         """Make the label toggle the switch."""
-        # TODO: Add a dedicated form label
-        event.stop()
-        if event.widget is not None:
-            self.query_one(f"#{event.widget.name}", Switch).toggle()
+        pass
 
-    def on_switch_changed(self, event: Switch.Changed) -> None:
-        # Don't issue more Changed events
-        if not event.value:
-            self.query_one("#textual-dark", Switch).value = True
-            return
-
-        with self.prevent(Switch.Changed):
-            # Reset all other switches
-            for switch in self.query("Switch").results(Switch):
-                if switch.id != event.switch.id:
-                    switch.value = False
-        assert event.switch.id is not None
-        theme_id = event.switch.id
-
-        def switch_theme() -> None:
-            """Callback to switch the theme."""
-            self.app.theme = theme_id
-
-        # Call after a short delay, so we see the Switch animation
-        self.set_timer(0.3, switch_theme)
 
 
 class TabsDemo(containers.VerticalGroup):
@@ -747,10 +666,6 @@ from textual import App, ComposeResult
 
         yield TextArea(self.DEFAULT_TEXT, show_line_numbers=True, language=None)
 
-    def on_select_changed(self, event: Select.Changed) -> None:
-        self.query_one(TextArea).language = (
-            event.value.lower() if isinstance(event.value, str) else None
-        )
 
 
 class YourWidgets(containers.VerticalGroup):

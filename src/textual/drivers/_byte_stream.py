@@ -67,7 +67,7 @@ class ByteStreamParser(Generic[TokenType]):
     @property
     def is_eof(self) -> bool:
         """Is the parser at the end of file?"""
-        return self._eof
+        pass
 
     def feed(self, data: bytes) -> Iterable[TokenType]:
         """Feed the parser some data, return an iterable of tokens."""

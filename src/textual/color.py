@@ -65,13 +65,7 @@ class HSL(NamedTuple):
     @property
     def css(self) -> str:
         """HSL in css format."""
-        h, s, l = self
-
-        def as_str(number: float) -> str:
-            """Format a float."""
-            return f"{number:.1f}".rstrip("0").rstrip(".")
-
-        return f"hsl({as_str(h*360)},{as_str(s*100)}%,{as_str(l*100)}%)"
+        pass
 
 
 class HSV(NamedTuple):
@@ -239,8 +233,7 @@ class Color(NamedTuple):
         Returns:
             A new color.
         """
-        r, g, b = hsv_to_rgb(h, s, v)
-        return cls(int(r * 255 + 0.5), int(g * 255 + 0.5), int(b * 255 + 0.5))
+        pass
 
     @property
     def inverse(self) -> Color:
@@ -249,28 +242,17 @@ class Color(NamedTuple):
         Returns:
             Inverse color.
         """
-        r, g, b, a, _, _ = self
-        return Color(255 - r, 255 - g, 255 - b, a)
+        pass
 
     @property
     def is_transparent(self) -> bool:
         """Is the color transparent (i.e. has 0 alpha)?"""
-        return self.a == 0 and self.ansi is None
+        pass
 
     @property
     def clamped(self) -> Color:
         """A clamped color (this color with all values in expected range)."""
-        r, g, b, a, ansi, auto = self
-        _clamp = clamp
-        color = Color(
-            _clamp(r, 0, 255),
-            _clamp(g, 0, 255),
-            _clamp(b, 0, 255),
-            _clamp(a, 0.0, 1.0),
-            ansi,
-            auto,
-        )
-        return color
+        pass
 
     @property
     @lru_cache(1024)
@@ -280,12 +262,7 @@ class Color(NamedTuple):
         Returns:
             A color object as used by Rich.
         """
-        r, g, b, a, ansi, _ = self
-        if ansi is not None:
-            return RichColor.parse("default") if ansi < 0 else RichColor.from_ansi(ansi)
-        return RichColor(
-            f"#{r:02x}{g:02x}{b:02x}", _TRUECOLOR, None, ColorTriplet(r, g, b)
-        )
+        pass
 
     @property
     def normalized(self) -> tuple[float, float, float]:
@@ -294,8 +271,7 @@ class Color(NamedTuple):
         Returns:
             Normalized components.
         """
-        r, g, b, _a, _, _ = self
-        return (r / 255, g / 255, b / 255)
+        pass
 
     @property
     def rgb(self) -> tuple[int, int, int]:
@@ -312,9 +288,7 @@ class Color(NamedTuple):
         Returns:
             Color encoded in HSL format.
         """
-        r, g, b = self.normalized
-        h, l, s = rgb_to_hls(r, g, b)
-        return HSL(h, s, l)
+        pass
 
     @property
     def hsv(self) -> HSV:
@@ -325,9 +299,7 @@ class Color(NamedTuple):
         Returns:
             Color encoded in HSV format.
         """
-        r, g, b = self.normalized
-        h, s, v = rgb_to_hsv(r, g, b)
-        return HSV(h, s, v)
+        pass
 
     @property
     def brightness(self) -> float:
@@ -336,9 +308,7 @@ class Color(NamedTuple):
         A value of 1 is returned for pure white, and 0 for pure black.
         Other colors lie on a gradient between the two extremes.
         """
-        r, g, b = self.normalized
-        brightness = (299 * r + 587 * g + 114 * b) / 1000
-        return brightness
+        pass
 
     @property
     def hex(self) -> str:
@@ -346,14 +316,7 @@ class Color(NamedTuple):
 
         For example, `"#46B3DE"` for an RGB color, or `"#3342457F"` for a color with alpha.
         """
-        r, g, b, a, ansi, _ = self.clamped
-        if ansi is not None:
-            return "ansi_default" if ansi == -1 else f"ansi_{ANSI_COLORS[ansi]}"
-        return (
-            f"#{r:02X}{g:02X}{b:02X}"
-            if a == 1
-            else f"#{r:02X}{g:02X}{b:02X}{int(a*255):02X}"
-        )
+        pass
 
     @property
     def hex6(self) -> str:
@@ -361,8 +324,7 @@ class Color(NamedTuple):
 
         For example, `"#46B3DE"`.
         """
-        r, g, b, _a, _, _ = self.clamped
-        return f"#{r:02X}{g:02X}{b:02X}"
+        pass
 
     @property
     def css(self) -> str:
@@ -370,17 +332,7 @@ class Color(NamedTuple):
 
         For example, `"rgb(10,20,30)"` for an RGB color, or `"rgb(50,70,80,0.5)"` for an RGBA color.
         """
-        r, g, b, a, ansi, auto = self
-        if auto:
-            alpha_percentage = clamp(a, 0.0, 1.0) * 100.0
-            if alpha_percentage == 100:
-                return "auto"
-            if not alpha_percentage % 1:
-                return f"auto {int(alpha_percentage)}%"
-            return f"auto {alpha_percentage:.1f}%"
-        if ansi is not None:
-            return "ansi_default" if ansi == -1 else f"ansi_{ANSI_COLORS[ansi]}"
-        return f"rgb({r},{g},{b})" if a == 1 else f"rgba({r},{g},{b},{a})"
+        pass
 
     @property
     def monochrome(self) -> Color:
@@ -389,9 +341,7 @@ class Color(NamedTuple):
         Returns:
             The monochrome (black and white) version of this color.
         """
-        r, g, b, a, _, _ = self
-        gray = round(r * 0.2126 + g * 0.7152 + b * 0.0722)
-        return Color(gray, gray, gray, a)
+        pass
 
     def __rich_repr__(self) -> rich.repr.Result:
         r, g, b, a, ansi, auto = self
@@ -738,24 +688,7 @@ class Gradient:
     @property
     def colors(self) -> list[Color]:
         """A list of colors in the gradient."""
-        position = 0
-        quality = self._quality
-
-        if self._colors is None:
-            colors: list[Color] = []
-            add_color = colors.append
-            (stop1, color1), (stop2, color2) = self._stops[0:2]
-            for step_position in range(quality):
-                step = step_position / (quality - 1)
-                while step > stop2:
-                    position += 1
-                    (stop1, color1), (stop2, color2) = self._stops[
-                        position : position + 2
-                    ]
-                add_color(color1.blend(color2, (step - stop1) / (stop2 - stop1)))
-            self._colors = colors
-        assert len(self._colors) == self._quality
-        return self._colors
+        pass
 
     def get_color(self, position: float) -> Color:
         """Get a color from the gradient at a position between 0 and 1.

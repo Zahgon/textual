@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 
 def is_visual(obj: object) -> bool:
     """Check if the given object is a Visual or supports the Visual protocol."""
-    return isinstance(obj, Visual) or hasattr(obj, "textualize")
+    pass
 
 
 @dataclass(frozen=True)
@@ -283,14 +283,6 @@ class RichVisual(Visual):
         yield self._widget
         yield self._renderable
 
-    def _measure(self, console: Console, options: ConsoleOptions) -> Measurement:
-        if self._measurement is None:
-            self._measurement = Measurement.get(
-                console,
-                options,
-                self._widget.post_render(self._renderable, RichStyle.null()),
-            )
-        return self._measurement
 
     def get_optimal_width(self, rules: RulesMap, container_width: int) -> int:
         console = active_app.get().console

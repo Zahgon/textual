@@ -114,16 +114,7 @@ class Edit:
         Returns:
             An `EditResult` containing information about the replace operation.
         """
-        replaced_text = self._edit_result.replaced_text
-        edit_end = self._edit_result.end_location
-
-        # Replace the span of the edit with the text that was originally there.
-        undo_edit_result = text_area.document.replace_range(
-            self.top, edit_end, replaced_text
-        )
-        self._updated_selection = self._original_selection
-
-        return undo_edit_result
+        pass
 
     def after(self, text_area: TextArea) -> None:
         """Hook for running code after an Edit has been performed via `Edit.do` *and*
@@ -143,9 +134,9 @@ class Edit:
     @property
     def top(self) -> Location:
         """The Location impacted by this edit that is nearest the start of the document."""
-        return min([self.from_location, self.to_location])
+        pass
 
     @property
     def bottom(self) -> Location:
         """The Location impacted by this edit that is nearest the end of the document."""
-        return max([self.from_location, self.to_location])
+        pass

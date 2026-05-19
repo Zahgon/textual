@@ -49,18 +49,6 @@ class Lazy(Widget):
     def compose_add_child(self, widget: Widget) -> None:
         self._replace_widget.compose_add_child(widget)
 
-    async def mount_composed_widgets(self, widgets: list[Widget]) -> None:
-        parent = self.parent
-        if parent is None:
-            return
-        assert isinstance(parent, Widget)
-
-        async def mount() -> None:
-            """Perform the mount and discard the lazy widget."""
-            await parent.mount(self._replace_widget, after=self)
-            await self.remove()
-
-        self.call_after_refresh(mount)
 
 
 class Reveal(Widget):
@@ -109,33 +97,8 @@ class Reveal(Widget):
             parent: The parent widget.
             widgets: Child widgets.
         """
-
-        async def check_children() -> None:
-            """Check for pending children"""
-            if not widgets:
-                return
-            widget = widgets.pop(0)
-            try:
-                await parent.mount(widget)
-            except Exception:
-                # I think this can occur if the parent is removed before all children are added
-                # Only noticed this on shutdown
-                return
-
-            if widgets:
-                parent.set_timer(0.02, check_children)
-
-        parent.call_next(check_children)
+        pass
 
     def compose_add_child(self, widget: Widget) -> None:
         self._widgets.append(widget)
 
-    async def mount_composed_widgets(self, widgets: list[Widget]) -> None:
-        parent = self.parent
-        if parent is None:
-            return
-        assert isinstance(parent, Widget)
-        await parent.mount(self._replace_widget, after=self)
-        await self.remove()
-        self._reveal(self._replace_widget, self._widgets.copy())
-        self._widgets.clear()

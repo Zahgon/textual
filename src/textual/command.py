@@ -98,7 +98,7 @@ class Hit:
     @property
     def prompt(self) -> VisualType:
         """The prompt to use when displaying the hit in the command palette."""
-        return self.match_display
+        pass
 
     def __lt__(self, other: object) -> bool:
         if isinstance(other, Hit):
@@ -139,7 +139,7 @@ class DiscoveryHit:
     @property
     def prompt(self) -> VisualType:
         """The prompt to use when displaying the discovery hit in the command palette."""
-        return self.display
+        pass
 
     @property
     def score(self) -> float:
@@ -204,12 +204,12 @@ class Provider(ABC):
 
         If no widget has focus this will be `None`.
         """
-        return self.__screen.focused
+        pass
 
     @property
     def screen(self) -> Screen[object]:
         """The currently-active screen in the application."""
-        return self.__screen
+        pass
 
     @property
     def app(self) -> App[object]:
@@ -219,7 +219,7 @@ class Provider(ABC):
     @property
     def match_style(self) -> Style | None:
         """The preferred style to use when highlighting matching portions of the [`match_display`][textual.command.Hit.match_display]."""
-        return self.__match_style
+        pass
 
     def matcher(self, user_input: str, case_sensitive: bool = False) -> Matcher:
         """Create a [fuzzy matcher][textual.fuzzy.Matcher] for the given user input.
@@ -239,25 +239,11 @@ class Provider(ABC):
 
     def _post_init(self) -> None:
         """Internal method to run post init task."""
-
-        async def post_init_task() -> None:
-            """Wrapper to post init that runs in a task."""
-            try:
-                await self.startup()
-            except Exception:
-                from rich.traceback import Traceback
-
-                self.app.log.error(Traceback())
-            else:
-                self._init_success = True
-
-        self._init_task = create_task(post_init_task())
+        pass
 
     async def _wait_init(self) -> None:
         """Wait for initialization."""
-        if self._init_task is not None:
-            await self._init_task
-        self._init_task = None
+        pass
 
     async def startup(self) -> None:
         """Called after the Provider is initialized, but before any calls to `search`."""
@@ -271,14 +257,7 @@ class Provider(ABC):
         Yields:
             Instances of [`Hit`][textual.command.Hit].
         """
-        await self._wait_init()
-        if self._init_success:
-            # An empty search string is a discovery search, anything else is
-            # a conventional search.
-            hits = self.search(query) if query else self.discover()
-            async for hit in hits:
-                if hit is not NotImplemented:
-                    yield hit
+        pass
 
     @abstractmethod
     async def search(self, query: str) -> Hits:
@@ -306,7 +285,7 @@ class Provider(ABC):
 
             It is permitted to *not* implement this method.
         """
-        yield NotImplemented
+        pass
 
     async def _shutdown(self) -> None:
         """Internal method to call shutdown and log errors."""
@@ -368,9 +347,6 @@ class SimpleProvider(Provider):
         self.__match_style = match_style
         return self
 
-    @property
-    def match_style(self) -> Style | None:
-        return self.__match_style
 
     async def search(self, query: str) -> Hits:
         matcher = self.matcher(query)
@@ -389,12 +365,7 @@ class SimpleProvider(Provider):
         Yields:
             Commands that can be discovered.
         """
-        for name, callback, help_text in self._commands:
-            yield DiscoveryHit(
-                name,
-                callback,
-                help=help_text,
-            )
+        pass
 
 
 @rich.repr.auto
@@ -743,7 +714,7 @@ class CommandPalette(SystemModalScreen[None]):
         Returns:
             `True` if a command palette is currently open, `False` if not.
         """
-        return app.screen.has_class("--textual-command-palette")
+        pass
 
     @property
     def _provider_classes(self) -> set[type[Provider]]:
@@ -753,37 +724,7 @@ class CommandPalette(SystemModalScreen[None]):
         application][textual.app.App.COMMANDS] and those [defined in
         the current screen][textual.screen.Screen.COMMANDS].
         """
-
-        def get_providers(
-            provider_source: ProviderSource,
-        ) -> Iterable[type[Provider]]:
-            """Load the providers from a source (typically from the COMMANDS class variable)
-            at the App or Screen level.
-
-            Args:
-                provider_source: The source of providers.
-
-            Returns:
-                An iterable of providers.
-            """
-            for provider in provider_source:
-                if isinstance(provider, SimpleProvider):
-                    yield provider
-                elif isclass(provider) and issubclass(provider, Provider):
-                    yield provider
-                else:
-                    # Lazy loaded providers
-                    yield provider()  # type: ignore
-
-        if self._calling_screen is None:
-            return set()
-        elif self._supplied_providers is None:
-            return {
-                *get_providers(self.app.COMMANDS),
-                *get_providers(self._calling_screen.COMMANDS),
-            }
-        else:
-            return {*get_providers(self._supplied_providers)}
+        pass
 
     def compose(self) -> ComposeResult:
         """Compose the command palette.
@@ -810,60 +751,30 @@ class CommandPalette(SystemModalScreen[None]):
         This method is used to allow clicking on the 'background' as a
         method of dismissing the palette.
         """
-        if self.get_widget_at(event.screen_x, event.screen_y)[0] is self:
-            self._cancel_gather_commands()
-            self.app.post_message(CommandPalette.Closed(option_selected=False))
-            self.dismiss()
+        pass
 
     def _on_mount(self, _: Mount) -> None:
         """Configure the command palette once the DOM is ready."""
-
-        self.app.post_message(CommandPalette.Opened())
-        self._calling_screen = self.app.screen_stack[-2]
-
-        match_style = self.get_visual_style("command-palette--highlight", partial=True)
-
-        assert self._calling_screen is not None
-        self._providers = [
-            provider_class(self._calling_screen, match_style)
-            for provider_class in self._provider_classes
-        ]
-        for provider in self._providers:
-            provider._post_init()
-        self._gather_commands("")
+        pass
 
     async def _on_unmount(self) -> None:  # type: ignore[override]
         """Shutdown providers when command palette is closed."""
-        if self._providers:
-            await wait(
-                [create_task(provider._shutdown()) for provider in self._providers],
-            )
-            self._providers.clear()
+        pass
 
     def _stop_busy_countdown(self) -> None:
         """Stop any busy countdown that's in effect."""
-        if self._busy_timer is not None:
-            self._busy_timer.stop()
-            self._busy_timer = None
+        pass
 
     _BUSY_COUNTDOWN: Final[float] = 0.5
     """How many seconds to wait for commands to come in before showing we're busy."""
 
     def _start_busy_countdown(self) -> None:
         """Start a countdown to showing that we're busy searching."""
-        self._stop_busy_countdown()
-
-        def _become_busy() -> None:
-            if self._list_visible:
-                self._show_busy = True
-
-        self._busy_timer = self.set_timer(self._BUSY_COUNTDOWN, _become_busy)
+        pass
 
     def _stop_no_matches_countdown(self) -> None:
         """Stop any 'No matches' countdown that's in effect."""
-        if self._no_matches_timer is not None:
-            self._no_matches_timer.stop()
-            self._no_matches_timer = None
+        pass
 
     _NO_MATCHES_COUNTDOWN: Final[float] = 0.5
     """How many seconds to wait before showing 'No matches found'."""
@@ -877,41 +788,11 @@ class CommandPalette(SystemModalScreen[None]):
         Adds a 'No matches found' option to the command list after
         `_NO_MATCHES_COUNTDOWN` seconds.
         """
-        self._stop_no_matches_countdown()
-
-        def _show_no_matches() -> None:
-            # If we were actually searching for something, show that we
-            # found no matches.
-            if search_value:
-                command_list = self.query_one(CommandList)
-                command_list.add_option(
-                    Option(
-                        Align.center(Text("No matches found", style="not bold")),
-                        disabled=True,
-                        id=self._NO_MATCHES,
-                    )
-                )
-                self._list_visible = True
-            else:
-                # The search value was empty, which means we were in
-                # discover mode; in that case it makes no sense to show that
-                # no matches were found. Lack of commands that can be
-                # discovered is a situation we don't need to highlight.
-                self._list_visible = False
-
-        self._no_matches_timer = self.set_timer(
-            self._NO_MATCHES_COUNTDOWN,
-            _show_no_matches,
-        )
+        pass
 
     def _watch__list_visible(self) -> None:
         """React to the list visible flag being toggled."""
-        self.query_one(CommandList).set_class(self._list_visible, "--visible")
-        self.query_one("#--input", Horizontal).set_class(
-            self._list_visible, "--list-visible"
-        )
-        if not self._list_visible:
-            self._show_busy = False
+        pass
 
     async def _watch__show_busy(self) -> None:
         """React to the show busy flag being toggled.
@@ -919,8 +800,7 @@ class CommandPalette(SystemModalScreen[None]):
         This watcher adds or removes a busy indication depending on the
         flag's state.
         """
-        self.query_one(LoadingIndicator).set_class(self._show_busy, "--visible")
-        self.query_one(CommandList).set_class(self._show_busy, "--populating")
+        pass
 
     @staticmethod
     async def _consume(hits: Hits, commands: Queue[DiscoveryHit | Hit]) -> None:
@@ -930,8 +810,7 @@ class CommandPalette(SystemModalScreen[None]):
             hits: The hits to consume.
             commands: The command queue to feed.
         """
-        async for hit in hits:
-            await commands.put(hit)
+        pass
 
     async def _search_for(
         self, search_value: str
@@ -944,81 +823,7 @@ class CommandPalette(SystemModalScreen[None]):
         Yields:
             The hits made amongst the registered command providers.
         """
-
-        # Set up a queue to stream in the command hits from all the providers.
-        commands: Queue[DiscoveryHit | Hit] = Queue()
-
-        # Fire up an instance of each command provider, inside a task, and
-        # have them go start looking for matches.
-        searches = [
-            create_task(
-                self._consume(
-                    provider._search(search_value),
-                    commands,
-                )
-            )
-            for provider in self._providers
-        ]
-        # Set up a delay for showing that we're busy.
-        self._start_busy_countdown()
-
-        # Assume the search isn't aborted.
-        aborted = False
-
-        # Now, while there's some task running...
-        while not aborted and any(not search.done() for search in searches):
-            try:
-                # ...briefly wait for something on the stack. If we get
-                # something yield it up to our caller.
-                aborted = yield await wait_for(commands.get(), 0.1)
-            except TimeoutError:
-                # A timeout is fine. We're just going to go back round again
-                # and see if anything else has turned up.
-                pass
-            except CancelledError:
-                # A cancelled error means things are being aborted.
-                aborted = True
-            else:
-                # There was no timeout, which means that we managed to yield
-                # up that command; we're done with it so let the queue know.
-                commands.task_done()
-
-        # Check through all the finished searches, see if any have
-        # exceptions, and log them. In most other circumstances we'd
-        # re-raise the exception and quit the application, but the decision
-        # has been made to find and log exceptions with command providers.
-        #
-        # https://github.com/Textualize/textual/pull/3058#discussion_r1310051855
-        for search in searches:
-            if search.done():
-                exception = search.exception()
-                if exception is not None:
-                    from rich.traceback import Traceback
-
-                    self.log.error(
-                        Traceback.from_exception(
-                            type(exception), exception, exception.__traceback__
-                        )
-                    )
-
-        # Having finished the main processing loop, we're not busy any more.
-        # Anything left in the queue (see next) will fall out more or less
-        # instantly. If we're aborted, that means a fresh search is incoming
-        # and it'll have cleaned up the countdown anyway, so don't do that
-        # here as they'll be a clash.
-        if not aborted:
-            self._stop_busy_countdown()
-
-        # If all the providers are pretty fast it could be that we've reached
-        # this point but the queue isn't empty yet. So here we flush the
-        # queue of anything left.
-        while not aborted and not commands.empty():
-            aborted = yield await commands.get()
-
-        # If we were aborted, ensure that all of the searches are cancelled.
-        if aborted:
-            for search in searches:
-                search.cancel()
+        pass
 
     def _refresh_command_list(
         self, command_list: CommandList, commands: list[Command], clear_current: bool
@@ -1030,15 +835,7 @@ class CommandPalette(SystemModalScreen[None]):
             commands: The commands to show in the widget.
             clear_current: Should the current content of the list be cleared first?
         """
-
-        sorted_commands = sorted(commands, key=attrgetter("hit.score"), reverse=True)
-        command_list.clear_options().add_options(sorted_commands)
-
-        if sorted_commands:
-            command_list.highlighted = 0
-
-        self._list_visible = bool(command_list.option_count)
-        self._hit_count = command_list.option_count
+        pass
 
     _RESULT_BATCH_TIME: Final[float] = 0.25
     """How long to wait before adding commands to the command list."""
@@ -1056,123 +853,11 @@ class CommandPalette(SystemModalScreen[None]):
         Args:
             search_value: The value to search for.
         """
-        # The list to hold on to the commands we've gathered from the
-        # command providers.
-        gathered_commands: list[Command] = []
-
-        # Get a reference to the widget that we're going to drop the
-        # (display of) commands into.
-        command_list = self.query_one(CommandList)
-
-        # If there's just one option in the list, and it's the item that
-        # tells the user there were no matches, let's remove that. We're
-        # starting a new search so we don't want them thinking there's no
-        # matches already.
-        if (
-            command_list.option_count == 1
-            and command_list.get_option_at_index(0).id == self._NO_MATCHES
-        ):
-            command_list.remove_option(self._NO_MATCHES)
-
-        # Each command will receive a sequential ID. This is going to be
-        # used to find commands back again when we update the visible list
-        # and want to settle the selection back on the command it was on.
-        command_id = 0
-
-        # We're going to be checking in on the worker as we loop around, so
-        # grab a reference to that.
-        worker = get_current_worker()
-
-        # Reset busy mode.
-        self._show_busy = False
-
-        # A flag to keep track of if the current content of the command hit
-        # list needs to be cleared. The initial clear *should* be in
-        # `_input`, but doing so caused an unsightly "flash" of the list; so
-        # here we sacrifice "correct" code for a better-looking UI.
-        clear_current = True
-
-        # We're going to batch updates over time, so start off pretending
-        # we've just done an update.
-        last_update = monotonic()
-
-        # Kick off the search, grabbing the iterator.
-        search_routine = self._search_for(search_value)
-        search_results = search_routine.__aiter__()
-
-        # We're going to be doing the send/await dance in this code, so we
-        # need to grab the first yielded command to start things off.
-        try:
-            hit = await search_results.__anext__()
-        except StopAsyncIteration:
-            # We've been stopped before we've even really got going, likely
-            # because the user is very quick on the keyboard.
-            hit = None
-
-        while hit:
-            # Turn the command into something for display, and add it to the
-            # list of commands that have been gathered so far.
-
-            def build_prompt() -> Iterable[Content]:
-                """Generator for prompt content."""
-                assert hit is not None
-                if isinstance(hit.prompt, Text):
-                    yield Content.from_rich_text(hit.prompt)
-                else:
-                    yield Content.from_markup(hit.prompt)
-
-                # Optional help text
-                if hit.help:
-                    help_style = Style.from_styles(
-                        self.get_component_styles("command-palette--help-text")
-                    )
-                    yield Content.from_markup(hit.help).stylize_before(help_style)
-
-            prompt = Content("\n").join(build_prompt())
-
-            gathered_commands.append(Command(prompt, hit, id=str(command_id)))
-
-            if worker.is_cancelled:
-                break
-
-            now = monotonic()
-            if (now - last_update) > self._RESULT_BATCH_TIME:
-                self._refresh_command_list(
-                    command_list, gathered_commands, clear_current
-                )
-                clear_current = False
-                last_update = now
-
-            command_id += 1
-
-            # Finally, get the available command from the incoming queue;
-            # note that we send the worker cancelled status down into the
-            # search method.
-            try:
-                hit = await search_routine.asend(worker.is_cancelled)
-            except StopAsyncIteration:
-                break
-
-        # On the way out, if we're still in play, ensure everything has been
-        # dropped into the command list.
-        if not worker.is_cancelled:
-            self._refresh_command_list(command_list, gathered_commands, clear_current)
-
-        # One way or another, we're not busy any more.
-        self._show_busy = False
-
-        # If we didn't get any hits, and we're not cancelled, that would
-        # mean nothing was found. Give the user positive feedback to that
-        # effect.
-        if command_list.option_count == 0 and not worker.is_cancelled:
-            self._hit_count = 0
-            self._start_no_matches_countdown(search_value)
-
-        self.add_class("-ready")
+        pass
 
     def _cancel_gather_commands(self) -> None:
         """Cancel any operation that is gather commands."""
-        self.workers.cancel_group(self, self._GATHER_COMMANDS_GROUP)
+        pass
 
     @on(Input.Changed)
     def _input(self, event: Input.Changed) -> None:
@@ -1181,10 +866,7 @@ class CommandPalette(SystemModalScreen[None]):
         Args:
             event: The input event.
         """
-        event.stop()
-        self._cancel_gather_commands()
-        self._stop_no_matches_countdown()
-        self._gather_commands(event.value.strip())
+        pass
 
     @on(OptionList.OptionSelected)
     def _select_command(self, event: OptionList.OptionSelected) -> None:
@@ -1193,20 +875,7 @@ class CommandPalette(SystemModalScreen[None]):
         Args:
             event: The option selection event.
         """
-        event.stop()
-        self._cancel_gather_commands()
-        input = self.query_one(CommandInput)
-        with self.prevent(Input.Changed):
-            assert isinstance(event.option, Command)
-            hit = event.option.hit
-            input.value = str(hit.text)
-            self._selected_command = hit
-        input.action_end()
-        self._list_visible = False
-        self.query_one(CommandList).clear_options()
-        self._hit_count = 0
-        if self.run_on_select:
-            self._select_or_command()
+        pass
 
     @on(Input.Submitted)
     @on(Button.Pressed)
@@ -1214,47 +883,16 @@ class CommandPalette(SystemModalScreen[None]):
         self, event: Input.Submitted | Button.Pressed | None = None
     ) -> None:
         """Depending on context, select or execute a command."""
-        # If the list is visible, that means we're in "pick a command"
-        # mode...
-        if event is not None:
-            event.stop()
-        if self._list_visible:
-            command_list = self.query_one(CommandList)
-            # ...so if nothing in the list is highlighted yet...
-            if command_list.highlighted is None:
-                # ...cause the first completion to be highlighted.
-                self._action_cursor_down()
-                # If there is one option, assume the user wants to select it
-                if command_list.option_count == 1:
-                    # Call after a short delay to provide a little visual feedback
-                    self._action_command_list("select")
-            else:
-                # The list is visible, something is highlighted, the user
-                # made a selection "gesture"; let's go select it!
-                self._action_command_list("select")
-        else:
-            # The list isn't visible, which means that if we have a
-            # command...
-            if self._selected_command is not None:
-                # ...we should return it to the parent screen and let it
-                # decide what to do with it (hopefully it'll run it).
-                self._cancel_gather_commands()
-                self.app.post_message(CommandPalette.Closed(option_selected=True))
-                self.app.delay_update()
-                self.dismiss()
-                self.app.call_later(self._selected_command.command)
+        pass
 
     @on(OptionList.OptionHighlighted)
     def _stop_event_leak(self, event: OptionList.OptionHighlighted) -> None:
         """Stop any unused events so they don't leak to the application."""
-        event.stop()
-        self.app.post_message(CommandPalette.OptionHighlighted(highlighted_event=event))
+        pass
 
     def _action_escape(self) -> None:
         """Handle a request to escape out of the command palette."""
-        self._cancel_gather_commands()
-        self.app.post_message(CommandPalette.Closed(option_selected=False))
-        self.dismiss()
+        pass
 
     def _action_command_list(self, action: str) -> None:
         """Pass an action on to the [`CommandList`][textual.command.CommandList].
@@ -1262,11 +900,7 @@ class CommandPalette(SystemModalScreen[None]):
         Args:
             action: The action to pass on to the [`CommandList`][textual.command.CommandList].
         """
-        try:
-            command_action = getattr(self.query_one(CommandList), f"action_{action}")
-        except AttributeError:
-            return
-        command_action()
+        pass
 
     def _action_cursor_down(self) -> None:
         """Handle the cursor down action.
@@ -1275,12 +909,4 @@ class CommandPalette(SystemModalScreen[None]):
         it's closed but has options, or if it's open with options just
         cursor through them.
         """
-        commands = self.query_one(CommandList)
-        if commands.option_count and not self._list_visible:
-            self._list_visible = True
-            commands.highlighted = 0
-        elif (
-            commands.option_count
-            and not commands.get_option_at_index(0).id == self._NO_MATCHES
-        ):
-            self._action_command_list("cursor_down")
+        pass

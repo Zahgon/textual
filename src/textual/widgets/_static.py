@@ -58,21 +58,13 @@ class Static(Widget, inherit_bindings=False):
         update with a string, then the visual will be a [Content][textual.content.Content] instance.
 
         """
-        if self.__visual is None:
-            self.__visual = visualize(self, self.__content, markup=self._render_markup)
-        return self.__visual
+        pass
 
     @property
     def content(self) -> VisualType:
         """The original content set in the constructor."""
-        return self.__content
+        pass
 
-    @content.setter
-    def content(self, content: VisualType) -> None:
-        self.__content = content
-        self.__visual = visualize(self, content, markup=self._render_markup)
-        self.clear_cached_dimensions()
-        self.refresh(layout=True)
 
     def render(self) -> RenderResult:
         """Get a rich renderable for the widget's content.

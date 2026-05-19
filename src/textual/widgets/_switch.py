@@ -135,7 +135,7 @@ class Switch(Widget, can_focus=True):
         @property
         def control(self) -> Switch:
             """Alias for self.switch."""
-            return self.switch
+            pass
 
     def __init__(
         self,
@@ -167,21 +167,7 @@ class Switch(Widget, can_focus=True):
         if tooltip is not None:
             self.tooltip = tooltip
 
-    def watch_value(self, value: bool) -> None:
-        target_slider_position = 1.0 if value else 0.0
-        if self._should_animate:
-            self.animate(
-                "_slider_position",
-                target_slider_position,
-                duration=0.3,
-                level="basic",
-            )
-        else:
-            self._slider_position = target_slider_position
-        self.post_message(self.Changed(self, self.value))
 
-    def watch__slider_position(self, slider_position: float) -> None:
-        self.set_class(slider_position == 1, "-on")
 
     def render(self) -> RenderResult:
         style = self.get_component_rich_style("switch--slider")
@@ -201,12 +187,11 @@ class Switch(Widget, can_focus=True):
 
     async def _on_click(self, event: Click) -> None:
         """Toggle the state of the switch."""
-        event.stop()
-        self.toggle()
+        pass
 
     def action_toggle_switch(self) -> None:
         """Toggle the state of the switch."""
-        self.toggle()
+        pass
 
     def toggle(self) -> Self:
         """Toggle the switch value.
@@ -217,5 +202,4 @@ class Switch(Widget, can_focus=True):
         Returns:
             The `Switch` instance.
         """
-        self.value = not self.value
-        return self
+        pass

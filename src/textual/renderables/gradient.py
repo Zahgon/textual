@@ -163,8 +163,6 @@ if __name__ == "__main__":
         def render(self):
             return LinearGradient(time() * 90, stops)
 
-        def on_mount(self) -> None:
-            self.set_interval(1 / 30, self.refresh)
 
     app = GradientApp()
     app.run()

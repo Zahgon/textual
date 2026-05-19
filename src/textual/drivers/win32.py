@@ -170,8 +170,7 @@ def enable_application_mode() -> Callable[[], None]:
 
     def restore() -> None:
         """Restore console mode to previous settings"""
-        set_console_mode(terminal_in, current_console_mode_in)
-        set_console_mode(terminal_out, current_console_mode_out)
+        pass
 
     set_console_mode(
         terminal_out, current_console_mode_out | ENABLE_VIRTUAL_TERMINAL_PROCESSING

@@ -30,7 +30,7 @@ class Clock:
 
     def clone(self) -> Clock:
         """Clone the Clock with an independent time."""
-        return Clock(get_time=self._get_time)
+        pass
 
     def reset(self) -> None:
         """Reset the clock."""
@@ -52,10 +52,7 @@ class MockClock(Clock):
 
     def clone(self) -> MockClock:
         """Clone the mocked clock (clone will return the same time as original)."""
-        clock = MockClock(self._time)
-        clock._get_time = self._get_time
-        clock._time = self._time
-        return clock
+        pass
 
     def reset(self) -> None:
         """A null-op because it doesn't make sense to reset a mocked clock."""
@@ -66,7 +63,7 @@ class MockClock(Clock):
         Args:
             time: Time to set.
         """
-        self._time = time
+        pass
 
     @property
     def time(self) -> float:

@@ -18,9 +18,4 @@ def timer(subject: str = "time", threshold: float = 0) -> Generator[None, None, 
         threshold: Time in second after which the log is written.
 
     """
-    start = perf_counter()
-    yield
-    elapsed = perf_counter() - start
-    if elapsed >= threshold:
-        elapsed_ms = elapsed * 1000
-        log(f"{subject} elapsed {elapsed_ms:.4f}ms")
+    pass

@@ -81,10 +81,7 @@ class Initialize(Generic[ReactiveType]):
 
 async def await_watcher(obj: Reactable, awaitable: Awaitable[object]) -> None:
     """Coroutine to await an awaitable returned from a watcher"""
-    _rich_traceback_omit = True
-    await awaitable
-    # Watcher may have changed the state, so run compute again
-    obj.post_message(events.Callback(callback=partial(Reactive._compute, obj)))
+    pass
 
 
 def invoke_watcher(
@@ -190,8 +187,7 @@ class Reactive(Generic[ReactiveType]):
     @property
     def owner(self) -> Type[MessageTarget]:
         """The owner (class) where the reactive was declared."""
-        assert self._owner is not None
-        return self._owner
+        pass
 
     def _initialize_reactive(self, obj: Reactable, name: str) -> None:
         """Initialized a reactive attribute on an object.
@@ -313,60 +309,6 @@ class Reactive(Generic[ReactiveType]):
         else:
             return getattr(obj, internal_name)
 
-    def _set(self, obj: Reactable, value: ReactiveType, always: bool = False) -> None:
-        _rich_traceback_omit = True
-
-        if not hasattr(obj, "_id"):
-            raise ReactiveError(
-                f"Node is missing data; Check you are calling super().__init__(...) in the {obj.__class__.__name__}() constructor, before setting reactives."
-            )
-
-        if isinstance(value, _Mutated):
-            value = value.value
-            always = True
-
-        self._initialize_reactive(obj, self.name)
-
-        if hasattr(obj, self.compute_name):
-            raise AttributeError(
-                f"Can't set {obj}.{self.name!r}; reactive attributes with a compute method are read-only"
-            )
-
-        name = self.name
-        current_value = getattr(obj, name)
-        # Check for private and public validate functions.
-        private_validate_function = getattr(obj, f"_validate_{name}", None)
-        if callable(private_validate_function):
-            value = private_validate_function(value)
-        public_validate_function = getattr(obj, f"validate_{name}", None)
-        if callable(public_validate_function):
-            value = public_validate_function(value)
-
-        # Toggle the classes using the value's truthiness
-        if (toggle_class := self._toggle_class) is not None:
-            obj.set_class(bool(value), *toggle_class.split())
-
-        # If the value has changed, or this is the first time setting the value
-        if always or self._always_update or current_value != value:
-            # Store the internal value
-            setattr(obj, self.internal_name, value)
-
-            # Check all watchers
-            self._check_watchers(obj, name, current_value)
-
-            if self._run_compute:
-                self._compute(obj)
-
-            if self._bindings:
-                obj.refresh_bindings()
-
-            # Refresh according to descriptor flags
-            if self._layout or self._repaint or self._recompose:
-                obj.refresh(
-                    repaint=self._repaint,
-                    layout=self._layout,
-                    recompose=self._recompose,
-                )
 
     def __set__(self, obj: Reactable, value: ReactiveType) -> None:
         _rich_traceback_omit = True
@@ -416,22 +358,7 @@ class Reactive(Generic[ReactiveType]):
         Args:
             obj: Reactable object.
         """
-        _rich_traceback_guard = True
-        for compute in obj._reactives.keys() & obj._computes:
-            try:
-                compute_method = getattr(obj, f"compute_{compute}")
-            except AttributeError:
-                try:
-                    compute_method = getattr(obj, f"_compute_{compute}")
-                except AttributeError:
-                    continue
-            current_value = getattr(
-                obj, f"_reactive_{compute}", getattr(obj, f"_default_{compute}", None)
-            )
-            value = compute_method()
-            setattr(obj, f"_reactive_{compute}", value)
-            if value != current_value:
-                cls._check_watchers(obj, compute, current_value)
+        pass
 
 
 class reactive(Reactive[ReactiveType]):

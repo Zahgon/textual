@@ -13,30 +13,16 @@ class RLock:
 
     async def acquire(self) -> None:
         """Wait until the lock can be acquired."""
-        task = current_task()
-        assert task is not None
-        if self._owner is None or self._owner is not task:
-            await self._lock.acquire()
-            self._owner = task
-        self._count += 1
+        pass
 
     def release(self) -> None:
         """Release a previously acquired lock."""
-        task = current_task()
-        assert task is not None
-        self._count -= 1
-        if self._count < 0:
-            # Should not occur if every acquire as a release
-            raise RuntimeError("RLock.release called too many times")
-        if self._owner is task:
-            if not self._count:
-                self._owner = None
-                self._lock.release()
+        pass
 
     @property
     def is_locked(self):
         """Return True if lock is acquired."""
-        return self._lock.locked()
+        pass
 
     async def __aenter__(self) -> None:
         """Asynchronous context manager to acquire and release lock."""

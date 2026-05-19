@@ -192,20 +192,17 @@ class Worker(Generic[ResultType]):
     @property
     def node(self) -> DOMNode:
         """The node where this worker was run from."""
-        return self._node
+        pass
 
     @property
     def state(self) -> WorkerState:
         """The current state of the worker."""
-        return self._state
+        pass
 
     @state.setter
     def state(self, state: WorkerState) -> None:
         """Set the state, and send a message."""
-        changed = state != self._state
-        self._state = state
-        if changed:
-            self._node.post_message(self.StateChanged(self, state))
+        pass
 
     @property
     def is_cancelled(self) -> bool:
@@ -213,31 +210,27 @@ class Worker(Generic[ResultType]):
 
         Note that cancelled work may still be running.
         """
-        return self._cancelled
+        pass
 
     @property
     def is_running(self) -> bool:
         """Is the task running?"""
-        return self.state == WorkerState.RUNNING
+        pass
 
     @property
     def is_finished(self) -> bool:
         """Has the task finished (cancelled, error, or success)?"""
-        return self.state in (
-            WorkerState.CANCELLED,
-            WorkerState.ERROR,
-            WorkerState.SUCCESS,
-        )
+        pass
 
     @property
     def completed_steps(self) -> int:
         """The number of completed steps."""
-        return self._completed_steps
+        pass
 
     @property
     def total_steps(self) -> int | None:
         """The number of total steps, or None if indeterminate."""
-        return self._total_steps
+        pass
 
     @property
     def progress(self) -> float:
@@ -245,9 +238,7 @@ class Worker(Generic[ResultType]):
 
         If the total steps is None, then this will return 0. The percentage will be clamped between 0 and 100.
         """
-        if not self._total_steps:
-            return 0.0
-        return max(0, min(100, (self._completed_steps / self._total_steps) * 100.0))
+        pass
 
     @property
     def result(self) -> ResultType | None:
@@ -301,12 +292,11 @@ class Worker(Generic[ResultType]):
             work: Callable[[], Coroutine[None, None, ResultType]],
         ) -> ResultType:
             """Set the active worker and await coroutine."""
-            return run_awaitable(work())
+            pass
 
         def run_callable(work: Callable[[], ResultType]) -> ResultType:
             """Set the active worker, and call the callable."""
-            active_worker.set(self)
-            return work()
+            pass
 
         if (
             inspect.iscoroutinefunction(self._work)
@@ -408,8 +398,7 @@ class Worker(Generic[ResultType]):
             Args:
                 The worker's task.
             """
-            if done_callback is not None:
-                done_callback(self)
+            pass
 
         self._task.add_done_callback(task_done_callback)
 

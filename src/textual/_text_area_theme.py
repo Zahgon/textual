@@ -167,7 +167,7 @@ class TextAreaTheme:
             The `TextAreaTheme` corresponding to the name or `None` if the theme isn't
                 found.
         """
-        return _BUILTIN_THEMES.get(theme_name)
+        pass
 
     def get_highlight(self, name: str) -> Style | None:
         """Return the Rich style corresponding to the name defined in the tree-sitter
@@ -179,7 +179,7 @@ class TextAreaTheme:
         Returns:
             The `Style` to use for this highlight, or `None` if no style.
         """
-        return self.syntax_styles.get(name)
+        pass
 
     @classmethod
     def builtin_themes(cls) -> list[TextAreaTheme]:

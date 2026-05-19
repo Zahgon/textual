@@ -34,16 +34,10 @@ class HeaderIcon(Widget):
     icon = Reactive("⭘")
     """The character to use as the icon within the header."""
 
-    def on_mount(self) -> None:
-        if self.app.ENABLE_COMMAND_PALETTE:
-            self.tooltip = "Open the command palette"
-        else:
-            self.disabled = True
 
     async def on_click(self, event: Click) -> None:
         """Launch the command palette when icon is clicked."""
-        event.stop()
-        await self.run_action("app.command_palette")
+        pass
 
     def render(self) -> RenderResult:
         """Render the header icon.
@@ -88,8 +82,6 @@ class HeaderClock(HeaderClockSpace):
 
     time_format: Reactive[str] = Reactive("%X")
 
-    def _on_mount(self, _: Mount) -> None:
-        self.set_interval(1, callback=self.refresh, name="update header clock")
 
     def render(self) -> RenderResult:
         """Render the header clock.
@@ -176,11 +168,7 @@ class Header(Widget):
             else HeaderClockSpace()
         )
 
-    def watch_tall(self, tall: bool) -> None:
-        self.set_class(tall, "-tall")
 
-    def _on_click(self):
-        self.toggle_class("-tall")
 
     def format_title(self) -> Content:
         """Format the title and subtitle.
@@ -191,7 +179,7 @@ class Header(Widget):
         Returns:
             Content for title display.
         """
-        return self.app.format_title(self.screen_title, self.screen_sub_title)
+        pass
 
     @property
     def screen_title(self) -> str:
@@ -199,9 +187,7 @@ class Header(Widget):
 
         This depends on [`Screen.title`][textual.screen.Screen.title] and [`App.title`][textual.app.App.title].
         """
-        screen_title = self.screen.title
-        title = screen_title if screen_title is not None else self.app.title
-        return title
+        pass
 
     @property
     def screen_sub_title(self) -> str:
@@ -209,20 +195,5 @@ class Header(Widget):
 
         This depends on [`Screen.sub_title`][textual.screen.Screen.sub_title] and [`App.sub_title`][textual.app.App.sub_title].
         """
-        screen_sub_title = self.screen.sub_title
-        sub_title = (
-            screen_sub_title if screen_sub_title is not None else self.app.sub_title
-        )
-        return sub_title
+        pass
 
-    def _on_mount(self, _: Mount) -> None:
-        async def set_title() -> None:
-            try:
-                self.query_one(HeaderTitle).update(self.format_title())
-            except NoScreen:
-                pass
-
-        self.watch(self.app, "title", set_title)
-        self.watch(self.app, "sub_title", set_title)
-        self.watch(self.screen, "title", set_title)
-        self.watch(self.screen, "sub_title", set_title)

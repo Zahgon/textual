@@ -57,13 +57,7 @@ class Sparkline(Generic[T]):
             data: The data to partition.
             num_buckets: The number of buckets to partition the data into.
         """
-        bucket_step = Fraction(len(data), num_buckets)
-        for bucket_no in range(num_buckets):
-            start = int(bucket_step * bucket_no)
-            end = int(bucket_step * (bucket_no + 1))
-            partition = data[start:end]
-            if partition:
-                yield partition
+        pass
 
     def __rich_console__(
         self, console: Console, options: ConsoleOptions
@@ -144,8 +138,6 @@ class Sparkline(Generic[T]):
 if __name__ == "__main__":
     console = Console()
 
-    def last(l: Sequence[T]) -> T:
-        return l[-1]
 
     funcs: Sequence[SummaryFunction[int]] = (
         min,

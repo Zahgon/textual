@@ -162,21 +162,4 @@ class KeyPanel(VerticalScroll, can_focus=False):
     def compose(self) -> ComposeResult:
         yield BindingsTable(shrink=True, expand=False)
 
-    async def on_mount(self) -> None:
-        mount_screen = self.screen
 
-        async def bindings_changed(screen: Screen) -> None:
-            """Update bindings."""
-            if not screen.app.app_focus:
-                return
-            if self.is_attached and screen is mount_screen:
-                await self.recompose()
-
-        def _bindings_changed(screen: Screen) -> None:
-            self.call_after_refresh(bindings_changed, screen)
-
-        self.set_class(self.app.ansi_color, "-ansi-scrollbar")
-        self.screen.bindings_updated_signal.subscribe(self, _bindings_changed)
-
-    def on_unmount(self) -> None:
-        self.screen.bindings_updated_signal.unsubscribe(self)

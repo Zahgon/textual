@@ -210,25 +210,4 @@ class SyntaxAwareDocument(Document):
                 line _including_ the line separator character(s). Returns None if the
                 offset/point requested by tree-sitter doesn't correspond to a byte.
         """
-        row, column = point
-        lines = self._lines
-        newline = self.newline
-
-        row_out_of_bounds = row >= len(lines)
-        if row_out_of_bounds:
-            return b""
-        else:
-            row_text = lines[row]
-
-        encoded_row = _utf8_encode(row_text)
-        encoded_row_length = len(encoded_row)
-
-        if column < encoded_row_length:
-            return encoded_row[column:] + _utf8_encode(newline)
-        elif column == encoded_row_length:
-            return _utf8_encode(newline[0])
-        elif column == encoded_row_length + 1:
-            if newline == "\r\n":
-                return b"\n"
-
-        return b""
+        pass

@@ -31,4 +31,4 @@ class MapGeometry(NamedTuple):
     @property
     def visible_region(self) -> Region:
         """The Widget region after clipping."""
-        return self.clip.intersection(self.region)
+        pass

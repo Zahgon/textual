@@ -326,7 +326,7 @@ class Button(Widget, can_focus=True):
 
             This will be the same value as [Pressed.button][textual.widgets.Button.Pressed.button].
             """
-            return self.button
+            pass
 
     def __init__(
         self,
@@ -385,24 +385,12 @@ class Button(Widget, can_focus=True):
         yield from super().__rich_repr__()
         yield "variant", self.variant, "default"
 
-    def validate_variant(self, variant: str) -> str:
-        if variant not in _VALID_BUTTON_VARIANTS:
-            raise InvalidButtonVariant(
-                f"Valid button variants are {friendly_list(_VALID_BUTTON_VARIANTS)}"
-            )
-        return variant
 
-    def watch_variant(self, old_variant: str, variant: str):
-        self.remove_class(f"-{old_variant}")
-        self.add_class(f"-{variant}")
 
-    def watch_flat(self, flat: bool) -> None:
-        self.set_class(flat, "-style-flat")
-        self.set_class(not flat, "-style-default")
 
     def validate_label(self, label: ContentText) -> Content:
         """Parse markup for self.label"""
-        return Content.from_text(label)
+        pass
 
     def render(self) -> RenderResult:
         assert isinstance(self.label, Content)
@@ -413,10 +401,6 @@ class Button(Widget, can_focus=True):
     ) -> ConsoleRenderable:
         return cast(ConsoleRenderable, renderable)
 
-    async def _on_click(self, event: events.Click) -> None:
-        event.stop()
-        if not self.has_class("-active"):
-            self.press()
 
     def press(self) -> Self:
         """Animate the button and send the [Pressed][textual.widgets.Button.Pressed] message.
@@ -449,8 +433,7 @@ class Button(Widget, can_focus=True):
 
     def action_press(self) -> None:
         """Activate a press of the button."""
-        if not self.has_class("-active"):
-            self.press()
+        pass
 
     @classmethod
     def success(

@@ -41,10 +41,6 @@ class CodeScreen(ModalScreen):
                 expand=True,
             )
 
-    def on_mount(self):
-        code_widget = self.query_one("#code")
-        code_widget.border_title = self.title
-        code_widget.border_subtitle = "Escape to close"
 
 
 class PageScreen(Screen):
@@ -67,28 +63,5 @@ class PageScreen(Screen):
     @work(thread=True)
     def get_code(self, source_file: str) -> str | None:
         """Read code from disk, or return `None` on error."""
-        try:
-            with open(source_file, "rt", encoding="utf-8") as file_:
-                return file_.read()
-        except Exception:
-            return None
+        pass
 
-    async def action_show_code(self):
-        source_file = inspect.getsourcefile(self.__class__)
-        if source_file is None:
-            self.notify(
-                "Could not get the code for this page",
-                title="Show code",
-                severity="error",
-            )
-            return
-
-        code = await self.get_code(source_file).wait()
-        if code is None:
-            self.notify(
-                "Could not get the code for this page",
-                title="Show code",
-                severity="error",
-            )
-        else:
-            self.app.push_screen(CodeScreen("Code for this page", code))

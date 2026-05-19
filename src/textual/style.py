@@ -126,27 +126,11 @@ class Style:
         if self._meta is not None:
             yield "meta", self.meta
 
-    @cached_property
-    def _is_null(self) -> bool:
-        return _get_simple_attributes(self) == (
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-        )
 
     @cached_property
     def hash(self) -> int:
         """A hash of the style's attributes."""
-        return hash(_get_hash_attributes(self))
+        pass
 
     def __hash__(self) -> int:
         return self.hash
@@ -165,76 +149,12 @@ class Style:
     @cached_property
     def style_definition(self) -> str:
         """Style encoded in a string (may be parsed from `Style.parse`)."""
-        output: list[str] = []
-        output_append = output.append
-        if self.foreground is not None:
-            output_append(self.foreground.css)
-        if self.background is not None:
-            output_append(f"on {self.background.css}")
-        if self.bold is not None:
-            output_append("bold" if self.bold else "not bold")
-        if self.dim is not None:
-            output_append("dim" if self.dim else "not dim")
-        if self.italic is not None:
-            output_append("italic" if self.italic else "not italic")
-        if self.underline is not None:
-            output_append("underline" if self.underline else "not underline")
-        if self.underline2 is not None:
-            output_append("underline2" if self.underline2 else "not underline2")
-        if self.strike is not None:
-            output_append("strike" if self.strike else "not strike")
-        if self.blink is not None:
-            output_append("blink" if self.blink else "not blink")
-        if self.link is not None:
-            if "'" not in self.link:
-                output_append(f"link='{self.link}'")
-            elif '"' not in self.link:
-                output_append(f'link="{self.link}"')
-        if self._meta is not None:
-            for key, value in self.meta.items():
-                if isinstance(value, str):
-                    if "'" not in key:
-                        output_append(f"{key}='{value}'")
-                    elif '"' not in key:
-                        output_append(f'{key}="{value}"')
-                    else:
-                        output_append(f"{key}={value!r}")
-                else:
-                    output_append(f"{key}={value!r}")
-
-        return " ".join(output)
+        pass
 
     @cached_property
     def markup_tag(self) -> str:
         """Identifier used to close tags in markup."""
-        output: list[str] = []
-        output_append = output.append
-        if self.foreground is not None:
-            output_append(self.foreground.css)
-        if self.background is not None:
-            output_append(f"on {self.background.css}")
-        if self.bold is not None:
-            output_append("bold" if self.bold else "not bold")
-        if self.dim is not None:
-            output_append("dim" if self.dim else "not dim")
-        if self.italic is not None:
-            output_append("italic" if self.italic else "not italic")
-        if self.underline is not None:
-            output_append("underline" if self.underline else "not underline")
-        if self.underline2 is not None:
-            output_append("underline2" if self.underline2 else "not underline2")
-        if self.strike is not None:
-            output_append("strike" if self.strike else "not strike")
-        if self.blink is not None:
-            output_append("blink" if self.blink else "not blink")
-        if self.link is not None:
-            output_append("link")
-        if self._meta is not None:
-            for key, value in self.meta.items():
-                if isinstance(value, str):
-                    output_append(f"{key}=")
-
-        return " ".join(output)
+        pass
 
     @lru_cache(maxsize=1024 * 4)
     def __add__(self, other: object | None) -> Style:
@@ -343,11 +263,7 @@ class Style:
         Returns:
             Normalized markup tag.
         """
-        try:
-            style = cls.parse(text_style)
-        except Exception:
-            return text_style.strip()
-        return style.markup_tag
+        pass
 
     @classmethod
     def from_rich_style(
@@ -432,38 +348,7 @@ class Style:
         Returns:
             A Rich style object.
         """
-
-        (
-            background,
-            foreground,
-            bold,
-            dim,
-            italic,
-            underline,
-            underline2,
-            reverse,
-            strike,
-            blink,
-            link,
-            _meta,
-        ) = _get_simple_attributes(self)
-
-        color = None if foreground is None else background + foreground
-
-        return RichStyle(
-            color=None if color is None else color.rich_color,
-            bgcolor=None if background is None else background.rich_color,
-            bold=bold,
-            dim=dim,
-            italic=italic,
-            underline=underline,
-            underline2=underline2,
-            reverse=reverse,
-            strike=strike,
-            blink=blink,
-            link=link,
-            meta=None if _meta is None else self.meta,
-        )
+        pass
 
     def rich_style_with_offset(self, x: int, y: int) -> RichStyle:
         """Get a Rich style with the given offset included in meta.
@@ -510,17 +395,17 @@ class Style:
     @cached_property
     def without_color(self) -> Style:
         """The style without any colors."""
-        return Style(None, None, *_get_simple_attributes_sans_color(self))
+        pass
 
     @cached_property
     def background_style(self) -> Style:
         """Just the background color, with no other attributes."""
-        return Style(self.background, _meta=self._meta)
+        pass
 
     @property
     def has_transparent_foreground(self) -> bool:
         """Is the foreground transparent (or not set)?"""
-        return self.foreground is None or self.foreground.a == 0
+        pass
 
     @classmethod
     def combine(cls, styles: Iterable[Style]) -> Style:
@@ -531,7 +416,7 @@ class Style:
     @cached_property
     def meta(self) -> Mapping[str, Any]:
         """Get meta information (can not be changed after construction)."""
-        return {} if self._meta is None else loads(self._meta)
+        pass
 
 
 NULL_STYLE = Style()

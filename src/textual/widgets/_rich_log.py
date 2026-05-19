@@ -129,14 +129,6 @@ class RichLog(ScrollView, can_focus=True):
         super().notify_style_update()
         self._line_cache.clear()
 
-    def on_resize(self, event: Resize) -> None:
-        if event.size.width and not self._size_known:
-            # This size is known for the first time.
-            self._size_known = True
-            deferred_renders = self._deferred_renders
-            while deferred_renders:
-                deferred_render = deferred_renders.popleft()
-                self.write(*deferred_render)
 
     def get_content_width(self, container: Size, viewport: Size) -> int:
         if self._size_known:

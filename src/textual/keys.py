@@ -14,9 +14,6 @@ class Keys(str, Enum):  # type: ignore[no-redef]
     strings.
     """
 
-    @property
-    def value(self) -> str:
-        return super().value
 
     Escape = "escape"  # Also Control-[
     ShiftEscape = "shift+escape"

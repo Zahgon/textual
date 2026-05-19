@@ -47,22 +47,22 @@ class Driver(ABC):
     @property
     def is_headless(self) -> bool:
         """Is the driver 'headless' (no output)?"""
-        return False
+        pass
 
     @property
     def is_inline(self) -> bool:
         """Is the driver 'inline' (not full-screen)?"""
-        return False
+        pass
 
     @property
     def is_web(self) -> bool:
         """Is the driver 'web' (running via a browser)?"""
-        return False
+        pass
 
     @property
     def can_suspend(self) -> bool:
         """Can this driver be suspended?"""
-        return False
+        pass
 
     def send_message(self, message: messages.Message) -> None:
         """Send a message to the target app.
@@ -80,56 +80,7 @@ class Driver(ABC):
         Args:
             event: A message to process.
         """
-        # NOTE: This runs in a thread.
-        # Avoid calling methods on the app.
-        message.set_sender(self._app)
-        if self.cursor_origin is None:
-            offset_x = 0
-            offset_y = 0
-        else:
-            offset_x, offset_y = self.cursor_origin
-        if isinstance(message, events.MouseEvent):
-            message._x -= offset_x
-            message._y -= offset_y
-            message._screen_x -= offset_x
-            message._screen_y -= offset_y
-
-        if isinstance(message, events.MouseDown):
-            if message.button:
-                self._down_buttons.append(message.button)
-        elif isinstance(message, events.MouseUp):
-            if message.button and message.button in self._down_buttons:
-                self._down_buttons.remove(message.button)
-        elif isinstance(message, events.MouseMove):
-            if (
-                self._down_buttons
-                and not message.button
-                and self._last_move_event is not None
-            ):
-                # Deduplicate self._down_buttons while preserving order.
-                buttons = list(dict.fromkeys(self._down_buttons).keys())
-                self._down_buttons.clear()
-                move_event = self._last_move_event
-                for button in buttons:
-                    self.send_message(
-                        MouseUp(
-                            message.widget,
-                            x=move_event.x,
-                            y=move_event.y,
-                            delta_x=0,
-                            delta_y=0,
-                            button=button,
-                            shift=message.shift,
-                            meta=message.meta,
-                            ctrl=message.ctrl,
-                            screen_x=move_event.screen_x,
-                            screen_y=move_event.screen_y,
-                            style=message.style,
-                        )
-                    )
-            self._last_move_event = message
-
-        self.send_message(message)
+        pass
 
     @abstractmethod
     def write(self, data: str) -> None:
@@ -160,8 +111,7 @@ class Driver(ABC):
         Used to suspend application mode and allow uninhibited access to the
         terminal.
         """
-        self.stop_application_mode()
-        self.close()
+        pass
 
     def resume_application_mode(self) -> None:
         """Resume application mode.
@@ -169,7 +119,7 @@ class Driver(ABC):
         Used to resume application mode after it has been previously
         suspended.
         """
-        self.start_application_mode()
+        pass
 
     class SignalResume(events.Event):
         """Event sent to the app when a resume signal should be published."""
@@ -182,12 +132,7 @@ class Driver(ABC):
         operating system, this context manager is used to mark a body of
         code as one that will manage its own stop and start.
         """
-        auto_restart = self._auto_restart
-        self._auto_restart = False
-        try:
-            yield
-        finally:
-            self._auto_restart = auto_restart
+        pass
 
     def close(self) -> None:
         """Perform any final cleanup."""
@@ -201,9 +146,7 @@ class Driver(ABC):
                 This is only relevant when running via the WebDriver,
                 and is ignored when called while running through the terminal.
         """
-        import webbrowser
-
-        webbrowser.open(url)
+        pass
 
     def deliver_binary(
         self,
@@ -238,43 +181,7 @@ class Driver(ABC):
                 and [`DeliveryFailed`][textual.events.DeliveryFailed].
 
         """
-
-        def save_file_thread(binary: BinaryIO | TextIO, mode: str) -> None:
-            try:
-                with open(
-                    save_path, mode, encoding=encoding or "utf-8"
-                ) as destination_file:
-                    read = binary.read
-                    write = destination_file.write
-                    chunk_size = 1024 * 64
-                    while True:
-                        data = read(chunk_size)
-                        if not data:
-                            # No data left to read - delivery is complete.
-                            self._delivery_complete(
-                                delivery_key, save_path=save_path, name=name
-                            )
-                            break
-                        write(data)
-            except Exception as error:
-                # If any exception occurs during the delivery, pass
-                # it on to the app via a DeliveryFailed event.
-                log.error(f"Failed to deliver file: {error}")
-                import traceback
-
-                log.error(str(traceback.format_exc()))
-                self._delivery_failed(delivery_key, exception=error, name=name)
-            finally:
-                if not binary.closed:
-                    binary.close()
-
-        if isinstance(binary, BinaryIO):
-            mode = "wb"
-        else:
-            mode = "w"
-
-        thread = threading.Thread(target=save_file_thread, args=(binary, mode))
-        thread.start()
+        pass
 
     def _delivery_complete(
         self, delivery_key: str, save_path: Path | None, name: str | None
@@ -283,10 +190,7 @@ class Driver(ABC):
 
         Delivers a DeliveryComplete event to the app.
         """
-        self._app.call_from_thread(
-            self._app.post_message,
-            events.DeliveryComplete(key=delivery_key, path=save_path, name=name),
-        )
+        pass
 
     def _delivery_failed(
         self, delivery_key: str, exception: BaseException, name: str | None
@@ -295,7 +199,4 @@ class Driver(ABC):
 
         Delivers a DeliveryFailed event to the app.
         """
-        self._app.call_from_thread(
-            self._app.post_message,
-            events.DeliveryFailed(key=delivery_key, exception=exception, name=name),
-        )
+        pass

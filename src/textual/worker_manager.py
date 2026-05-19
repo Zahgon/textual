@@ -72,11 +72,7 @@ class WorkerManager:
             start: Start the worker if True, otherwise the worker must be started manually.
             exclusive: Cancel all workers in the same group as `worker`.
         """
-        if exclusive and worker.group:
-            self.cancel_group(worker.node, worker.group)
-        self._workers.add(worker)
-        if start:
-            worker._start(self._app, self._remove_worker)
+        pass
 
     def _new_worker(
         self,
@@ -106,17 +102,7 @@ class WorkerManager:
         Returns:
             A Worker instance.
         """
-        worker: Worker[Any] = Worker(
-            node,
-            work,
-            name=name or getattr(work, "__name__", "") or "",
-            group=group,
-            description=description or repr(work),
-            exit_on_error=exit_on_error,
-            thread=thread,
-        )
-        self.add_worker(worker, start=start, exclusive=exclusive)
-        return worker
+        pass
 
     def _remove_worker(self, worker: Worker) -> None:
         """Remove a worker from the manager.
@@ -124,12 +110,11 @@ class WorkerManager:
         Args:
             worker: A Worker instance.
         """
-        self._workers.discard(worker)
+        pass
 
     def start_all(self) -> None:
         """Start all the workers."""
-        for worker in self._workers:
-            worker._start(self._app, self._remove_worker)
+        pass
 
     def cancel_all(self) -> None:
         """Cancel all workers."""
@@ -146,14 +131,7 @@ class WorkerManager:
         Returns:
             A list of workers that were cancelled.
         """
-        workers = [
-            worker
-            for worker in self._workers
-            if (worker.group == group and worker.node == node)
-        ]
-        for worker in workers:
-            worker.cancel()
-        return workers
+        pass
 
     def cancel_node(self, node: DOMNode) -> list[Worker]:
         """Cancel all workers associated with a given node
@@ -164,10 +142,7 @@ class WorkerManager:
         Returns:
             List of cancelled workers.
         """
-        workers = [worker for worker in self._workers if worker.node == node]
-        for worker in workers:
-            worker.cancel()
-        return workers
+        pass
 
     async def wait_for_complete(self, workers: Iterable[Worker] | None = None) -> None:
         """Wait for workers to complete.

@@ -40,8 +40,6 @@ class AwaitRemove:
 
         async def await_prune() -> None:
             """Wait for the prune operation to finish."""
-            await gather(*tasks)
-            if self._post_remove is not None:
-                await invoke(self._post_remove)
+            pass
 
         return await_prune().__await__()

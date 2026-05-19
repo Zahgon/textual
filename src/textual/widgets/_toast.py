@@ -127,20 +127,12 @@ class Toast(Static, inherit_css=False):
 
     def _on_mount(self, _: Mount) -> None:
         """Set the time running once the toast is mounted."""
-        self.set_timer(self._timeout, self._expire)
+        pass
 
     @on(Click)
     def _expire(self) -> None:
         """Remove the toast once the timer has expired."""
-        # Before we removed ourself, we also call on the app to forget about
-        # the notification that caused us to exist. Note that we tell the
-        # app to not bother refreshing the display on our account, we're
-        # about to handle that anyway.
-        self.app._unnotify(self._notification, refresh=False)
-        # Note that we attempt to remove our parent, because we're wrapped
-        # inside an alignment container. The testing that we are is as much
-        # to keep type checkers happy as anything else.
-        (self.parent if isinstance(self.parent, ToastHolder) else self).remove()
+        pass
 
 
 class ToastRack(Container, inherit_css=False):
@@ -172,7 +164,7 @@ class ToastRack(Container, inherit_css=False):
         Returns:
             An ID for the notification that can be used within the DOM.
         """
-        return f"--textual-toast-{notification.identity}"
+        pass
 
     def show(self, notifications: Notifications) -> None:
         """Show the notifications as toasts.
@@ -180,27 +172,4 @@ class ToastRack(Container, inherit_css=False):
         Args:
             notifications: The notifications to show.
         """
-        self.display = bool(notifications)
-        # Look for any stale toasts and remove them.
-        for toast in self.query(Toast):
-            if toast._notification not in notifications:
-                toast.remove()
-
-        # Gather up all the notifications that we don't have toasts for yet.
-        new_toasts: list[Notification] = []
-        for notification in notifications:
-            try:
-                # See if there's already a toast for that notification.
-                _ = self.get_child_by_id(self._toast_id(notification))
-            except NoMatches:
-                if not notification.has_expired:
-                    new_toasts.append(notification)
-
-        # If we got any...
-        if new_toasts:
-            # ...mount them.
-            self.mount_all(
-                ToastHolder(Toast(toast), id=self._toast_id(toast))
-                for toast in new_toasts
-            )
-            self.call_later(self.scroll_end, animate=False, force=True)
+        pass

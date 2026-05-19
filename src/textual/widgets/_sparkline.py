@@ -11,7 +11,7 @@ from textual.widget import Widget
 
 def _max_factory() -> Callable[[Sequence[float]], float]:
     """Callable that returns the built-in max to initialise a reactive."""
-    return max
+    pass
 
 
 class Sparkline(Widget):

@@ -218,19 +218,11 @@ class Tile(containers.Vertical):
         static.styles.height = self.parent.styles.height
         yield static
 
-    def on_mount(self) -> None:
-        if self.tile is not None:
-            width, height = self.tile_size
-            self.styles.width = width
-            self.styles.height = height
-            column, row = self.position
-            self.set_scroll(column * width, row * height)
-        self.offset = self.position * self.tile_size
 
     def watch_position(self, position: Offset) -> None:
         """The 'position' is in tile coordinate.
         When it changes we animate it to the cell coordinates."""
-        self.animate("offset", position * self.tile_size, duration=0.2)
+        pass
 
 
 class GameDialog(containers.VerticalGroup):
@@ -275,12 +267,6 @@ class GameDialog(containers.VerticalGroup):
             )
         yield Button("Start", variant="primary")
 
-    @on(Button.Pressed)
-    def on_button_pressed(self) -> None:
-        language = self.query_one("#language", Select).selection
-        level = self.query_one("#level", Select).selection
-        assert language is not None and level is not None
-        self.screen.dismiss(NewGame(language, LEVELS[language], level))
 
 
 class GameDialogScreen(ModalScreen):
@@ -353,15 +339,7 @@ class Game(containers.Vertical, can_focus=True):
         self.tile_size = Size(*tile_size)
         self.play_timer: Timer | None = None
 
-    def check_win(self) -> bool:
-        return all(tile.start_position == tile.position for tile in self.query(Tile))
 
-    def watch_dimensions(self, dimensions: Size) -> None:
-        self.locations.clear()
-        tile_width, tile_height = dimensions
-        for last, tile_no in loop_last(range(0, tile_width * tile_height)):
-            position = Offset(*divmod(tile_no, tile_width))
-            self.locations[position] = None if last else tile_no
 
     def compose(self) -> ComposeResult:
         syntax = Syntax(
@@ -384,123 +362,37 @@ class Game(containers.Vertical, can_focus=True):
         if self.language:
             self.call_after_refresh(self.shuffle)
 
-    def update_clock(self) -> None:
-        if self.state == "playing":
-            elapsed = monotonic() - self.play_start_time
-            self.play_time = elapsed
 
-    def watch_play_time(self, play_time: float) -> None:
-        minutes, seconds = divmod(play_time, 60)
-        hours, minutes = divmod(minutes, 60)
-        self.query_one(Digits).update(f"{hours:02,.0f}:{minutes:02.0f}:{seconds:04.1f}")
 
-    def watch_state(self, old_state: str, new_state: str) -> None:
-        if self.play_timer is not None:
-            self.play_timer.stop()
-
-        if new_state == "playing":
-            self.play_start_time = monotonic()
-            self.play_timer = self.set_interval(1 / 10, self.update_clock)
 
     def get_tile(self, tile: int | None) -> Tile:
         """Get a tile (int) or the blank (None)."""
-        return self.query_one("#blank" if tile is None else f"#tile{tile}", Tile)
+        pass
 
     def get_tile_at(self, position: Offset) -> Tile:
         """Get a tile at the given position, or raise an IndexError."""
-        if position not in self.locations:
-            raise IndexError("No tile")
-        return self.get_tile(self.locations[position])
+        pass
 
     def move_tile(self, tile_no: int | None) -> None:
         """Move a tile to the blank.
         Note: this doesn't do any validation of legal moves.
         """
-        tile = self.get_tile(tile_no)
-        blank = self.get_tile(None)
-        blank_position = blank.position
-
-        self.locations[tile.position] = None
-        blank.position = tile.position
-
-        self.locations[blank_position] = tile_no
-        tile.position = blank_position
-
-        if self.state == "playing" and self.check_win():
-            self.state = "won"
-            self.notify("You won!", title="Sliding Tile Puzzle")
+        pass
 
     def can_move(self, tile: int) -> bool:
         """Check if a tile may move."""
-        blank_position = self.get_tile(None).position
-        tile_position = self.get_tile(tile).position
-        return blank_position in (
-            tile_position + (1, 0),
-            tile_position - (1, 0),
-            tile_position + (0, 1),
-            tile_position - (0, 1),
-        )
+        pass
 
-    def action_move(self, direction: str) -> None:
-        if self.state != "playing":
-            self.app.bell()
-            return
-        blank = self.get_tile(None).position
-        if direction == "up":
-            position = blank + (0, +1)
-        elif direction == "down":
-            position = blank + (0, -1)
-        elif direction == "left":
-            position = blank + (+1, 0)
-        elif direction == "right":
-            position = blank + (-1, 0)
-        try:
-            tile = self.get_tile_at(position)
-        except IndexError:
-            return
-        self.move_tile(tile.tile)
 
     def get_legal_moves(self) -> set[Offset]:
         """Get the positions of all tiles that can move."""
-        blank = self.get_tile(None).position
-        moves: list[Offset] = []
-
-        DIRECTIONS = [(-1, 0), (+1, -0), (0, -1), (0, +1)]
-        moves = [
-            blank + direction
-            for direction in DIRECTIONS
-            if (blank + direction) in self.locations
-        ]
-        return {self.get_tile_at(position).position for position in moves}
+        pass
 
     @work(exclusive=True)
     async def shuffle(self, shuffles: int = 150) -> None:
         """A worker to do the shuffling."""
-        self.visible = True
-        if self.play_timer is not None:
-            self.play_timer.stop()
-        self.query_one("#grid").border_title = "[reverse bold] SHUFFLING - Please Wait "
-        self.state = "shuffling"
-        previous_move: Offset = Offset(-1, -1)
-        for _ in range(shuffles):
-            legal_moves = self.get_legal_moves()
-            legal_moves.discard(previous_move)
-            previous_move = self.get_tile(None).position
-            move_position = choice(list(legal_moves))
-            move_tile = self.get_tile_at(move_position)
-            self.move_tile(move_tile.tile)
-            await sleep(0.05)
-        self.query_one("#grid").border_title = ""
-        self.state = "playing"
+        pass
 
-    @on(events.Click, ".tile")
-    def on_tile_clicked(self, event: events.Click) -> None:
-        assert event.widget is not None
-        tile = int(event.widget.name or 0)
-        if self.state != "playing" or not self.can_move(tile):
-            self.app.bell()
-            return
-        self.move_tile(tile)
 
 
 class GameInstructions(containers.VerticalGroup):
@@ -554,23 +446,8 @@ class GameScreen(PageScreen):
             yield Game("\n" * 100, "", dimensions=(4, 4), tile_size=(16, 8))
             yield Footer()
 
-    def action_shuffle(self) -> None:
-        self.query_one(Game).shuffle()
 
-    def action_new_game(self) -> None:
-        self.app.push_screen(GameDialogScreen(), callback=self.new_game)
 
-    async def new_game(self, new_game: NewGame | None) -> None:
-        if new_game is None:
-            return
-        self.query_one(GameInstructions).display = False
-        game = self.query_one(Game)
-        game.state = "waiting"
-        game.code = new_game.code
-        game.language = new_game.language
-        game.dimensions = Size(*new_game.size)
-        await game.recompose()
-        game.focus()
 
     def check_action(self, action: str, parameters: tuple[object, ...]) -> bool | None:
         if action == "shuffle" and self.query_one(Game).state == "waiting":

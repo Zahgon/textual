@@ -152,23 +152,12 @@ class MessagePump(metaclass=_MessagePumpMeta):
     def _parent(self, parent: MessagePump | None) -> None:
         self.__parent = None if parent is None else ref(parent)
 
-    @cached_property
-    def _message_queue(self) -> Queue[Message | None]:
-        return Queue()
 
-    @cached_property
-    def _mounted_event(self) -> asyncio.Event:
-        return asyncio.Event()
 
     @property
     def _prevent_message_types_stack(self) -> list[set[type[Message]]]:
         """The stack that manages prevented messages."""
-        try:
-            stack = prevent_message_types_stack.get()
-        except LookupError:
-            stack = [set()]
-            prevent_message_types_stack.set(stack)
-        return stack
+        pass
 
     def _thread_init(self):
         """Initialize threading primitives for the current thread.
@@ -216,25 +205,21 @@ class MessagePump(metaclass=_MessagePumpMeta):
         else:
             yield
 
-    @property
-    def task(self) -> Task:
-        assert self._task is not None
-        return self._task
 
     @property
     def has_parent(self) -> bool:
         """Does this object have a parent?"""
-        return self._parent is not None
+        pass
 
     @property
     def message_queue_size(self) -> int:
         """The current size of the message queue."""
-        return self._message_queue.qsize()
+        pass
 
     @property
     def is_dom_root(self):
         """Is this a root node (i.e. the App)?"""
-        return False
+        pass
 
     if TYPE_CHECKING:
         from textual import getters
@@ -269,27 +254,17 @@ class MessagePump(metaclass=_MessagePumpMeta):
     @property
     def is_attached(self) -> bool:
         """Is this node linked to the app through the DOM?"""
-        try:
-            if self.app._exit:
-                return False
-        except NoActiveAppError:
-            return False
-        node: MessagePump | None = self
-        while (node := node._parent) is not None:
-            if node.is_dom_root:
-                return True
-        return False
+        pass
 
     @property
     def is_parent_active(self) -> bool:
         """Is the parent active?"""
-        parent = self._parent
-        return bool(parent is not None and not parent._closed and not parent._closing)
+        pass
 
     @property
     def is_running(self) -> bool:
         """Is the message pump running (potentially processing messages)?"""
-        return self._running
+        pass
 
     @property
     def log(self) -> Logger:
@@ -326,11 +301,11 @@ class MessagePump(metaclass=_MessagePumpMeta):
 
     def disable_messages(self, *messages: type[Message]) -> None:
         """Disable message types from being processed."""
-        self._disabled_messages.update(messages)
+        pass
 
     def enable_messages(self, *messages: type[Message]) -> None:
         """Enable processing of messages types."""
-        self._disabled_messages.difference_update(messages)
+        pass
 
     async def _get_message(self) -> Message:
         """Get the next event on the queue, or None if queue is closed.
@@ -477,15 +452,7 @@ class MessagePump(metaclass=_MessagePumpMeta):
                 due to calling it within the node's own task.
 
         """
-        assert (
-            self._task is not None
-        ), "Node must be running before calling wait_for_refresh"
-        if asyncio.current_task() is self._task:
-            return False
-        refreshed_event = asyncio.Event()
-        self.call_after_refresh(refreshed_event.set)
-        await refreshed_event.wait()
-        return True
+        pass
 
     def call_later(self, callback: Callback, *args: Any, **kwargs: Any) -> bool:
         """Schedule a callback to run after all messages are processed in this object.
@@ -518,12 +485,6 @@ class MessagePump(metaclass=_MessagePumpMeta):
         self._next_callbacks.append(callback_message)
         self.check_idle()
 
-    def _on_invoke_later(self, message: messages.InvokeLater) -> None:
-        # Forward InvokeLater message to the Screen
-        if self.app._running:
-            self.app.screen._invoke_later(
-                message.callback, message._sender or active_message_pump.get()
-            )
 
     async def _close_messages(self, wait: bool = True) -> None:
         """Close message queue, and optionally wait for queue to finish processing."""
@@ -628,8 +589,6 @@ class MessagePump(metaclass=_MessagePumpMeta):
         finally:
             active_message_pump.reset(reset_token)
 
-    async def _on_close_messages(self, message: messages.CloseMessages) -> None:
-        await self._close_messages()
 
     async def _process_messages_loop(self) -> None:
         """Process messages until the queue is closed."""
@@ -887,34 +846,4 @@ class MessagePump(metaclass=_MessagePumpMeta):
             self._message_queue.put_nowait(message)
         return True
 
-    async def on_callback(self, event: events.Callback) -> None:
-        if self.app._closing:
-            return
-        try:
-            self.app.screen
-        except Exception:
-            self.log.warning(
-                f"Not invoking timer callback {event.callback!r} because there is no screen."
-            )
-            return
-        await invoke(event.callback)
 
-    async def on_timer(self, event: events.Timer) -> None:
-        if not self.app._running:
-            return
-        event.prevent_default()
-        event.stop()
-        if event.callback is not None:
-            try:
-                self.app.screen
-            except Exception:
-                self.log.warning(
-                    f"Not invoking timer callback {event.callback!r} because there is no screen."
-                )
-                return
-            try:
-                await invoke(event.callback)
-            except Exception as error:
-                raise CallbackError(
-                    f"unable to run callback {event.callback!r}; {error}"
-                )

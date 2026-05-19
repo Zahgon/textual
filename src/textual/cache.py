@@ -103,27 +103,7 @@ class LRUCache(Generic[CacheKey, CacheValue]):
             key: Key.
             value: Value.
         """
-        if self._cache.get(key) is None:
-            head = self._head
-            if not head:
-                # First link references itself
-                self._head[:] = [head, head, key, value]
-            else:
-                # Add a new root to the beginning
-                self._head = [head[0], head, key, value]
-                # Updated references on previous root
-                head[0][1] = self._head  # type: ignore[index]
-                head[0] = self._head
-            self._cache[key] = self._head
-
-            if self._full or len(self._cache) > self._maxsize:
-                # Cache is full, we need to evict the oldest one
-                self._full = True
-                head = self._head
-                last = head[0]
-                last[0][1] = head  # type: ignore[index]
-                head[0] = last[0]  # type: ignore[index]
-                del self._cache[last[2]]  # type: ignore[index]
+        pass
 
     __setitem__ = set
 
@@ -261,11 +241,7 @@ class FIFOCache(Generic[CacheKey, CacheValue]):
             key: Key.
             value: Value.
         """
-        if key not in self._cache and len(self._cache) >= self._maxsize:
-            for first_key in self._cache:
-                self._cache.pop(first_key)
-                break
-        self._cache[key] = value
+        pass
 
     __setitem__ = set
 

@@ -139,9 +139,7 @@ class Placeholder(Widget):
 
     async def _on_compose(self, event: events.Compose) -> None:
         """Set the color for this placeholder."""
-        color_count = len(_PLACEHOLDER_BACKGROUND_COLORS)
-        color = _PLACEHOLDER_BACKGROUND_COLORS[self._color_offset % color_count]
-        self.styles.background = f"{color} 50%"
+        pass
 
     def render(self) -> RenderResult:
         """Render the placeholder.
@@ -157,30 +155,17 @@ class Placeholder(Widget):
         Returns:
             The `Placeholder` instance.
         """
-        self.variant = next(self._variants_cycle)
-        return self
+        pass
 
-    def watch_variant(
-        self, old_variant: PlaceholderVariant, variant: PlaceholderVariant
-    ) -> None:
-        self.remove_class(f"-{old_variant}")
-        self.add_class(f"-{variant}")
 
     def validate_variant(self, variant: PlaceholderVariant) -> PlaceholderVariant:
         """Validate the variant to which the placeholder was set."""
-        if variant not in _VALID_PLACEHOLDER_VARIANTS:
-            raise InvalidPlaceholderVariant(
-                "Valid placeholder variants are "
-                + f"{friendly_list(_VALID_PLACEHOLDER_VARIANTS)}"
-            )
-        return variant
+        pass
 
     async def _on_click(self, _: events.Click) -> None:
         """Click handler to cycle through the placeholder variants."""
-        self.cycle_variant()
+        pass
 
     def _on_resize(self, event: events.Resize) -> None:
         """Update the placeholder "size" variant with the new placeholder size."""
-        self._renderables["size"] = self._SIZE_RENDER_TEMPLATE.format(*event.size)
-        if self.variant == "size":
-            self.refresh()
+        pass

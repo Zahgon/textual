@@ -101,7 +101,7 @@ class ListView(VerticalScroll, can_focus=True, can_focus_children=False):
             This is an alias for [`Highlighted.list_view`][textual.widgets.ListView.Highlighted.list_view]
             and is used by the [`on`][textual.on] decorator.
             """
-            return self.list_view
+            pass
 
     class Selected(Message):
         """Posted when a list item is selected, e.g. when you press the enter key on it.
@@ -129,7 +129,7 @@ class ListView(VerticalScroll, can_focus=True, can_focus_children=False):
             This is an alias for [`Selected.list_view`][textual.widgets.ListView.Selected.list_view]
             and is used by the [`on`][textual.on] decorator.
             """
-            return self.list_view
+            pass
 
     def __init__(
         self,
@@ -158,26 +158,12 @@ class ListView(VerticalScroll, can_focus=True, can_focus_children=False):
 
     def _on_mount(self, _: Mount) -> None:
         """Ensure the ListView is fully-settled after mounting."""
-
-        if self._initial_index is not None and self.children:
-            index = self._initial_index
-            if index >= len(self.children):
-                index = 0
-            if self._nodes[index].disabled:
-                for index, node in loop_from_index(self._nodes, index, wrap=True):
-                    if not node.disabled:
-                        break
-            self.index = index
+        pass
 
     @property
     def highlighted_child(self) -> ListItem | None:
         """The currently highlighted ListItem, or None if nothing is highlighted."""
-        if self.index is not None and 0 <= self.index < len(self._nodes):
-            list_item = self._nodes[self.index]
-            assert isinstance(list_item, ListItem)
-            return list_item
-        else:
-            return None
+        pass
 
     def validate_index(self, index: int | None) -> int | None:
         """Clamp the index to the valid range, or set to None if there's nothing to highlight.
@@ -188,14 +174,7 @@ class ListView(VerticalScroll, can_focus=True, can_focus_children=False):
         Returns:
             The clamped index.
         """
-        if index is None or not self._nodes:
-            return None
-        elif index < 0:
-            return 0
-        elif index >= len(self._nodes):
-            return len(self._nodes) - 1
-
-        return index
+        pass
 
     def _is_valid_index(self, index: int | None) -> TypeGuard[int]:
         """Determine whether the current index is valid into the list of children."""
@@ -327,69 +306,20 @@ class ListView(VerticalScroll, can_focus=True, can_focus_children=False):
         Returns:
             An awaitable object that waits for the direct children to be removed.
         """
-        items = self.query("ListItem")
-        items_to_remove = [items[index] for index in indices]
-        normalized_indices = set(
-            index if index >= 0 else index + len(self) for index in indices
-        )
-
-        async def do_remove_items() -> None:
-            """Remove the items and update the highlighted index."""
-            await self.remove_children(items_to_remove)
-            if self.index is not None:
-                removed_before_highlighted = sum(
-                    1 for index in normalized_indices if index < self.index
-                )
-                if removed_before_highlighted:
-                    self.index -= removed_before_highlighted
-                elif self.index in normalized_indices:
-                    old_index = self.index
-                    # Force a re-validation of the index
-                    self.index = self.index
-                    # If the index hasn't changed, the watcher won't be called
-                    # but we need to update the highlighted item
-                    if old_index == self.index:
-                        self.watch_index(old_index, self.index)
-
-        return AwaitComplete(do_remove_items())
+        pass
 
     def action_select_cursor(self) -> None:
         """Select the current item in the list."""
-        selected_child = self.highlighted_child
-        if selected_child is None:
-            return
-        self.post_message(self.Selected(self, selected_child, self.index))
+        pass
 
     def action_cursor_down(self) -> None:
         """Highlight the next item in the list."""
-        if self.index is None:
-            if self._nodes:
-                self.index = 0
-        else:
-            index = self.index
-            for index, item in loop_from_index(self._nodes, self.index, wrap=False):
-                if not item.disabled:
-                    self.index = index
-                    break
+        pass
 
     def action_cursor_up(self) -> None:
         """Highlight the previous item in the list."""
-        if self.index is None:
-            if self._nodes:
-                self.index = len(self._nodes) - 1
-        else:
-            for index, item in loop_from_index(
-                self._nodes, self.index, direction=-1, wrap=False
-            ):
-                if not item.disabled:
-                    self.index = index
-                    break
+        pass
 
-    def _on_list_item__child_clicked(self, event: ListItem._ChildClicked) -> None:
-        event.stop()
-        self.focus()
-        self.index = self._nodes.index(event.item)
-        self.post_message(self.Selected(self, event.item, self.index))
 
     def __len__(self) -> int:
         """Compute the length (in number of items) of the list view."""

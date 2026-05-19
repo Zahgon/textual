@@ -67,24 +67,12 @@ class Timer:
         self._reset: bool = False
         self._original_pause = pause
 
-    @cached_property
-    def _active(self) -> Event:
-        event = Event()
-        if not self._original_pause:
-            event.set()
-        return event
 
     def __rich_repr__(self) -> Result:
         yield self._interval
         yield "name", self.name
         yield "repeat", self._repeat, None
 
-    @property
-    def target(self) -> MessageTarget:
-        target = self._target()
-        if target is None:
-            raise EventTargetGone()
-        return target
 
     def _start(self) -> None:
         """Start the timer."""

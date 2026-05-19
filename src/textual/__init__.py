@@ -147,12 +147,12 @@ class Logger:
     @property
     def verbose(self) -> Logger:
         """A verbose logger."""
-        return Logger(self._log, self._group, LogVerbosity.HIGH, app=self.app)
+        pass
 
     @property
     def event(self) -> Logger:
         """Logs events."""
-        return Logger(self._log, LogGroup.EVENT, app=self.app)
+        pass
 
     @property
     def debug(self) -> Logger:
@@ -162,7 +162,7 @@ class Logger:
     @property
     def info(self) -> Logger:
         """Logs information."""
-        return Logger(self._log, LogGroup.INFO, app=self.app)
+        pass
 
     @property
     def warning(self) -> Logger:
@@ -182,7 +182,7 @@ class Logger:
     @property
     def logging(self) -> Logger:
         """Logs from stdlib logging module."""
-        return Logger(self._log, LogGroup.LOGGING, app=self.app)
+        pass
 
     @property
     def worker(self) -> Logger:

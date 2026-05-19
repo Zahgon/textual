@@ -45,7 +45,7 @@ def dump(data: object) -> bytes:
         Returns:
             None encoded.
         """
-        return b"N"
+        pass
 
     def encode_bool(datum: bool) -> bytes:
         """
@@ -57,7 +57,7 @@ def dump(data: object) -> bytes:
         Returns:
             The encoded bytes.
         """
-        return b"T" if datum else b"F"
+        pass
 
     def encode_int(datum: int) -> bytes:
         """
@@ -69,7 +69,7 @@ def dump(data: object) -> bytes:
         Returns:
             The encoded bytes.
         """
-        return b"i%ie" % datum
+        pass
 
     def encode_bytes(datum: bytes) -> bytes:
         """
@@ -81,7 +81,7 @@ def dump(data: object) -> bytes:
         Returns:
             The encoded bytes.
         """
-        return b"%i:%s" % (len(datum), datum)
+        pass
 
     def encode_string(datum: str) -> bytes:
         """
@@ -93,8 +93,7 @@ def dump(data: object) -> bytes:
         Returns:
             The encoded bytes.
         """
-        encoded_data = datum.encode("utf-8")
-        return b"s%i:%s" % (len(encoded_data), encoded_data)
+        pass
 
     def encode_list(datum: list) -> bytes:
         """
@@ -106,7 +105,7 @@ def dump(data: object) -> bytes:
         Returns:
             The encoded bytes.
         """
-        return b"l%se" % b"".join(encode(element) for element in datum)
+        pass
 
     def encode_tuple(datum: tuple) -> bytes:
         """
@@ -118,7 +117,7 @@ def dump(data: object) -> bytes:
         Returns:
             The encoded bytes.
         """
-        return b"t%se" % b"".join(encode(element) for element in datum)
+        pass
 
     def encode_dict(datum: dict) -> bytes:
         """
@@ -130,9 +129,7 @@ def dump(data: object) -> bytes:
         Returns:
             The encoded bytes.
         """
-        return b"d%se" % b"".join(
-            b"%s%s" % (encode(key), encode(value)) for key, value in datum.items()
-        )
+        pass
 
     ENCODERS: dict[type, Callable[[Any], Any]] = {
         type(None): encode_none,
@@ -232,10 +229,7 @@ def load(encoded: bytes) -> object:
         Returns:
             An integer.
         """
-        int_bytes = b""
-        while (byte := get_byte()) != b"e":
-            int_bytes += byte
-        return int(int_bytes)
+        pass
 
     def decode_bytes(size_bytes: bytes) -> bytes:
         """Decode a bytes string from the encoded data.
@@ -254,12 +248,7 @@ def load(encoded: bytes) -> object:
         Returns:
             A string.
         """
-        size_bytes = b""
-        while (byte := get_byte()) != b":":
-            size_bytes += byte
-        bytes_string = get_bytes(int(size_bytes))
-        decoded_string = bytes_string.decode("utf-8", errors="replace")
-        return decoded_string
+        pass
 
     def decode_list() -> list[object]:
         """Decode a list.
@@ -267,12 +256,7 @@ def load(encoded: bytes) -> object:
         Returns:
             A list of data.
         """
-        elements: list[object] = []
-        add_element = elements.append
-        while peek_byte() != b"e":
-            add_element(decode())
-        get_byte()
-        return elements
+        pass
 
     def decode_tuple() -> tuple[object, ...]:
         """Decode a tuple.
@@ -280,12 +264,7 @@ def load(encoded: bytes) -> object:
         Returns:
             A tuple of decoded data.
         """
-        elements: list[object] = []
-        add_element = elements.append
-        while peek_byte() != b"e":
-            add_element(decode())
-        get_byte()
-        return tuple(elements)
+        pass
 
     def decode_dict() -> dict[object, object]:
         """Decode a dict.
@@ -293,12 +272,7 @@ def load(encoded: bytes) -> object:
         Returns:
             A dict of decoded data.
         """
-        elements: dict[object, object] = {}
-        add_element = elements.__setitem__
-        while peek_byte() != b"e":
-            add_element(decode(), decode())
-        get_byte()
-        return elements
+        pass
 
     DECODERS = {
         b"i": decode_int,

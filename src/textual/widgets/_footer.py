@@ -130,14 +130,7 @@ class FooterKey(Widget):
         label_text.stylize_before(self.rich_style)
         return label_text
 
-    def on_mouse_down(self) -> None:
-        if self._disabled:
-            self.app.bell()
-        else:
-            self.app.simulate_key(self.key)
 
-    def _watch_compact(self, compact: bool) -> None:
-        self.set_class(compact, "-compact")
 
 
 class FooterLabel(Label):
@@ -305,29 +298,7 @@ class Footer(ScrollableContainer, can_focus=False, can_focus_children=False):
                     tooltip=binding.tooltip or binding.description,
                 )
 
-    def bindings_changed(self, screen: Screen) -> None:
-        self._bindings_ready = True
-        if not screen.app.app_focus:
-            return
-        if self.is_attached and screen is self.screen:
-            self.call_after_refresh(self.recompose)
 
-    def _on_mouse_scroll_down(self, event: events.MouseScrollDown) -> None:
-        if self.allow_horizontal_scroll:
-            self.release_anchor()
-            if self._scroll_right_for_pointer(animate=True):
-                event.stop()
-                event.prevent_default()
 
-    def _on_mouse_scroll_up(self, event: events.MouseScrollUp) -> None:
-        if self.allow_horizontal_scroll:
-            self.release_anchor()
-            if self._scroll_left_for_pointer(animate=True):
-                event.stop()
-                event.prevent_default()
 
-    def on_mount(self) -> None:
-        self.screen.bindings_updated_signal.subscribe(self, self.bindings_changed)
 
-    def on_unmount(self) -> None:
-        self.screen.bindings_updated_signal.unsubscribe(self)

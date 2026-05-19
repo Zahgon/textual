@@ -111,11 +111,6 @@ class ScrollableContainer(Widget, can_focus=True):
             self.can_focus_children = can_focus_children
         self.can_maximize = can_maximize
 
-    @property
-    def allow_maximize(self) -> bool:
-        if self.can_maximize is None:
-            return super().allow_maximize
-        return self.can_maximize
 
 
 class Vertical(Widget):

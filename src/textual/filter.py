@@ -59,19 +59,7 @@ def monochrome_style(style: Style) -> Style:
     Returns:
         A new Rich style.
     """
-    style_color = style.color
-    style_background = style.bgcolor
-    color = (
-        None
-        if style_color is None
-        else Color.from_rich_color(style_color).monochrome.rich_color
-    )
-    background = (
-        None
-        if style_background is None
-        else Color.from_rich_color(style_background).monochrome.rich_color
-    )
-    return style + Style.from_color(color, background)
+    pass
 
 
 class Monochrome(LineFilter):
@@ -163,17 +151,7 @@ def dim_style(style: Style, background: Color, factor: float) -> Style:
     Returns:
         New dimmed style.
     """
-    return (
-        style
-        + Style.from_color(
-            dim_color(
-                (background.rich_color if style.bgcolor.is_default else style.bgcolor),
-                style.color,
-                factor,
-            ),
-            None,
-        )
-    ) + NO_DIM
+    pass
 
 
 # Can be used as a workaround for https://github.com/xtermjs/xterm.js/issues/4161

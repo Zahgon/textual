@@ -34,20 +34,7 @@ class DockArrangeResult:
     @property
     def spatial_map(self) -> SpatialMap[WidgetPlacement]:
         """A lazy-calculated spatial map."""
-        if self._spatial_map is None:
-            self._spatial_map = SpatialMap()
-            self._spatial_map.insert(
-                (
-                    placement.region.grow(placement.margin),
-                    placement.offset,
-                    placement.fixed,
-                    placement.overlay,
-                    placement,
-                )
-                for placement in self.placements
-            )
-
-        return self._spatial_map
+        pass
 
     @property
     def total_region(self) -> Region:
@@ -56,8 +43,7 @@ class DockArrangeResult:
         Returns:
             A Region.
         """
-        _top, right, bottom, _left = self.scroll_spacing
-        return self.spatial_map.total_region.grow((0, right, bottom, 0))
+        pass
 
     def get_visible_placements(self, region: Region) -> list[WidgetPlacement]:
         """Get the placements visible within the given region.
@@ -96,7 +82,7 @@ class WidgetPlacement(NamedTuple):
     @property
     def reset_origin(self) -> WidgetPlacement:
         """Reset the origin in the placement (moves it to (0, 0))."""
-        return self._replace(region=self.region.reset_offset)
+        pass
 
     @classmethod
     def translate(

@@ -72,28 +72,15 @@ class CollapsibleTitle(Static, can_focus=True):
 
     async def _on_click(self, event: events.Click) -> None:
         """Inform ancestor we want to toggle."""
-        event.stop()
-        self.post_message(self.Toggle())
+        pass
 
     def action_toggle_collapsible(self) -> None:
         """Toggle the state of the parent collapsible."""
-        self.post_message(self.Toggle())
+        pass
 
-    def validate_label(self, label: ContentText) -> Content:
-        return Content.from_text(label)
 
-    def _update_label(self) -> None:
-        assert isinstance(self.label, Content)
-        if self.collapsed:
-            self.update(Content.assemble(self.collapsed_symbol, " ", self.label))
-        else:
-            self.update(Content.assemble(self.expanded_symbol, " ", self.label))
 
-    def _watch_label(self) -> None:
-        self._update_label()
 
-    def _watch_collapsed(self, collapsed: bool) -> None:
-        self._update_label()
 
 
 class Collapsible(Widget):
@@ -146,7 +133,7 @@ class Collapsible(Widget):
         @property
         def control(self) -> Collapsible:
             """An alias for [Toggled.collapsible][textual.widgets.Collapsible.Toggled.collapsible]."""
-            return self.collapsible
+            pass
 
     class Expanded(Toggled):
         """Event sent when the `Collapsible` widget is expanded.
@@ -207,31 +194,18 @@ class Collapsible(Widget):
         self._contents_list: list[Widget] = list(children)
         self.collapsed = collapsed
 
-    def _on_collapsible_title_toggle(self, event: CollapsibleTitle.Toggle) -> None:
-        event.stop()
-        self.collapsed = not self.collapsed
 
     def _watch_collapsed(self, collapsed: bool) -> None:
         """Update collapsed state when reactive is changed."""
-        self._update_collapsed(collapsed)
-        if self.collapsed:
-            self.post_message(self.Collapsed(self))
-        else:
-            self.post_message(self.Expanded(self))
-        if self.is_mounted:
-            self.call_after_refresh(self.scroll_visible)
+        pass
 
     def _update_collapsed(self, collapsed: bool) -> None:
         """Update children to match collapsed state."""
-        try:
-            self._title.collapsed = collapsed
-            self.set_class(collapsed, "-collapsed")
-        except NoMatches:
-            pass
+        pass
 
     def _on_mount(self, event: events.Mount) -> None:
         """Initialise collapsed state."""
-        self._update_collapsed(self.collapsed)
+        pass
 
     def compose(self) -> ComposeResult:
         yield self._title
@@ -246,5 +220,3 @@ class Collapsible(Widget):
         """
         self._contents_list.append(widget)
 
-    def _watch_title(self, title: str) -> None:
-        self._title.label = title
